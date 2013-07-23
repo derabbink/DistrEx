@@ -3,16 +3,67 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistrEx.SampleApp", "DistrEx.SampleApp\DistrEx.SampleApp.csproj", "{C2053868-53A0-4DFA-BC87-3C248ED40D62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistrEx.Coordinator", "DistrEx.Coordinator\DistrEx.Coordinator.csproj", "{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistrEx.Coordinator.Test", "DistrEx.Coordinator.Test\DistrEx.Coordinator.Test.csproj", "{4247A0BD-E21E-460C-AE7E-12994AFF1B69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9A045DE-BA74-471F-BFFD-5125543CA401}"
+	ProjectSection(SolutionItems) = preProject
+		DistrEx.vsmdi = DistrEx.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{21B92DF7-E675-48F5-8D8F-31ACEA2074EA}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DistrEx.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Debug|x86.ActiveCfg = Debug|x86
 		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Debug|x86.Build.0 = Debug|x86
+		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Release|Any CPU.ActiveCfg = Release|x86
+		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Release|Mixed Platforms.Build.0 = Release|x86
 		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Release|x86.ActiveCfg = Release|x86
 		{C2053868-53A0-4DFA-BC87-3C248ED40D62}.Release|x86.Build.0 = Release|x86
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}.Release|x86.ActiveCfg = Release|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4247A0BD-E21E-460C-AE7E-12994AFF1B69}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
