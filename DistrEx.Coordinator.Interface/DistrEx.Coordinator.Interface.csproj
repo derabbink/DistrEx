@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{69CA1B44-655E-4A0D-9D39-F04120FA1D5D}</ProjectGuid>
+    <ProjectGuid>{4BFD50CB-CB92-4374-BFFA-105406C6B281}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DistrEx.Coordinator</RootNamespace>
-    <AssemblyName>DistrEx.Coordinator</AssemblyName>
+    <RootNamespace>DistrEx.Coordinator.Interface</RootNamespace>
+    <AssemblyName>DistrEx.Coordinator.Interface</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -42,12 +42,6 @@
   <ItemGroup>
     <Compile Include="Coordinator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DistrEx.Coordinator.Interface\DistrEx.Coordinator.Interface.csproj">
-      <Project>{4BFD50CB-CB92-4374-BFFA-105406C6B281}</Project>
-      <Name>DistrEx.Coordinator.Interface</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
