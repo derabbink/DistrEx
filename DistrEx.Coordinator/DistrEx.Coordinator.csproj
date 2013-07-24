@@ -56,6 +56,8 @@
   <ItemGroup>
     <Compile Include="InstructionSpecs\DelegateInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\NonTransferrableDelegateInstructionSpec.cs" />
+    <Compile Include="InstructionSpecs\StaticMethodInstructionSpec.cs" />
+    <Compile Include="InstructionSpecs\TransferrableDelegateInstructionSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TargetSpecs\OnCoordinator.cs" />
   </ItemGroup>

@@ -17,7 +17,6 @@ namespace DistrEx.Coordinator.InstructionSpecs
 
         public static DelegateInstructionSpec<TArgument, TResult> Create(Instruction<TArgument, TResult> instruction)
         {
-            //TODO throw exception if instruction contains closure
             return new NonTransferrableDelegateInstructionSpec<TArgument, TResult>(instruction);
         }
 
