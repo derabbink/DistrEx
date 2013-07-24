@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using DistrEx.Common;
 using DistrEx.Coordinator.InstructionSpecs;
 using DistrEx.Coordinator.TargetSpecs;

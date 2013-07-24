@@ -34,10 +34,16 @@ namespace DistrEx.Coordinator.TargetSpecs
             ISubject<ProgressingResult<TResult>> progressObs = new Subject<ProgressingResult<TResult>>();
             Action reportProgress = () => progressObs.OnNext(Progress<TResult>.Default);
 
-            IObservable<Result<TResult>> resultObs = Observable.Return(new Result<TResult>(instr(cancellationToken, reportProgress, argument)));
+            IObservable<IObservable<Result<TResult>>> resultMetaObs = Observable.Create((IObserver<IObservable<Result<TResult>>> obs) =>
+                {
+                    var result = new Result<TResult>(instr(cancellationToken, reportProgress, argument));
+                    obs.OnNext(Observable.Return(result));
+                    obs.OnCompleted();
+                    return Disposable.Empty;
+                });
 
-            IObservable<IObservable<ProgressingResult<TResult>>> obsObs = Observable.Return(progressObs);
-            IObservable<ProgressingResult<TResult>> futureObs = obsObs.Concat(Observable.Return(resultObs)).Switch();
+            IObservable<IObservable<ProgressingResult<TResult>>> metaObs = Observable.Return(progressObs);
+            IObservable<ProgressingResult<TResult>> futureObs = metaObs.Concat(resultMetaObs).Switch();
             return new Future<TResult>(futureObs);
         }
     }
