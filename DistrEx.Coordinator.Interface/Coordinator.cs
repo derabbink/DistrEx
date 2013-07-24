@@ -9,9 +9,10 @@ namespace DistrEx.Coordinator.Interface
 {
     public class Coordinator
     {
-        public static TResult Do<TArgument, TResult>(TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)
+        public static CompletedStep<TResult> Do<TArgument, TResult>(TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)
         {
-            return targetedInstruction.Invoke(argument).GetResult();
+            var result = targetedInstruction.Invoke(argument).GetResult();
+            return new CompletedStep<TResult>(result);
         }
     }
 }
