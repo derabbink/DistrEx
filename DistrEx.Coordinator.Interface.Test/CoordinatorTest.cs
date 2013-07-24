@@ -1,7 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
+using System.Threading;
+using DistrEx.Common;
+using DistrEx.Coordinator.InstructionSpecs;
+using DistrEx.Coordinator.TargetSpecs;
 using NUnit.Framework;
 
 namespace DistrEx.Coordinator.Interface.Test
@@ -17,8 +26,8 @@ namespace DistrEx.Coordinator.Interface.Test
         [SetUp]
         public void Setup()
         {
-//            _identity = InstructionSpec<object, object>.StaticMethod();
-//            _local = TargetSpec.
+            _identity = NonTransferrableDelegateInstructionSpec<object, object>.Create(Wrapper.Wrap((object a)=>a));
+            _local = OnCoordinator.Default;
         }
 
         #endregion

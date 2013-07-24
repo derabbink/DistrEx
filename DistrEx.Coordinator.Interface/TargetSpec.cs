@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface
 {
@@ -14,7 +16,14 @@ namespace DistrEx.Coordinator.Interface
             return TargetedInstruction<TArgument, TResult>.Create(this, instruction);
         }
 
-        public abstract TResult Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,
-                                                           TArgument argument);
+        public Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,
+                                                                   TArgument argument)
+        {
+            return Invoke(instruction, CancellationToken.None, argument);
+        }
+
+        public abstract Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,
+                                                                   CancellationToken cancellationToken,
+                                                                   TArgument argument);
     }
 }

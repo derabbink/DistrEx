@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DistrEx.Common;
@@ -10,7 +11,7 @@ namespace DistrEx.Coordinator.Interface
     {
         public static TResult Do<TArgument, TResult>(TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)
         {
-            return targetedInstruction.Invoke(argument);
+            return targetedInstruction.Invoke(argument).GetResult();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface
 {
@@ -22,7 +23,7 @@ namespace DistrEx.Coordinator.Interface
 
         protected InstructionSpec<TArgument, TResult> Instruction { get; private set; }
 
-        public TResult Invoke(TArgument argument)
+        public Future<TResult> Invoke(TArgument argument)
         {
             return Target.Invoke(Instruction, argument);
         }
