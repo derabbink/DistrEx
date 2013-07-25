@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appSettings>
+    <!-- path to store incoming assemblies in, before loading (relative to ApplicationBasePath) -->
+    <add key="DistrEx.Plugin.assembly-storage-dir" value="transferred" />
+    <!-- path to shadow-copy assemblies into, before loading (relative to ApplicationBasePath) -->
+    <add key="DistrEx.Plugin.assembly-cache-dir" value="cached" />
+  </appSettings>
+</configuration>
