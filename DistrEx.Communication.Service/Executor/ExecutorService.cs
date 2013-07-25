@@ -27,8 +27,8 @@ namespace DistrEx.Communication.Service.Executor
             Action reportProgress = () => Callback.Progress(progressMsg);
             try
             {
-                var result = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.ActionName);
-                Callback.Complete(new Result() {OperationId = operationId, Value = result});
+                //var result = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.ActionName);
+                //Callback.Complete(new Result() {OperationId = operationId, Value = result});
             }
             catch (Exception e)
             {

@@ -23,14 +23,14 @@ namespace DistrEx.Plugin
         {
             _storageDir = ConfigurationManager.AppSettings.Get("DistrEx.Plugin.assembly-storage-dir");
             _cacheDir = ConfigurationManager.AppSettings.Get("DistrEx.Plugin.assembly-cache-dir");
-            CreateAppDomainAndExecutor();
+            CreateAppDomain();
         }
 
-        private void CreateAppDomainAndExecutor()
+        private void CreateAppDomain()
         {
             PrepareAppDomainAppBasePath();
             PrepareAppDomainCachePath();
-            string name = getNewAppDomainName();
+            string name = GetNewAppDomainName();
             //need to reuse config, in order to get access to THIS assembly and dependencies
             //before others can be loaded into reflection context
             Evidence evidence = AppDomain.CurrentDomain.Evidence;
@@ -44,7 +44,7 @@ namespace DistrEx.Plugin
 
         }
 
-        private string getNewAppDomainName()
+        private string GetNewAppDomainName()
         {
             Guid guid = Guid.NewGuid();
             return string.Format("PluginManager.{0}", guid);
@@ -67,7 +67,7 @@ namespace DistrEx.Plugin
                     catch (IOException ex)
                     {
                         //skip over locked files. this means they are already loaded
-                        if (!isFileLocked(ex))
+                        if (!IsFileLocked(ex))
                             throw;
                     }
                 });
@@ -95,7 +95,7 @@ namespace DistrEx.Plugin
             catch (IOException ex)
             {
                 //skip over locked files. this means they are already loaded
-                if (!isFileLocked(ex))
+                if (!IsFileLocked(ex))
                     throw;
             }
             //no explicit load required
@@ -123,7 +123,7 @@ namespace DistrEx.Plugin
         /// </summary>
         /// <param name="exception"></param>
         /// <returns></returns>
-        private bool isFileLocked(IOException exception)
+        private bool IsFileLocked(IOException exception)
         {
             int errorCode = Marshal.GetHRForException(exception) & ((1 << 16) - 1);
             return errorCode == 32 || errorCode == 33;
@@ -132,14 +132,13 @@ namespace DistrEx.Plugin
         public void Reset()
         {
             UnloadAppDomain();
-            CreateAppDomainAndExecutor();
+            CreateAppDomain();
         }
 
-        public object Execute(string assemblyQualifiedName, string actionName)
+        public object Execute(string assemblyQualifiedName, string methodName, object argument)
         {
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
-            object result = executor.Execute(assemblyQualifiedName, actionName);
-            Console.WriteLine();
+            object result = executor.Execute(assemblyQualifiedName, methodName, argument);
             executor = null;
             return result;
         }

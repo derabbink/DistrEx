@@ -20,12 +20,20 @@ namespace DistrEx.Plugin
             return domain.CreateInstanceAndUnwrap(ownAssyName.FullName, typename) as Executor;
         }
 
-        internal object Execute(string assemblyQualifiedName, string actionName)
+        internal object Execute(string assemblyQualifiedName, string methodName, object argument)
         {
             Type t = Type.GetType(assemblyQualifiedName, true);
-            object instance = Activator.CreateInstance(t);
-            MethodInfo action = t.GetMethod(actionName);
-            return action.Invoke(instance, new object[] { });
+            MethodInfo action = t.GetMethod(methodName, BindingFlags.NonPublic
+                                                        | BindingFlags.Public
+                                                        | BindingFlags.Static);
+            try
+            {
+                return action.Invoke(null, new object[] {argument});
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
         }
     }
 }
