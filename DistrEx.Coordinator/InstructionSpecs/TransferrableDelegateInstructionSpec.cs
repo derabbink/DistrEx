@@ -32,5 +32,10 @@ namespace DistrEx.Coordinator.InstructionSpecs
         {
             return _staticMethodSpec.GetDelegate();
         }
+
+        public override Assembly GetAssembly()
+        {
+            return _staticMethodSpec.GetAssembly();
+        }
     }
 }

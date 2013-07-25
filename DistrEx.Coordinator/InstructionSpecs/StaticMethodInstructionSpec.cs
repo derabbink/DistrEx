@@ -67,5 +67,10 @@ namespace DistrEx.Coordinator.InstructionSpecs
                     return castRes;
                 };
         }
+
+        public override Assembly GetAssembly()
+        {
+            return Type.GetType(AssemblyQualifiedName).Assembly;
+        }
     }
 }

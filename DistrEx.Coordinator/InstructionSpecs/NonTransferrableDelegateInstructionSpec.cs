@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using DistrEx.Common;
 
@@ -23,6 +24,11 @@ namespace DistrEx.Coordinator.InstructionSpecs
         public override Instruction<TArgument, TResult> GetDelegate()
         {
             return _instruction;
+        }
+
+        public override Assembly GetAssembly()
+        {
+            return _instruction.Method.ReflectedType.Assembly;
         }
     }
 }
