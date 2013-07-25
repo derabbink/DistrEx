@@ -135,10 +135,10 @@ namespace DistrEx.Plugin
             CreateAppDomainAndExecutor();
         }
 
-        public object Execute(string assemblyName, string typeName, string actionName)
+        public object Execute(string assemblyQualifiedName, string actionName)
         {
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
-            object result = executor.Execute(assemblyName, typeName, actionName);
+            object result = executor.Execute(assemblyQualifiedName, actionName);
             Console.WriteLine();
             executor = null;
             return result;

@@ -7,7 +7,7 @@ using DistrEx.Communication.Contracts.Message;
 
 namespace DistrEx.Communication.Contracts.Service
 {
-    [ServiceContract(Name = "AssemblyManager", Namespace = "http://fugro.schemas/distrex/service/assemblymanager")]
+    [ServiceContract(Name = "AssemblyManager", Namespace = "http://schemas.fugro/distrex/service/assemblymanager")]
     public interface IAssemblyManager
     {
         [OperationContract]

@@ -42,7 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Cancellation.cs" />
+    <Compile Include="Data\Error.cs" />
     <Compile Include="Data\Instruction.cs" />
+    <Compile Include="Data\Progress.cs" />
+    <Compile Include="Data\Result.cs" />
     <Compile Include="Message\Assembly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\IAssemblyManager.cs" />

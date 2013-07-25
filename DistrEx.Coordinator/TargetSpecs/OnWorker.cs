@@ -32,7 +32,6 @@ namespace DistrEx.Coordinator.TargetSpecs
             Resolver.GetAllDependencies(assy.GetName())
                     .Where(aName => !_transportedAssemblies.Contains(aName))
                     .Do(TransportAssembly);
-            throw new NotImplementedException();
         }
 
         private void TransportAssembly(AssemblyName assemblyName)

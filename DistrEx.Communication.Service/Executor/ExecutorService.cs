@@ -12,16 +12,42 @@ namespace DistrEx.Communication.Service.Executor
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class ExecutorService : IExecutor
     {
-        private PluginManager _pluginManager;
+        private readonly PluginManager _pluginManager;
 
         public ExecutorService(PluginManager pluginManager)
         {
             _pluginManager = pluginManager;
         }
 
-        public object Execute(Instruction instruction)
+        public void Execute(Instruction instruction)
         {
-            return _pluginManager.Execute(instruction.AssemblyName, instruction.FqTypeName, instruction.ActionName);
+            //TODO
+            var operationId = instruction.OperationId;
+            Progress progressMsg = new Progress() {OperationId = operationId};
+            Action reportProgress = () => Callback.Progress(progressMsg);
+            try
+            {
+                var result = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.ActionName);
+                Callback.Complete(new Result() {OperationId = operationId, Value = result});
+            }
+            catch (Exception e)
+            {
+                Callback.Error(new Error() {OperationId = operationId, Exception = e});
+            }
+        }
+
+        public void Cancel(Cancellation cancellation)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        IExecutorCallback Callback
+        {
+            get
+            {
+                return OperationContext.Current.GetCallbackChannel<IExecutorCallback>();
+            }
         }
     }
 }
