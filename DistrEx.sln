@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistrEx.Communication.Contr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistrEx.Communication.Service", "DistrEx.Communication.Service\DistrEx.Communication.Service.csproj", "{27D24BB7-BE46-4654-A51F-204B5F289113}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistrEx.Communication.Proxy", "DistrEx.Communication.Proxy\DistrEx.Communication.Proxy.csproj", "{4731676A-F515-4F92-9AA1-1D295B48EDCC}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = DistrEx.vsmdi
@@ -146,6 +148,16 @@ Global
 		{27D24BB7-BE46-4654-A51F-204B5F289113}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{27D24BB7-BE46-4654-A51F-204B5F289113}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{27D24BB7-BE46-4654-A51F-204B5F289113}.Release|x86.ActiveCfg = Release|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4731676A-F515-4F92-9AA1-1D295B48EDCC}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
