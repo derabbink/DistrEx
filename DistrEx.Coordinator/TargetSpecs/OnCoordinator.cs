@@ -27,6 +27,11 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         private OnCoordinator() { }
 
+        public override void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction)
+        {
+            //no need to do anything
+        }
+
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, CancellationToken cancellationToken, TArgument argument)
         {
             Instruction<TArgument, TResult> instr = instruction.GetDelegate();

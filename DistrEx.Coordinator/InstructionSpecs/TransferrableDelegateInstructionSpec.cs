@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,7 +10,7 @@ namespace DistrEx.Coordinator.InstructionSpecs
 {
     public class TransferrableDelegateInstructionSpec<TArgument, TResult> : DelegateInstructionSpec<TArgument, TResult>
     {
-        private StaticMethodInstructionSpec<TArgument, TResult> _staticMethodSpec;
+        private readonly StaticMethodInstructionSpec<TArgument, TResult> _staticMethodSpec;
 
         private TransferrableDelegateInstructionSpec(StaticMethodInstructionSpec<TArgument, TResult> staticMethodSpec)
         {
@@ -18,15 +19,12 @@ namespace DistrEx.Coordinator.InstructionSpecs
 
         public static DelegateInstructionSpec<TArgument, TResult> Create(Instruction<TArgument, TResult> instruction)
         {
-            //TODO throw exception if instruction contains closure
-            
+            Contract.Requires(instruction.Method.IsStatic);
             MethodInfo methodInfo = instruction.Method;
             string methodName = methodInfo.Name;
-            Type type = methodInfo.ReflectedType;
-            string fqTypeName = type.FullName;
-            string assemblyName = type.Assembly.FullName;
-            
-            var staticMethodSpec = StaticMethodInstructionSpec<TArgument, TResult>.Create(assemblyName, fqTypeName, methodName);
+            string assemblyQualifiedName = methodInfo.ReflectedType.AssemblyQualifiedName;
+
+            var staticMethodSpec = StaticMethodInstructionSpec<TArgument, TResult>.Create(assemblyQualifiedName, methodName);
             return new TransferrableDelegateInstructionSpec<TArgument, TResult>(staticMethodSpec);
         }
 

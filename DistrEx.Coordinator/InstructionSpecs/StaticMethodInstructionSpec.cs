@@ -10,36 +10,33 @@ namespace DistrEx.Coordinator.InstructionSpecs
 {
     internal class StaticMethodInstructionSpec<TArgument, TResult> : InstructionSpec<TArgument, TResult>
     {
-        private StaticMethodInstructionSpec(string assemblyName, string fqTypeName, string methodName)
+        private StaticMethodInstructionSpec(string assemblyQualifiedName, string methodName)
         {
-            AssemblyName = assemblyName;
-            FqTypeName = fqTypeName;
+            AssemblyQualifiedName = assemblyQualifiedName;
             MethodName = methodName;
         }
 
-        internal static StaticMethodInstructionSpec<TArgument, TResult> Create(string assemblyName, string fqTypeName,
-                                                                      string methodName)
+        internal static StaticMethodInstructionSpec<TArgument, TResult> Create(string assemblyQualifiedName,
+                                                                               string methodName)
         {
-            return new StaticMethodInstructionSpec<TArgument, TResult>(assemblyName, fqTypeName, methodName);
+            return new StaticMethodInstructionSpec<TArgument, TResult>(assemblyQualifiedName, methodName);
         }
 
-        protected string AssemblyName { get; private set; }
-
-        protected string FqTypeName { get; private set; }
+        protected string AssemblyQualifiedName { get; private set; }
 
         protected string MethodName { get; private set; }
 
         public override Instruction<TArgument, TResult> GetDelegate()
         {
-            Type type = Type.GetType(String.Format("{0}, {1}", FqTypeName, AssemblyName));
+            Type type = Type.GetType(AssemblyQualifiedName);
             if (type == null)
-                throw new NullReferenceException(String.Format("Could not find type {0} in assembly {1}", FqTypeName, AssemblyName));
+                throw new NullReferenceException(String.Format("Could not find type {0}", AssemblyQualifiedName));
 
             MethodInfo methodInfo = type.GetMethod(MethodName, BindingFlags.NonPublic
                                                                | BindingFlags.Public
                                                                | BindingFlags.Static);
             if (methodInfo == null)
-                throw new NullReferenceException(String.Format("Could not find method {0} in class {1} in assembly {2}", MethodName, FqTypeName, AssemblyName));
+                throw new NullReferenceException(String.Format("Could not find method {0} in type {1}", MethodName, AssemblyQualifiedName));
 
             return (ct, p, arg) =>
                 {
@@ -51,8 +48,8 @@ namespace DistrEx.Coordinator.InstructionSpecs
                     catch (Exception e)
                     {
                         throw new Exception(
-                            String.Format("Invoking method {0}.{1} in assembly {2} with argument of type {3}",
-                                          FqTypeName, methodInfo, AssemblyName, arg.GetType().FullName), e);
+                            String.Format("Invoking method {0} in type {1} with argument of type {2}",
+                                          MethodName, AssemblyQualifiedName, arg.GetType().FullName), e);
                     }
                     TResult castRes;
                     try
@@ -63,8 +60,8 @@ namespace DistrEx.Coordinator.InstructionSpecs
                     {
                         throw new Exception(
                             String.Format(
-                                "Casting result (of type {0}) from method {1}.{2} in assembly {3} to type {4} failed.",
-                                res.GetType().FullName, FqTypeName, MethodName, AssemblyName, typeof (TResult).FullName),
+                                "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
+                                res.GetType().FullName, MethodName, AssemblyQualifiedName, typeof (TResult).FullName),
                             e);
                     }
                     return castRes;
