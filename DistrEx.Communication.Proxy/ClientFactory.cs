@@ -11,7 +11,6 @@ namespace DistrEx.Communication.Proxy
     /// </summary>
     /// <typeparam name="TService">service contract</typeparam>
     public class ClientFactory<TService>
-        where TService : ICommunicationObject
     {
         //creating this object is expensive
         private readonly ChannelFactory<TService> _channelFactory;

@@ -30,5 +30,15 @@ namespace DistrEx.Coordinator.InstructionSpecs
         {
             return _instruction.Method.ReflectedType.Assembly;
         }
+
+        public override string GetAssemblyQualifiedName()
+        {
+            return _instruction.Method.ReflectedType.AssemblyQualifiedName;
+        }
+
+        public override string GetMethodName()
+        {
+            return _instruction.Method.Name;
+        }
     }
 }

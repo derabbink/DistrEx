@@ -16,7 +16,7 @@ namespace DistrEx.Communication.Contracts.Data
         public string AssemblyQualifiedName { get; set; }
 
         [DataMember]
-        public string ActionName { get; set; }
+        public string MethodName { get; set; }
 
         [DataMember]
         public object Argument { get; set; }

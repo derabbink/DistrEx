@@ -50,6 +50,7 @@
     <Reference Include="System.Reactive.PlatformServices">
       <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\Net40\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -70,12 +71,21 @@
       <Project>{468DF1BE-F561-49E6-BA73-F74E8B468BCF}</Project>
       <Name>DistrEx.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Communication.Contracts\DistrEx.Communication.Contracts.csproj">
+      <Project>{AE874CE2-BED7-442E-AC72-F58447CC5B8F}</Project>
+      <Name>DistrEx.Communication.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Communication.Proxy\DistrEx.Communication.Proxy.csproj">
+      <Project>{4731676A-F515-4F92-9AA1-1D295B48EDCC}</Project>
+      <Name>DistrEx.Communication.Proxy</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DistrEx.Coordinator.Interface\DistrEx.Coordinator.Interface.csproj">
       <Project>{4BFD50CB-CB92-4374-BFFA-105406C6B281}</Project>
       <Name>DistrEx.Coordinator.Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config.sample" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

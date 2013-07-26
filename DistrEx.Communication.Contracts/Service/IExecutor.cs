@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using DistrEx.Communication.Contracts.Data;
+using DistrEx.Communication.Contracts.Events;
 
 namespace DistrEx.Communication.Contracts.Service
 {
@@ -44,5 +45,14 @@ namespace DistrEx.Communication.Contracts.Service
         /// <param name="error"></param>
         [OperationContract(IsOneWay = true)]
         void Error(Error error);
+
+        void SubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler);
+        void UnsubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler);
+
+        void SubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler);
+        void UnsubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler);
+
+        void SubscribeError(EventHandler<ErrorCallbackEventArgs> handler);
+        void UnsubscribeError(EventHandler<ErrorCallbackEventArgs> handler);
     }
 }

@@ -32,6 +32,11 @@ namespace DistrEx.Coordinator.TargetSpecs
             //no need to do anything
         }
 
+        public override void ClearAssemblies()
+        {
+            //no need to do anything
+        }
+
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, CancellationToken cancellationToken, TArgument argument)
         {
             Instruction<TArgument, TResult> instr = instruction.GetDelegate();

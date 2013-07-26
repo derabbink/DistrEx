@@ -11,7 +11,6 @@ namespace DistrEx.Communication.Proxy
     /// </summary>
     /// <typeparam name="TService">service contract</typeparam>
     public class DuplexClient<TService> : IDisposable
-        where TService : ICommunicationObject
     {
         public TService Channel { get; private set; }
 
@@ -23,17 +22,18 @@ namespace DistrEx.Communication.Proxy
         public void Dispose()
         {
             //Dispose() on ICommunicationObject can throw
+            var channel = Channel as ICommunicationObject;
             try
             {
-                Channel.Close();
+                channel.Close();
             }
             catch (CommunicationException)
             {
-                Channel.Abort();
+                channel.Abort();
             }
             catch (TimeoutException)
             {
-                Channel.Abort();
+                channel.Abort();
             }
         }
     }

@@ -16,7 +16,7 @@ namespace DistrEx.Communication.Service.Executor
     {
         private readonly PluginManager _pluginManager;
         //TODO make the key a Tuple<Guid, session-id>
-        private IDictionary<Guid, CancellationTokenSource> _cancellationTokenSources;
+        private readonly IDictionary<Guid, CancellationTokenSource> _cancellationTokenSources;
 
         public ExecutorService(PluginManager pluginManager)
         {
@@ -33,7 +33,7 @@ namespace DistrEx.Communication.Service.Executor
             Action reportProgress = () => Callback.Progress(progressMsg);
             try
             {
-                var result = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.ActionName, cts.Token,
+                var result = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
                                                     reportProgress, instruction.Argument);
                 Callback.Complete(new Result() {OperationId = operationId, Value = result});
             }

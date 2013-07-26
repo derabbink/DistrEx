@@ -16,5 +16,9 @@ namespace DistrEx.Coordinator.Interface
         public abstract Instruction<TArgument, TResult> GetDelegate();
 
         public abstract Assembly GetAssembly();
+
+        public abstract string GetAssemblyQualifiedName();
+
+        public abstract string GetMethodName();
     }
 }

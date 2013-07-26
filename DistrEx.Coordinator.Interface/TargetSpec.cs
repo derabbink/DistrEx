@@ -22,6 +22,8 @@ namespace DistrEx.Coordinator.Interface
 
         public abstract void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction);
 
+        public abstract void ClearAssemblies();
+
         public abstract Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,
                                                                    CancellationToken cancellationToken,
                                                                    TArgument argument);

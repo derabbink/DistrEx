@@ -12,7 +12,6 @@ namespace DistrEx.Communication.Proxy
     /// <typeparam name="TService">service contract</typeparam>
     /// <typeparam name="TCallbackService">callback service contract</typeparam>
     public class DuplexClientFactory<TService, TCallbackService>
-        where TService : ICommunicationObject
     {
         //creating this object is expensive
         private readonly DuplexChannelFactory<TService> _channelFactory;

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <system.serviceModel>
+    <client>
+      <!-- example endpoints -->
+      <endpoint name="Executor" address="http://localhost:8000/executor" binding="wsHttpBinding" contract="DistrEx.Communication.Contracts.Service.IExecutor">
+      </endpoint>
+      <endpoint name="AssemblyManager" address="http://localhost:8000/assemblymanager" binding="basicHttpBinding" contract="DistrEx.Communication.Contracts.Service.IAssemblyManager">
+      </endpoint>
+    </client>
+  </system.serviceModel>
+  
+  <appSettings>
+    <!-- DependencyResolver.assembly-path won't be needed; all assemblies are already in the BasePath -->
+    <!--<add key="DependencyResolver.assembly-path" value=""/>-->
+  </appSettings>
+</configuration>
