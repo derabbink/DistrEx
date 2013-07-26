@@ -12,9 +12,9 @@ namespace DistrEx.Coordinator.Interface.Test
     [TestFixture]
     public class CompletedStepTest
     {
-        private InstructionSpec<object, object> _identity;
-        private InstructionSpec<Exception, Exception> _identityEx;
-        private InstructionSpec<Exception, Exception> _throw;
+        private Instruction<object, object> _identity;
+        private Instruction<Exception, Exception> _identityEx;
+        private Instruction<Exception, Exception> _throw;
         private TargetSpec _local;
 
         #region setup
@@ -22,9 +22,9 @@ namespace DistrEx.Coordinator.Interface.Test
         [SetUp]
         public void Setup()
         {
-            _identity = NonTransferrableDelegateInstructionSpec<object, object>.Create(Wrapper.Wrap((object a) => a));
-            _identityEx = NonTransferrableDelegateInstructionSpec<Exception, Exception>.Create(Wrapper.Wrap((Exception e) => e));
-            _throw = NonTransferrableDelegateInstructionSpec<Exception, Exception>.Create(Wrapper.Wrap<Exception, Exception>(e => { throw e; }));
+            _identity = Wrapper.Wrap((object a) => a);
+            _identityEx = Wrapper.Wrap((Exception e) => e);
+            _throw = Wrapper.Wrap<Exception, Exception>(e => { throw e; });
             _local = OnCoordinator.Default;
         }
 

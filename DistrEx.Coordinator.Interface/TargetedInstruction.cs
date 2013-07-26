@@ -19,12 +19,13 @@ namespace DistrEx.Coordinator.Interface
             return new TargetedInstruction<TArgument, TResult>(target, instruction);
         }
 
-        protected TargetSpec Target { get; private set; }
+        protected internal TargetSpec Target { get; private set; }
 
         protected InstructionSpec<TArgument, TResult> Instruction { get; private set; }
 
         public Future<TResult> Invoke(TArgument argument)
         {
+            Target.TransportAssemblies(Instruction);
             return Target.Invoke(Instruction, argument);
         }
     }

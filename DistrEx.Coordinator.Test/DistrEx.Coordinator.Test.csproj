@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DelegateTest.cs" />
+    <Compile Include="ObservableErrorTest.cs" />
     <Compile Include="ObservableSwitchTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

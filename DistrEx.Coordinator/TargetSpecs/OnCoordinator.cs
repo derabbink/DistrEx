@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
+using DistrEx.Coordinator.InstructionSpecs;
 using DistrEx.Coordinator.Interface;
 
 namespace DistrEx.Coordinator.TargetSpecs
@@ -35,6 +36,11 @@ namespace DistrEx.Coordinator.TargetSpecs
         public override void ClearAssemblies()
         {
             //no need to do anything
+        }
+
+        protected override InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction)
+        {
+            return NonTransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, CancellationToken cancellationToken, TArgument argument)

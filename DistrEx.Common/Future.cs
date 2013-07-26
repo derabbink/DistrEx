@@ -27,8 +27,13 @@ namespace DistrEx.Common
             return _observable.Subscribe(observer);
         }
 
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception">If there was an error in the operation</exception>
         public TResult GetResult()
         {
+            //Last() will throw if there was an error
             var result = _replayResult.Last();
             return result.ResultValue;
         }

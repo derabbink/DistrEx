@@ -14,6 +14,7 @@ using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Communication.Proxy;
+using DistrEx.Coordinator.InstructionSpecs;
 using DistrEx.Coordinator.Interface;
 using DependencyResolver;
 
@@ -81,6 +82,11 @@ namespace DistrEx.Coordinator.TargetSpecs
         public override void ClearAssemblies()
         {
             AssemblyManager.Clear();
+        }
+
+        protected override InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction)
+        {
+            return TransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, CancellationToken cancellationToken, TArgument argument)
