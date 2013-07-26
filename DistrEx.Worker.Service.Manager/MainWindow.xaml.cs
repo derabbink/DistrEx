@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using System.ServiceProcess;
 using System.Windows;
 
@@ -10,9 +9,23 @@ namespace DistrEx.Worker.Service.Manager
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string ServiceName = "Worker";
+        private readonly ServiceController service; 
+
         public MainWindow()
         {
             InitializeComponent();
+
+            ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(i => i.ServiceName.Equals(ServiceName));
+
+            if (serviceController == null)
+            {
+                ServiceStatus.Content = "Service is not installed.";
+            }
+            else
+            {
+                service = serviceController;
+            }
         }
 
         private void InstallButtonClick(object sender, RoutedEventArgs e)
@@ -31,12 +44,15 @@ namespace DistrEx.Worker.Service.Manager
 
         private void StartServiceButtonClick(object sender, RoutedEventArgs e)
         {
-            ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(i => i.ServiceName.Equals("Worker"));
-
-            if (serviceController != null && (serviceController.Status == ServiceControllerStatus.Stopped || serviceController.Status == ServiceControllerStatus.Paused))
+            if (service != null)
             {
-                serviceController.Start();
-                serviceController.WaitForStatus(ServiceControllerStatus.Running);
+                UpdateStatus("Service is not installed.");
+            }
+
+            if (service.Status == ServiceControllerStatus.Stopped || service.Status == ServiceControllerStatus.Paused)
+            {
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running);
             }
             UpdateStatus(ServiceControllerStatus.Running.ToString());
 
@@ -44,9 +60,12 @@ namespace DistrEx.Worker.Service.Manager
 
         private void StopServiceButtonClick(object sender, RoutedEventArgs e)
         {
-            ServiceController service = ServiceController.GetServices().FirstOrDefault(i => i.ServiceName.Contains("Worker"));
+            if (service != null)
+            {
+                UpdateStatus("Service is not installed.");
+            }
 
-            if (service != null && service.Status == ServiceControllerStatus.Running)
+            if (service.Status == ServiceControllerStatus.Running)
             {
                 service.Stop();
                 service.WaitForStatus(ServiceControllerStatus.Stopped);
@@ -57,6 +76,28 @@ namespace DistrEx.Worker.Service.Manager
         private void UpdateStatus(string status)
         {
             StatusLable.Content = status; 
+        }
+        
+        private void RefreshClick(object sender, RoutedEventArgs e)
+        {
+            if (service != null)
+            {
+                UpdateStatus(service.Status.ToString());
+            }
+            else
+            {
+                UpdateStatus("Service is not installed.");
+            }
+        }
+        
+        private void WindowsServicesClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void AutomaticServiceChecked(object sender, RoutedEventArgs e)
+        {
+            //Set service to automatic
         }
     }
 }
