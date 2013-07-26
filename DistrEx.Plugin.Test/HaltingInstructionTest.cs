@@ -18,7 +18,8 @@ namespace DistrEx.Plugin.Test
         [SetUp]
         public void Setup()
         {
-            _haltingIdentity = (ct, p, i) =>
+            //need explicit types: http://stackoverflow.com/questions/4466859
+            _haltingIdentity = (CancellationToken ct, Action p, int i) =>
                 {
                     p();
                     ManualResetEventSlim block = new ManualResetEventSlim(false);

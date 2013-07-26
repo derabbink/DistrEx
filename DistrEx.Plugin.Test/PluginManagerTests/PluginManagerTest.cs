@@ -11,7 +11,7 @@ using DistrEx.Common;
 using NUnit.Framework;
 using DependencyResolver;
 
-namespace DistrEx.Plugin.Test
+namespace DistrEx.Plugin.Test.PluginManagerTests
 {
     [TestFixture]
     public class PluginManagerTest
@@ -42,7 +42,6 @@ namespace DistrEx.Plugin.Test
         public void Setup()
         {
             _pluginManager = new PluginManager();
-            TransportThisAssembly();
             _identityArgument = 1;
             _throwArgument = new Exception("Expected");
             _identity = (ct, p, i) => i;
@@ -149,16 +148,6 @@ namespace DistrEx.Plugin.Test
                 Assert.That(e.InnerException, Is.TypeOf<OperationCanceledException>());
             }
             Assert.That(progressBlock.IsSet, Is.False);
-        }
-
-        #endregion
-
-        #region teardown
-        
-        [TearDown]
-        public void Teardown()
-        {
-            _pluginManager.Reset();
         }
 
         #endregion

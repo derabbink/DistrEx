@@ -67,7 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HaltingInstructionTest.cs" />
-    <Compile Include="PluginManagerTest.cs" />
+    <Compile Include="PluginManagerTests\PluginManagerTest.cs" />
+    <Compile Include="PluginManagerTests\PluginManagerTestsSetupTeardown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
