@@ -1,0 +1,6 @@
+﻿How to install the service 
+	installutil DistrEx.Worker.Service
+
+How to uninstall the service 
+	installutil /u DistrEx.Worker.Service
+
