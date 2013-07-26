@@ -17,5 +17,8 @@ namespace DistrEx.Communication.Contracts.Data
 
         [DataMember]
         public string ActionName { get; set; }
+
+        [DataMember]
+        public object Argument { get; set; }
     }
 }
