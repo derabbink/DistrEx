@@ -66,6 +66,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HaltingInstructionTest.cs" />
     <Compile Include="PluginManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -74,6 +75,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DistrEx.Common\DistrEx.Common.csproj">
+      <Project>{468DF1BE-F561-49E6-BA73-F74E8B468BCF}</Project>
+      <Name>DistrEx.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DistrEx.Plugin\DistrEx.Plugin.csproj">
       <Project>{9D469A38-B8E6-436E-A54D-2265438C99CE}</Project>
       <Name>DistrEx.Plugin</Name>

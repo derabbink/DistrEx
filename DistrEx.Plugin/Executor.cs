@@ -3,14 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace DistrEx.Plugin
 {
+    /// <summary>
+    /// Helper to execute code in other appdomain
+    /// Usable for ONE instruction only. Create a new instance for each instruction
+    /// </summary>
     internal class Executor : MarshalByRefObject
     {
+        private readonly CancellationTokenSource _cancellationTokenSource;
+
         //constructur is public for reflection
         public Executor()
         {
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         internal static Executor CreateInstanceInAppDomain(AppDomain domain)
@@ -20,7 +28,7 @@ namespace DistrEx.Plugin
             return domain.CreateInstanceAndUnwrap(ownAssyName.FullName, typename) as Executor;
         }
 
-        internal object Execute(string assemblyQualifiedName, string methodName, object argument)
+        internal object Execute(ExecutorCallback callback, string assemblyQualifiedName, string methodName, object argument)
         {
             Type t = Type.GetType(assemblyQualifiedName, true);
             MethodInfo action = t.GetMethod(methodName, BindingFlags.NonPublic
@@ -28,12 +36,19 @@ namespace DistrEx.Plugin
                                                         | BindingFlags.Static);
             try
             {
-                return action.Invoke(null, new object[] {argument});
+                Action reportProgress = callback.Progress;
+                return action.Invoke(null, new object[] {_cancellationTokenSource.Token, reportProgress, argument});
+
             }
             catch (TargetInvocationException e)
             {
                 throw e.InnerException;
             }
+        }
+
+        internal void Cancel()
+        {
+            _cancellationTokenSource.Cancel();
         }
     }
 }

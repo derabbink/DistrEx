@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Text;
+using System.Threading;
 using DependencyResolver;
 
 namespace DistrEx.Plugin
@@ -135,12 +136,12 @@ namespace DistrEx.Plugin
             CreateAppDomain();
         }
 
-        public object Execute(string assemblyQualifiedName, string methodName, object argument)
+        public object Execute(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress, object argument)
         {
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
-            object result = executor.Execute(assemblyQualifiedName, methodName, argument);
-            executor = null;
-            return result;
+            cancellationToken.Register(executor.Cancel);
+            ExecutorCallback callback = new ExecutorCallback(reportProgress);
+            return executor.Execute(callback, assemblyQualifiedName, methodName, argument);
         }
 
         private void UnloadAppDomain()
