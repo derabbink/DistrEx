@@ -95,40 +95,52 @@ namespace DistrEx.Coordinator.TargetSpecs
             string assemblyQualifiedName = instruction.GetAssemblyQualifiedName();
 
             Guid operationId = new Guid();
-            IObservable<Progress<TResult>> progressObs = _progresses.Where(eArgs => eArgs.OperationId == operationId).Select(_ => Progress<TResult>.Default);
+            IObservable<Progress<TResult>> progressObs = _progresses
+                .Where(eArgs => eArgs.OperationId == operationId)
+                .Select(_ => Progress<TResult>.Default);
+            IObservable<ProgressingResult<TResult>> resultObs = _completes
+                .Where(eArgs => eArgs.OperationId == operationId)
+                .Select(eArgs =>
+                    {
+                        object result = eArgs.Result;
+                        try
+                        {
+                            TResult castRes = (TResult) result;
+                            return new Result<TResult>(castRes);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception(
+                                String.Format(
+                                    "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
+                                    result.GetType().FullName, methodName, assemblyQualifiedName,
+                                    typeof (TResult).FullName),
+                                e);
+                        }
+                    });
+            IObservable<ProgressingResult<TResult>> errorObs = _errors
+                .Where(eArgs => eArgs.OperationId == operationId)
+                .Select<ErrorCallbackEventArgs, ProgressingResult<TResult>>(eArgs => { throw eArgs.Error; });
+
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
                 {
-                    IObservable<ProgressingResult<TResult>> resultObs =
-                        _completes.Where(eArgs => eArgs.OperationId == operationId).Select(eArgs =>
-                            {
-                                object result = eArgs.Result;
-                                try
-                                {
-                                    TResult castRes = (TResult) result;
-                                    return new Result<TResult>(castRes);
-                                }
-                                catch (Exception e)
-                                {
-                                    throw new Exception(
-                                        String.Format(
-                                            "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
-                                            result.GetType().FullName, methodName, assemblyQualifiedName,
-                                            typeof (TResult).FullName),
-                                        e);
-                                }
-
-                            });
-                    IObservable<ProgressingResult<TResult>> errorObs =
-                        _errors.Where(eArgs => eArgs.OperationId == operationId)
-                               .Select<ErrorCallbackEventArgs, ProgressingResult<TResult>>(
-                                   eArgs => { throw eArgs.Error; });
 
                     Instruction msg = new Instruction() { OperationId = operationId, AssemblyQualifiedName = assemblyQualifiedName, MethodName = methodName, Argument = argument };
                     Executor.Execute(msg);
+
+                    IObservable<ProgressingResult<TResult>> combinedObs;
                     //wait here: (First() blocks)
-                    var resultOrError = resultObs.Amb(errorObs).First();
-                    IObservable<ProgressingResult<TResult>> combinedObs = Observable.Return(resultOrError);
+                    try
+                    {
+                        //might throw
+                        var resultOrError = resultObs.Amb(errorObs).First();
+                        combinedObs = Observable.Return(resultOrError);
+                    }
+                    catch (Exception e)
+                    {
+                        combinedObs = Observable.Throw<ProgressingResult<TResult>>(e);
+                    }
                     obs.OnNext(combinedObs);
                     obs.OnCompleted();
                     return Disposable.Empty;

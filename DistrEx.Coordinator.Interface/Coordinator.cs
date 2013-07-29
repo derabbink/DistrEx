@@ -28,7 +28,7 @@ namespace DistrEx.Coordinator.Interface
                 var result = targetedInstruction.Invoke(argument).GetResult();
                 return new CompletedStep<TResult>(result, targets.Distinct());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 foreach (TargetSpec target in targets.Distinct())
                 {

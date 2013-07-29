@@ -31,5 +31,29 @@ namespace DistrEx.Coordinator.Test
             var last = rps.Last();
         }
 
+        [Test]
+        [ExpectedException(typeof (Exception), ExpectedMessage = "Expected")]
+        public void ErrorInAmb1()
+        {
+            var left = Observable.Throw<Unit>(new Exception("Expected"));
+            var right = Observable.Never<Unit>();
+
+            var both = left.Amb(right);
+            //tease out exceptions
+            var last = both.Last();
+        }
+
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void ErrorInAmb2()
+        {
+            var left = Observable.Never<Unit>();
+            var right = Observable.Throw<Unit>(new Exception("Expected"));
+
+            var both = left.Amb(right);
+            //tease out exceptions
+            var last = both.Last();
+        }
+
     }
 }
