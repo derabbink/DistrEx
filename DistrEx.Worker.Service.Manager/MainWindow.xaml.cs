@@ -43,11 +43,25 @@ namespace DistrEx.Worker.Service.Manager
             const string commandText = "installutil DistrEx.Worker.Service.exe";
             if (FileName.Text == String.Empty)
             {
-                //Output error message 
+                UpdateStatus("Enter Service.");
                 return; 
             }
             string command = Path.GetDirectoryName(@FileName.Text) + "\\" + commandText;
-            RunCommand(command);
+            RunCommand("/C " + command);
+
+            InitializeService();
+        }
+
+        private void UninstallButtonClick(object sender, RoutedEventArgs e)
+        {
+            const string commandText = "installutil -u DistrEx.Worker.Service";
+            if (FileName.Text == String.Empty)
+            {
+                UpdateStatus("Enter Service.");
+                return;
+            }
+            string command = Path.GetDirectoryName(@FileName.Text) + "\\" + commandText;
+            RunCommand("/C " + command);
 
             InitializeService();
         }
@@ -92,16 +106,9 @@ namespace DistrEx.Worker.Service.Manager
         
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
-            if (service != null)
-            {
-                UpdateStatus(service.Status.ToString());
-            }
-            else
-            {
-                UpdateStatus("Not installed");
-            }
+            UpdateStatus(service != null ? service.Status.ToString() : "Not installed");
         }
-        
+
         private void WindowsServicesClick(object sender, RoutedEventArgs e)
         {
             const string commandText = "/C mmc.exe services.msc";
@@ -118,7 +125,7 @@ namespace DistrEx.Worker.Service.Manager
             var process = new Process();
             var startInfo = new ProcessStartInfo
             {
-                RedirectStandardInput = true,
+                CreateNoWindow = true,
                 UseShellExecute = false,
                 Verb = "runas",
                 WindowStyle = ProcessWindowStyle.Hidden,
@@ -130,18 +137,6 @@ namespace DistrEx.Worker.Service.Manager
 
             process.WaitForExit();
             process.Close();
-        }
-
-        private void UninstallButtonClick(object sender, RoutedEventArgs e)
-        {
-            const string commandText = "installutil -u DistrEx.Worker.Service";
-            if (FileName.Text == String.Empty)
-            {
-                //Output error message 
-                return;
-            }
-            string command = Path.GetDirectoryName(@FileName.Text) + "\\" + commandText;
-            RunCommand(command);
         }
 
         private void BrowseDirectoryClick(object sender, RoutedEventArgs e)

@@ -49,9 +49,11 @@
                 Margin="219,110,0,0"
                 Name="Refresh"
                 VerticalAlignment="Top"
-                Width="28"
+                Width="24"
                 Click="RefreshClick"
-                DataContext="{Binding}"/>
+                DataContext="{Binding}">
+                <Image Source="Refresh.jpg"></Image>
+        </Button>
         <Button Content="Windows Services ..."
                 Height="23"
                 HorizontalAlignment="Right"
