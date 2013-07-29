@@ -14,6 +14,8 @@ namespace DistrEx.Worker.Service.Manager
     public partial class MainWindow : Window
     {
         private const string ServiceName = "Worker";
+        const string InstallUtilCommand = "installutil";
+        const string FullServiceName = "DistrEx.Worker.Service.exe";
         private ServiceController service; 
 
         public MainWindow()
@@ -40,28 +42,28 @@ namespace DistrEx.Worker.Service.Manager
 
         private void InstallButtonClick(object sender, RoutedEventArgs e)
         {
-            const string commandText = "installutil DistrEx.Worker.Service.exe";
             if (FileName.Text == String.Empty)
             {
-                UpdateStatus("Enter Service.");
+                UpdateStatus("Enter service to install");
                 return; 
             }
-            string command = Path.GetDirectoryName(@FileName.Text) + "\\" + commandText;
-            RunCommand("/C " + command);
+            string commandText = "/C " + Directory.GetParent(FileName.Text).FullName + "\\" + InstallUtilCommand +
+                                 " " + Directory.GetParent(FileName.Text).FullName + "\\" + FullServiceName; 
+            RunCommand(commandText);
 
             InitializeService();
         }
 
         private void UninstallButtonClick(object sender, RoutedEventArgs e)
         {
-            const string commandText = "installutil -u DistrEx.Worker.Service";
             if (FileName.Text == String.Empty)
             {
-                UpdateStatus("Enter Service.");
+                UpdateStatus("Enter service to install");
                 return;
             }
-            string command = Path.GetDirectoryName(@FileName.Text) + "\\" + commandText;
-            RunCommand("/C " + command);
+            string commandText = "/C " + Directory.GetParent(FileName.Text).FullName + "\\" + InstallUtilCommand +
+                                " -u " + Directory.GetParent(FileName.Text).FullName + "\\" + FullServiceName;
+            RunCommand(commandText);
 
             InitializeService();
         }
