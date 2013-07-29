@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.ServiceProcess;
 using System.Windows;
 
@@ -9,7 +10,7 @@ namespace DistrEx.Worker.Service.Manager
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string ServiceName = "Worker";
+        private const string ServiceName = "Worker";
         private readonly ServiceController service; 
 
         public MainWindow()
@@ -30,16 +31,8 @@ namespace DistrEx.Worker.Service.Manager
 
         private void InstallButtonClick(object sender, RoutedEventArgs e)
         {
-            //const string commandText = "installutil DistrEx.Worker.Service";
-            //var process = new Process();
-            //var startInfo = new ProcessStartInfo
-            //{
-            //    WindowStyle = ProcessWindowStyle.Normal,
-            //    FileName = "cmd.exe",
-            //    Arguments = commandText
-            //};
-            //process.StartInfo = startInfo;
-            //process.Start(); 
+            const string commandText = "installutil DistrEx.Worker.Service";
+            RunCommand(commandText);
         }
 
         private void StartServiceButtonClick(object sender, RoutedEventArgs e)
@@ -92,12 +85,57 @@ namespace DistrEx.Worker.Service.Manager
         
         private void WindowsServicesClick(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            const string commandText = "/C mmc.exe services.msc";
+            //var process = new Process();
+            
+            //var startInfo = new ProcessStartInfo
+            //{
+            //    RedirectStandardInput = true, 
+            //    UseShellExecute = false,
+            //    Verb = "runas",
+            //    WindowStyle = ProcessWindowStyle.Normal,
+            //    FileName = "cmd.exe",
+            //    Arguments = commandText
+            //};
+            //process.StartInfo = startInfo;
+            //process.Start();
+            ////var input = process.StandardInput;
+            ////input.Write(commandText);
+            ////input.Close();
+
+            //process.WaitForExit();
+            //process.Close();
+            RunCommand(commandText);
         }
 
         private void AutomaticServiceChecked(object sender, RoutedEventArgs e)
         {
             //Set service to automatic
+        }
+
+        private void RunCommand(string command)
+        {
+            var process = new Process();
+            var startInfo = new ProcessStartInfo
+            {
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                Verb = "runas",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = "cmd.exe",
+                Arguments = command
+            };
+            process.StartInfo = startInfo;
+            process.Start();
+
+            process.WaitForExit();
+            process.Close();
+        }
+
+        private void UninstallButtonClick(object sender, RoutedEventArgs e)
+        {
+            const string commandText = "installutil -u DistrEx.Worker.Service";
+            RunCommand(commandText);
         }
     }
 }

@@ -59,7 +59,9 @@
                 Name="Refresh"
                 VerticalAlignment="Top"
                 Width="28"
-                Click="RefreshClick" />
+                Click="RefreshClick"
+                DataContext="{Binding}"/>
+                
         <CheckBox Content="Run service automatically at bootup"
                   Height="16"
                   HorizontalAlignment="Left"
@@ -76,5 +78,13 @@
                 Width="130"
                 ToolTip="Opens Windows Services "
                 Click="WindowsServicesClick" />
+        <Button Content="Unnstall Service"
+                Height="23"
+                HorizontalAlignment="Left"
+                Margin="193,150,0,0"
+                Name="UninstallButton"
+                VerticalAlignment="Top"
+                Width="112"
+                Click="UninstallButtonClick" />
     </Grid>
 </Window>
