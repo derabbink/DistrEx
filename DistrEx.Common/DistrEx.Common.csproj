@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventRaiseHelper.cs" />
     <Compile Include="Future.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="InstructionResult\Progress.cs" />

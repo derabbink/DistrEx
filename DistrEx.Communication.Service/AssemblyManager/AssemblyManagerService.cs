@@ -21,13 +21,11 @@ namespace DistrEx.Communication.Service.AssemblyManager
 
         public void AddAssembly(Assembly assembly)
         {
-            Console.WriteLine("Receiving assembly to load: {0} ({1})", assembly.FullName, assembly.Name);
             _pluginManager.Load(assembly.AssemblyStream, assembly.Name);
         }
 
         public void Clear()
         {
-            Console.WriteLine("Receiving assembly clear command.");
             _pluginManager.Reset();
         }
 

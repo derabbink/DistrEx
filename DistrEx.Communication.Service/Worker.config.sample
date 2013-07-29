@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <system.serviceModel>
+    <services>
+      <service name="DistrEx.Communication.Service.Executor.ExecutorService" behaviorConfiguration="ExecutorBehavior">
+        <host>
+          <baseAddresses>
+            <add baseAddress="http://localhost:8000/executor"/>
+            <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8000/executor user=yourlocaluser` -->
+          </baseAddresses>
+        </host>
+        <!-- endpoint is exposed at address http://localhost:8000/executor -->
+        <endpoint address="" binding="wsDualHttpBinding" contract="DistrEx.Communication.Contracts.Service.IExecutor"/>
+      </service>
+      <service name="DistrEx.Communication.Service.AssemblyManager.AssemblyManagerService" behaviorConfiguration="AssemblyManagerBehavior">
+        <host>
+          <baseAddresses>
+            <add baseAddress="http://localhost:8000/assemblymanager"/>
+            <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8000/assemblymanager user=yourlocaluser` -->
+          </baseAddresses>
+        </host>
+        <!-- endpoint is exposed at address http://localhost:8000/assemblymanager -->
+        <endpoint address="" binding="basicHttpBinding" bindingConfiguration="assemblyTransferBinding" contract="DistrEx.Communication.Contracts.Service.IAssemblyManager" />
+      </service>
+    </services>
+
+    <bindings>
+      <basicHttpBinding>
+        <!-- binding for transferring assemblies (can be large) as streams (<=10MiB) -->
+        <binding name="assemblyTransferBinding" transferMode="StreamedRequest" maxReceivedMessageSize="10490000" />
+      </basicHttpBinding>
+    </bindings>
+
+    <!-- For debugging purposes set the includeExceptionDetailInFaults attribute to true -->
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="ExecutorBehavior">
+          <serviceMetadata httpGetEnabled="True"/>
+          <serviceDebug includeExceptionDetailInFaults="True"/>
+        </behavior>
+        <behavior name="AssemblyManagerBehavior">
+          <serviceMetadata httpGetEnabled="True"/>
+          <serviceDebug includeExceptionDetailInFaults="True"/>
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+  </system.serviceModel>
+
+  <appSettings>
+    <!-- path to store incoming assemblies in, before loading (relative to ApplicationBasePath) -->
+    <add key="DistrEx.Plugin.assembly-storage-dir" value="transferred" />
+    <!-- path to shadow-copy assemblies into, before loading (relative to ApplicationBasePath) -->
+    <add key="DistrEx.Plugin.assembly-cache-dir" value="cached" />
+  </appSettings>
+</configuration>

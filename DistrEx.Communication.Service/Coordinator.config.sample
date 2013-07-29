@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <system.serviceModel>
+    <client>
+      <endpoint name="Executor" address="http://localhost:8000/executor" binding="wsDualHttpBinding" contract="DistrEx.Communication.Contracts.Service.IExecutor"
+                bindingConfiguration="ExecutorCallbackBinding">
+      </endpoint>
+      <endpoint name="AssemblyManager" address="http://localhost:8000/assemblymanager" binding="basicHttpBinding" contract="DistrEx.Communication.Contracts.Service.IAssemblyManager">
+      </endpoint>
+    </client>
+
+    <bindings>
+      <!-- configure a binding that support duplex communication -->
+      <wsDualHttpBinding>
+        <binding name="ExecutorCallbackBinding" clientBaseAddress="http://localhost:8001/executorcallback"/>
+        <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8000/executorcallback user=yourlocaluser` -->
+      </wsDualHttpBinding>
+    </bindings>
+  </system.serviceModel>
+</configuration>

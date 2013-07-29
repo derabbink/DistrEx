@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,14 +41,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Worker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Workers\DefaultWorker.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DistrEx.Communication.Contracts\DistrEx.Communication.Contracts.csproj">
+      <Project>{AE874CE2-BED7-442E-AC72-F58447CC5B8F}</Project>
+      <Name>DistrEx.Communication.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Communication.Service\DistrEx.Communication.Service.csproj">
+      <Project>{27D24BB7-BE46-4654-A51F-204B5F289113}</Project>
+      <Name>DistrEx.Communication.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Plugin\DistrEx.Plugin.csproj">
+      <Project>{9D469A38-B8E6-436E-A54D-2265438C99CE}</Project>
+      <Name>DistrEx.Plugin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DistrEx.Worker.Interface\DistrEx.Worker.Interface.csproj">
       <Project>{B7F1DDCD-97AF-4B3E-81E9-17F417C0C569}</Project>
       <Name>DistrEx.Worker.Interface</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config.sample" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

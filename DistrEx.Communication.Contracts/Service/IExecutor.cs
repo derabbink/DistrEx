@@ -22,7 +22,7 @@ namespace DistrEx.Communication.Contracts.Service
         void Cancel(Cancellation cancellation);
     }
 
-    [ServiceContract(Name = "ExecutorCallback", Namespace = "http://schemas.fugro/distrex/service/executorcallback")]
+    //[ServiceContract(Name = "ExecutorCallback", Namespace = "http://schemas.fugro/distrex/service/executorcallback")]
     public interface IExecutorCallback
     {
         /// <summary>

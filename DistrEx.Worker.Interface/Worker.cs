@@ -1,6 +1,30 @@
-﻿namespace DistrEx.Worker.Interface
+﻿using System;
+
+namespace DistrEx.Worker.Interface
 {
-    class Worker
+    public abstract class Worker : IDisposable
     {
+        public void StartServices()
+        {
+            StartAssemblyManagerService();
+            StartExecutorService();
+        }
+
+        protected abstract void StartAssemblyManagerService();
+        protected abstract void StartExecutorService();
+
+        public void StopServices()
+        {
+            StopAssemblyManagerService();
+            StopExecutorService();
+        }
+
+        protected abstract void StopAssemblyManagerService();
+        protected abstract void StopExecutorService();
+        
+        public virtual void Dispose()
+        {
+            StopServices();
+        }
     }
 }

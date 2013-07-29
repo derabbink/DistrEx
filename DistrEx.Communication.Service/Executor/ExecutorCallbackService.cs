@@ -1,60 +1,76 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
+using DistrEx.Common;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
 
 namespace DistrEx.Communication.Service.Executor
 {
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    [CallbackBehavior(UseSynchronizationContext = false)]
     public class ExecutorCallbackService : IExecutorCallback
     {
+        private event EventHandler<ProgressCallbackEventArgs> ProgressCallback;
+        private event EventHandler<CompleteCallbackEventArgs> CompleteCallback;
+        private event EventHandler<ErrorCallbackEventArgs> ErrorCallback;
+
+        protected virtual void OnProgressCallback(ProgressCallbackEventArgs e)
+        {
+            ProgressCallback.Raise(this, e);
+        }
+        protected virtual void OnCompleteCallback(CompleteCallbackEventArgs e)
+        {
+            CompleteCallback.Raise(this, e);
+        }
+        protected virtual void OnErrorCallback(ErrorCallbackEventArgs e)
+        {
+            ErrorCallback.Raise(this, e);
+        }
+
         public void Progress(Progress progress)
         {
-            throw new NotImplementedException();
+            OnProgressCallback(new ProgressCallbackEventArgs(progress.OperationId));
         }
 
         public void Complete(Result result)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Complete(Error error)
-        {
-            throw new NotImplementedException();
+            OnCompleteCallback(new CompleteCallbackEventArgs(result.OperationId, result.Value));
         }
 
         public void Error(Error error)
         {
-            throw new NotImplementedException();
+            OnErrorCallback(new ErrorCallbackEventArgs(error.OperationId, error.Exception));
         }
 
         public void SubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler)
         {
-            throw new NotImplementedException();
+            ProgressCallback += handler;
         }
         public void UnsubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler)
         {
-            throw new NotImplementedException();
+            ProgressCallback -= handler;
         }
 
         public void SubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler)
         {
-            throw new NotImplementedException();
+            CompleteCallback += handler;
         }
         public void UnsubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler)
         {
-            throw new NotImplementedException();
+            CompleteCallback -= handler;
         }
 
         public void SubscribeError(EventHandler<ErrorCallbackEventArgs> handler)
         {
-            throw new NotImplementedException();
+            ErrorCallback += handler;
         }
         public void UnsubscribeError(EventHandler<ErrorCallbackEventArgs> handler)
         {
-            throw new NotImplementedException();
+            ErrorCallback -= handler;
         }
     }
 }

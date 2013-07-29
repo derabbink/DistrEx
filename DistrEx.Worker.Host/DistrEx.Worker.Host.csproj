@@ -2,18 +2,20 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{27D24BB7-BE46-4654-A51F-204B5F289113}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{395F8E3C-2E72-4439-9D26-45E59B2C8776}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DistrEx.Communication.Service</RootNamespace>
-    <AssemblyName>DistrEx.Communication.Service</AssemblyName>
+    <RootNamespace>DistrEx.Worker.Host</RootNamespace>
+    <AssemblyName>DistrEx.Worker.Host</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,7 +24,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,7 +36,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,28 +43,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyManager\AssemblyManagerService.cs" />
-    <Compile Include="Executor\ExecutorCallbackService.cs" />
-    <Compile Include="Executor\ExecutorService.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DistrEx.Common\DistrEx.Common.csproj">
-      <Project>{468DF1BE-F561-49E6-BA73-F74E8B468BCF}</Project>
-      <Name>DistrEx.Common</Name>
+    <ProjectReference Include="..\DistrEx.Worker.Interface\DistrEx.Worker.Interface.csproj">
+      <Project>{B7F1DDCD-97AF-4B3E-81E9-17F417C0C569}</Project>
+      <Name>DistrEx.Worker.Interface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DistrEx.Communication.Contracts\DistrEx.Communication.Contracts.csproj">
-      <Project>{AE874CE2-BED7-442E-AC72-F58447CC5B8F}</Project>
-      <Name>DistrEx.Communication.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DistrEx.Plugin\DistrEx.Plugin.csproj">
-      <Project>{9D469A38-B8E6-436E-A54D-2265438C99CE}</Project>
-      <Name>DistrEx.Plugin</Name>
+    <ProjectReference Include="..\DistrEx.Worker\DistrEx.Worker.csproj">
+      <Project>{AF2201E9-11B2-418C-889D-3D5E05FE3376}</Project>
+      <Name>DistrEx.Worker</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Coordinator.config.sample" />
-    <None Include="Worker.config.sample" />
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

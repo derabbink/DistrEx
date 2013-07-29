@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -121,10 +122,12 @@ namespace DistrEx.Coordinator.TargetSpecs
             IObservable<ProgressingResult<TResult>> errorObs = _errors
                 .Where(eArgs => eArgs.OperationId == operationId)
                 .Select<ErrorCallbackEventArgs, ProgressingResult<TResult>>(eArgs => { throw eArgs.Error; });
-
+            
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
                 {
+                    var resultOrErrorObs = resultObs.Amb(errorObs).Replay();
+                    resultOrErrorObs.Connect();
                     Instruction msg = new Instruction() { OperationId = operationId, AssemblyQualifiedName = assemblyQualifiedName, MethodName = methodName, Argument = argument };
                     Executor.Execute(msg);
 
@@ -133,7 +136,7 @@ namespace DistrEx.Coordinator.TargetSpecs
                     try
                     {
                         //might throw
-                        var resultOrError = resultObs.Amb(errorObs).First();
+                        var resultOrError = resultOrErrorObs.First();
                         combinedObs = Observable.Return(resultOrError);
                     }
                     catch (Exception e)

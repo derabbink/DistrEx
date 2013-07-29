@@ -8,7 +8,26 @@
       <endpoint name="AssemblyManager" address="http://localhost:8000/assemblymanager" binding="basicHttpBinding" contract="DistrEx.Communication.Contracts.Service.IAssemblyManager">
       </endpoint>
     </client>
+
+    <service name="DistrEx.Communication.Service.Executor.ExecutorCallbackService" behaviorConfiguration="ExecutorCallbackBehavior">
+      <host>
+        <baseAddresses>
+          <add baseAddress="http://localhost:8001/executorcallback"/>
+          <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8001/executorcallback user=yourlocaluser` -->
+        </baseAddresses>
+      </host>
+      <!-- endpoint is exposed at address http://localhost:8001/executorcallback -->
+      <endpoint address="" binding="wsHttpBinding" contract="DistrEx.Communication.Contracts.Service.IExecutorCallback"/>
+    </service>
   </system.serviceModel>
+
+  <!-- For debugging purposes set the includeExceptionDetailInFaults attribute to true -->
+  <behaviors>
+    <behavior name="ExecutorCallbackBehavior">
+      <serviceMetadata httpGetEnabled="True"/>
+      <serviceDebug includeExceptionDetailInFaults="True"/>
+    </behavior>
+  </behaviors>
   
   <appSettings>
     <!-- DependencyResolver.assembly-path won't be needed; all assemblies are already in the BasePath -->

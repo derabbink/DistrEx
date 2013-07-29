@@ -11,14 +11,15 @@ namespace DistrEx.Common
     public class Future<TResult> : IObservable<ProgressingResult<TResult>>
     {
         private readonly IConnectableObservable<ProgressingResult<TResult>> _observable;
-        private readonly ReplaySubject<Result<TResult>> _replayResult;
-
+        private readonly IConnectableObservable<Result<TResult>> _replayResult;
+        
         public Future(IObservable<ProgressingResult<TResult>> observable)
         {
             _observable = observable.Publish();
-            _replayResult = new ReplaySubject<Result<TResult>>();
             var resultObs = _observable.Where(pr => pr.IsResult).Select(r => r as Result<TResult>);
-            resultObs.Subscribe(_replayResult);
+            _replayResult = resultObs.Replay();
+            _replayResult.Connect();
+            
             _observable.Connect();
         }
 
