@@ -16,6 +16,8 @@ namespace DistrEx.Worker.Service.Manager
         private const string ServiceName = "Worker";
         const string InstallUtilCommand = "installutil";
         const string FullServiceName = "DistrEx.Worker.Service.exe";
+        private const string FullLogName = "DistrEx.Worker.Service.InstallLog";
+
         private ServiceController service; 
 
         public MainWindow()
@@ -154,6 +156,19 @@ namespace DistrEx.Worker.Service.Manager
                 string fileName = openFileDialog.FileName;
                 FileName.Text = fileName;
             }
+        }
+
+        private void OpenLogClick(object sender, RoutedEventArgs e)
+        {
+            if (FileName.Text == String.Empty)
+            {
+                UpdateStatus("Enter service to open log.");
+                return;
+            }
+            string commandText = "/C notepad.exe " + Directory.GetParent(FileName.Text).FullName + "\\" + FullLogName;
+            RunCommand(commandText);
+
+            InitializeService();
         }
     }
 }

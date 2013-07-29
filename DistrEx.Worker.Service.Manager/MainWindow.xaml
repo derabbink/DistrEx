@@ -86,5 +86,14 @@
                  VerticalAlignment="Top"
                  Width="254"
                  IsEnabled="False" />
+        <Button Content="Open Log..."
+                Height="23"
+                HorizontalAlignment="Right"
+                Margin="0,150,202,0"
+                Name="OpenLog"
+                ToolTip="Opens Windows Services "
+                VerticalAlignment="Top"
+                Width="94"
+                Click="OpenLogClick" />
     </Grid>
 </Window>
