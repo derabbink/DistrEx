@@ -125,7 +125,6 @@ namespace DistrEx.Coordinator.TargetSpecs
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
                 {
-
                     Instruction msg = new Instruction() { OperationId = operationId, AssemblyQualifiedName = assemblyQualifiedName, MethodName = methodName, Argument = argument };
                     Executor.Execute(msg);
 
