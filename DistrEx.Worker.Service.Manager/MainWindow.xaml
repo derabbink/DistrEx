@@ -10,7 +10,7 @@
         <Button Content="Install Service"
                 Height="23"
                 HorizontalAlignment="Left"
-                Margin="14,60,0,0"
+                Margin="14,30,0,0"
                 Name="InstallButton"
                 VerticalAlignment="Top"
                 Width="86"
@@ -38,15 +38,6 @@
                Name="StatusLable"
                VerticalAlignment="Top"
                Width="141" />
-        <Label Content=""
-               Height="28"
-               HorizontalAlignment="Left"
-               Margin="14,12,0,0"
-               Name="ServiceStatus"
-               VerticalAlignment="Top"
-               Width="291"
-               Foreground="Black"
-               FontSize="11" />
         <Label Content="Status:"
                Height="28"
                HorizontalAlignment="Left"
@@ -61,14 +52,6 @@
                 Width="28"
                 Click="RefreshClick"
                 DataContext="{Binding}"/>
-                
-        <CheckBox Content="Run service automatically at bootup"
-                  Height="16"
-                  HorizontalAlignment="Left"
-                  Margin="124,64,0,0"
-                  Name="automaticService"
-                  VerticalAlignment="Top"
-                  Checked="AutomaticServiceChecked" />
         <Button Content="Windows Services ..."
                 Height="23"
                 HorizontalAlignment="Right"
@@ -81,10 +64,25 @@
         <Button Content="Unnstall Service"
                 Height="23"
                 HorizontalAlignment="Left"
-                Margin="193,150,0,0"
+                Margin="14,69,0,0"
                 Name="UninstallButton"
                 VerticalAlignment="Top"
                 Width="112"
                 Click="UninstallButtonClick" />
+        <Button Content="Browse ..."
+                Height="23"
+                HorizontalAlignment="Left"
+                Margin="106,29,0,0"
+                Name="BrowseDirectory"
+                VerticalAlignment="Top"
+                Width="86"
+                Click="BrowseDirectoryClick" />
+        <TextBox Height="23"
+                 HorizontalAlignment="Left"
+                 Margin="198,29,0,0"
+                 Name="FileName"
+                 VerticalAlignment="Top"
+                 Width="254"
+                 IsEnabled="False" />
     </Grid>
 </Window>
