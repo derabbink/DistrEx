@@ -91,7 +91,7 @@
                 HorizontalAlignment="Right"
                 Margin="0,150,202,0"
                 Name="OpenLog"
-                ToolTip="Opens Windows Services "
+                ToolTip="Opens the service log..."
                 VerticalAlignment="Top"
                 Width="94"
                 Click="OpenLogClick" />
