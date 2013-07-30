@@ -17,11 +17,18 @@ namespace DistrEx.Communication.Service.Executor
         private readonly PluginManager _pluginManager;
         //TODO make the key a Tuple<Guid, session-id>
         private readonly IDictionary<Guid, CancellationTokenSource> _cancellationTokenSources;
+        private readonly IExecutorCallback _callbackChannel;
 
-        public ExecutorService(PluginManager pluginManager)
+        public ExecutorService(PluginManager pluginManager) : this(pluginManager, null)
+        {   
+        }
+
+        [Obsolete("Only used for testing", false)]
+        public ExecutorService(PluginManager pluginManager, IExecutorCallback callbackChannel)
         {
             _pluginManager = pluginManager;
             _cancellationTokenSources = new ConcurrentDictionary<Guid, CancellationTokenSource>();
+            _callbackChannel = callbackChannel;
         }
 
         public void Execute(Instruction instruction)
@@ -54,12 +61,9 @@ namespace DistrEx.Communication.Service.Executor
                 cts.Cancel();
         }
 
-        IExecutorCallback Callback
+        private IExecutorCallback Callback
         {
-            get
-            {
-                return OperationContext.Current.GetCallbackChannel<IExecutorCallback>();
-            }
+            get { return _callbackChannel ?? OperationContext.Current.GetCallbackChannel<IExecutorCallback>(); }
         }
     }
 }

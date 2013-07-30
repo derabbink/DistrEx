@@ -11,7 +11,7 @@ using DistrEx.Communication.Contracts.Service;
 namespace DistrEx.Communication.Service.Executor
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    [CallbackBehavior(UseSynchronizationContext = false)]
+    [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
     public class ExecutorCallbackService : IExecutorCallback
     {
         private event EventHandler<ProgressCallbackEventArgs> ProgressCallback;

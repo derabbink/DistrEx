@@ -34,7 +34,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [TestFixtureSetUp]
         public void SetupFixture()
         {
-            _workerProcess = ProcessHelper.Start(ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.Test.worker-exe-file"));
+            //_workerProcess = ProcessHelper.Start(ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.Test.worker-exe-file"));
             _callbackHandler = new ExecutorCallbackService();
             _onWorker = OnWorker.FromEndpointConfigNames("localhost-assemblyManager", "localhost-executor", _callbackHandler);
 
@@ -44,7 +44,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private void ConfigureOperations()
         {
             _identity = (ct, p, i) => i;
-            _throw = (ct, _, e) => { throw e; };
+            _throw = (ct, p, e) => { throw new Exception("Not expected"); };
             _argumentIdentity = 1;
             _argumentThrow = new Exception("Expected");
         }
@@ -60,6 +60,13 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             Assert.That(actual, Is.EqualTo(expected));
         }
 
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void FailureOnWorker()
+        {
+            Exception actual = Interface.Coordinator.Do(_onWorker.Do(_throw), _argumentThrow).ResultValue;
+        }
+
         #endregion
 
         #region teardown
@@ -72,7 +79,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [TestFixtureTearDown]
         public void TeardownFixture()
         {
-            ProcessHelper.Stop(_workerProcess);
+            //ProcessHelper.Stop(_workerProcess);
         }
         #endregion
     }

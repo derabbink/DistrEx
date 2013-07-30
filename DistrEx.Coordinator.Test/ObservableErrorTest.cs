@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -55,5 +56,29 @@ namespace DistrEx.Coordinator.Test
             var last = both.Last();
         }
 
+        [Test]
+        [ExpectedException(typeof (Exception), ExpectedMessage = "Expected")]
+        public void ErrorInReplayedObservable()
+        {
+            var throws = Observable.Throw<Unit>(new Exception("Expected"));
+            var replayed = throws.Replay();
+            replayed.Connect();
+
+            //tease out exception
+            var last = replayed.Last();
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void ErrorInReplayedObservableOnScheduler()
+        {
+            var throws = Observable.Throw<Unit>(new Exception("Expected"));
+            var replayed = throws.Replay(Scheduler.Default);
+            replayed.Connect();
+
+            //tease out exception
+            var last = replayed.Last();
+        }
     }
 }

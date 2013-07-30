@@ -96,7 +96,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             string methodName = instruction.GetMethodName();
             string assemblyQualifiedName = instruction.GetAssemblyQualifiedName();
 
-            Guid operationId = new Guid();
+            Guid operationId = Guid.NewGuid();
             IObservable<Progress<TResult>> progressObs = _progresses
                 .Where(eArgs => eArgs.OperationId == operationId)
                 .Select(_ => Progress<TResult>.Default);
@@ -127,7 +127,8 @@ namespace DistrEx.Coordinator.TargetSpecs
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
                 {
-                    var resultOrErrorObs = resultObs.Amb(errorObs).Replay(Scheduler.Default);
+                    var resultOrErrorObs = resultObs.Amb(errorObs)
+                        .Replay(Scheduler.Default);
                     resultOrErrorObs.Connect();
                     Instruction msg = new Instruction() { OperationId = operationId, AssemblyQualifiedName = assemblyQualifiedName, MethodName = methodName, Argument = argument };
                     Executor.Execute(msg);
