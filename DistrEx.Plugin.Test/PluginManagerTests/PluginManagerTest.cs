@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DistrEx.Common;
+using DistrEx.Common.Serialization;
 using NUnit.Framework;
 using DependencyResolver;
 
@@ -22,8 +23,12 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         private Instruction<int, int> _progressIdentity;
         private Instruction<int, int> _haltingIdentity;
         private Instruction<Exception, Exception> _throw;
-        private int _identityArgument = 1;
+        private int _identityArgument;
+        private string _serializedIdentityArgument;
+        private string _identityArgumentTypeName;
         private Exception _throwArgument;
+        private string _serializedThrowArgument;
+        private string _throwArgumentTypeName;
 
         private string _identityQualifiedName;
         private string _identityMethodName;
@@ -43,7 +48,11 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         {
             _pluginManager = new PluginManager();
             _identityArgument = 1;
+            _serializedIdentityArgument = Serializer.Serialize(_identityArgument);
+            _identityArgumentTypeName = _identityArgument.GetType().FullName;
             _throwArgument = new Exception("Expected");
+            _serializedThrowArgument = Serializer.Serialize(_throwArgument);
+            _throwArgumentTypeName = _throwArgument.GetType().FullName;
             _identity = (ct, p, i) => i;
             MethodInfo mi = _identity.Method;
             _identityQualifiedName = mi.ReflectedType.AssemblyQualifiedName;
@@ -102,7 +111,10 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         public void ExecuteCorrect()
         {
             var expected = _identityArgument;
-            int actual = (int) _pluginManager.Execute(_identityQualifiedName, _identityMethodName, _cancellationTokenSource.Token, () => {}, _identityArgument);
+            SerializedResult result =
+                _pluginManager.Execute(_identityQualifiedName, _identityMethodName, _cancellationTokenSource.Token,
+                                       () => { }, _identityArgumentTypeName, _serializedIdentityArgument);
+            int actual = (int) Deserializer.Deserialize(result.TypeName, result.Value);
             Assert.That(actual, Is.EqualTo(expected));
         }
 
@@ -110,7 +122,16 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void ExecuteError()
         {
-            _pluginManager.Execute(_throwQualifiedName, _throwMethodName, _cancellationTokenSource.Token, () => {}, _throwArgument);
+            try
+            {
+                _pluginManager.Execute(_throwQualifiedName, _throwMethodName, _cancellationTokenSource.Token, () => { },
+                                       _throwArgumentTypeName ,_serializedThrowArgument);
+            }
+            catch (ExecutionException e)
+            {
+                Exception inner = (Exception) Deserializer.Deserialize(e.InnerExceptionTypeName, e.InnerExceptionTypeName);
+                throw inner;
+            }
         }
 
         [Test]
@@ -119,7 +140,10 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             var expected = _identityArgument;
             bool progressReported = false;
             Action progress = () => progressReported = true;
-            int actual = (int)_pluginManager.Execute(_progressIdentityQualifiedName, _progressIdentityMethodName, _cancellationTokenSource.Token, progress, _identityArgument);
+            SerializedResult result = _pluginManager.Execute(_progressIdentityQualifiedName, _progressIdentityMethodName,
+                                                             _cancellationTokenSource.Token, progress,
+                                                             _identityArgumentTypeName, _serializedIdentityArgument);
+            int actual = (int) Deserializer.Deserialize(result.TypeName, result.Value);
             Assert.That(progressReported, Is.True);
             Assert.That(actual, Is.EqualTo(expected));
         }
@@ -132,9 +156,14 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             Task<int> t =
                 Task<int>.Factory.StartNew(() =>
                     {
-                        int result = (int) _pluginManager.Execute(_haltingIdentityQualifiedName, _haltingIdentityMethodName,
-                                                                  _cancellationTokenSource.Token, progress, _identityArgument);
-                        return result;
+
+                        SerializedResult result = _pluginManager.Execute(_haltingIdentityQualifiedName,
+                                                                         _haltingIdentityMethodName,
+                                                                         _cancellationTokenSource.Token, progress,
+                                                                         _identityArgumentTypeName,
+                                                                         _serializedIdentityArgument);
+                        int castResult = (int) Deserializer.Deserialize(result.TypeName, result.Value);
+                        return castResult;
                     });
             progressBlock.Wait();
             progressBlock.Reset();

@@ -13,6 +13,9 @@ namespace DistrEx.Communication.Contracts.Data
         public Guid OperationId { get; set; }
 
         [DataMember]
-        public Exception Exception { get; set; }
+        public string ExceptionTypeName { get; set; }
+
+        [DataMember]
+        public string SerializedException { get; set; }
     }
 }

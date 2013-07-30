@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
+using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
@@ -39,9 +40,9 @@ namespace DistrEx.Coordinator.TargetSpecs
         private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, IExecutorCallback callbackHandler)
         {
             _callbackHandler = callbackHandler;
-            _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).Select(ePattern => ePattern.EventArgs);
-            _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).Select(ePattern => ePattern.EventArgs);
-            _errors = Observable.FromEventPattern<ErrorCallbackEventArgs>(_callbackHandler.SubscribeError, _callbackHandler.UnsubscribeError).Select(ePattern => ePattern.EventArgs);
+            _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).Select(ePattern => ePattern.EventArgs).ObserveOn(Scheduler.Default);
+            _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).Select(ePattern => ePattern.EventArgs).ObserveOn(Scheduler.Default);
+            _errors = Observable.FromEventPattern<ErrorCallbackEventArgs>(_callbackHandler.SubscribeError, _callbackHandler.UnsubscribeError).Select(ePattern => ePattern.EventArgs).ObserveOn(Scheduler.Default);
 
             ClientFactory<IAssemblyManager> assemblyManagerFactory = new ClientFactory<IAssemblyManager>(assemblyManagerEndpointConfigName);
             _assemblyManagerClient = assemblyManagerFactory.GetClient();
@@ -128,9 +129,18 @@ namespace DistrEx.Coordinator.TargetSpecs
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
                 {
                     var resultOrErrorObs = resultObs.Amb(errorObs)
-                        .Replay(Scheduler.Default);
+                                                    .Replay(Scheduler.Default);
                     resultOrErrorObs.Connect();
-                    Instruction msg = new Instruction() { OperationId = operationId, AssemblyQualifiedName = assemblyQualifiedName, MethodName = methodName, Argument = argument };
+
+                    string serializedArgument = Serializer.Serialize(argument);
+                    Instruction msg = new Instruction()
+                        {
+                            OperationId = operationId,
+                            AssemblyQualifiedName = assemblyQualifiedName,
+                            MethodName = methodName,
+                            ArgumentTypeName = argument.GetType().FullName,
+                            SerializedArgument = serializedArgument
+                        };
                     Executor.Execute(msg);
 
                     IObservable<ProgressingResult<TResult>> combinedObs;

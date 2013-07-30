@@ -136,12 +136,23 @@ namespace DistrEx.Plugin
             CreateAppDomain();
         }
 
-        public object Execute(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress, object argument)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assemblyQualifiedName"></param>
+        /// <param name="methodName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="reportProgress"></param>
+        /// <param name="serializedArgument"></param>
+        /// <returns>serialized result</returns>
+        /// <exception cref="ExecutionException">If something went wrong during execution</exception>
+        public SerializedResult Execute(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress, string argumentTypeName, string serializedArgument)
         {
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
             cancellationToken.Register(executor.Cancel);
             ExecutorCallback callback = new ExecutorCallback(reportProgress);
-            return executor.Execute(callback, assemblyQualifiedName, methodName, argument);
+
+            return executor.Execute(callback, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
         }
 
         private void UnloadAppDomain()

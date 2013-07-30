@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using DistrEx.Common;
+using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
@@ -38,12 +39,38 @@ namespace DistrEx.Communication.Service.Executor
 
         public void Complete(Result result)
         {
-            OnCompleteCallback(new CompleteCallbackEventArgs(result.OperationId, result.Value));
+            try
+            {
+                object value = Deserializer.Deserialize(result.ResultTypeName, result.SerializedResult);
+                OnCompleteCallback(new CompleteCallbackEventArgs(result.OperationId, value));
+            }
+            catch (Exception e)
+            {
+                var exception = new Exception("Deserializing incoming result failed", e);
+                OnErrorCallback(new ErrorCallbackEventArgs(result.OperationId, exception));
+            }
         }
 
         public void Error(Error error)
         {
-            OnErrorCallback(new ErrorCallbackEventArgs(error.OperationId, error.Exception));
+            Exception exception;
+            try
+            {
+                object deserialized = Deserializer.Deserialize(error.ExceptionTypeName, error.SerializedException);
+                try
+                {
+                    exception = (Exception) deserialized;
+                }
+                catch (Exception e)
+                {
+                    exception = new Exception("Could not cast incoming error to type Exception", e);
+                }
+            }
+            catch (Exception e)
+            {
+                exception = new Exception("Deserializing incoming error failed", e);
+            }
+            OnErrorCallback(new ErrorCallbackEventArgs(error.OperationId, exception));
         }
 
         public void SubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler)

@@ -13,6 +13,9 @@ namespace DistrEx.Communication.Contracts.Data
         public Guid OperationId { get; set; }
 
         [DataMember]
-        public object Value { get; set; }
+        public string ResultTypeName { get; set; }
+
+        [DataMember]
+        public string SerializedResult { get; set; }
     }
 }

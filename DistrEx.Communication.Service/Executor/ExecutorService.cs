@@ -5,6 +5,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
+using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Plugin;
@@ -40,13 +41,13 @@ namespace DistrEx.Communication.Service.Executor
             Action reportProgress = () => Callback.Progress(progressMsg);
             try
             {
-                var result = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
-                                                    reportProgress, instruction.Argument);
-                Callback.Complete(new Result() {OperationId = operationId, Value = result});
+                SerializedResult serializedResult = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
+                                                              reportProgress, instruction.ArgumentTypeName, instruction.SerializedArgument);
+                Callback.Complete(new Result() { OperationId = operationId, ResultTypeName = serializedResult.TypeName, SerializedResult = serializedResult.Value });
             }
-            catch (Exception e)
+            catch (ExecutionException e)
             {
-                Callback.Error(new Error() {OperationId = operationId, Exception = e});
+                Callback.Error(new Error() {OperationId = operationId, ExceptionTypeName = e.InnerExceptionTypeName, SerializedException = e.SerializedInnerException});
             }
             finally
             {

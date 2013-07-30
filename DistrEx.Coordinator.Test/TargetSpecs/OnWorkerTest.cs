@@ -34,7 +34,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [TestFixtureSetUp]
         public void SetupFixture()
         {
-            //_workerProcess = ProcessHelper.Start(ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.Test.worker-exe-file"));
+            _workerProcess = ProcessHelper.Start(ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.Test.worker-exe-file"));
             _callbackHandler = new ExecutorCallbackService();
             _onWorker = OnWorker.FromEndpointConfigNames("localhost-assemblyManager", "localhost-executor", _callbackHandler);
 
@@ -79,7 +79,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [TestFixtureTearDown]
         public void TeardownFixture()
         {
-            //ProcessHelper.Stop(_workerProcess);
+            ProcessHelper.Stop(_workerProcess);
         }
         #endregion
     }

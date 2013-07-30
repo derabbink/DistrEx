@@ -19,6 +19,9 @@ namespace DistrEx.Communication.Contracts.Data
         public string MethodName { get; set; }
 
         [DataMember]
-        public object Argument { get; set; }
+        public string ArgumentTypeName { get; set; }
+
+        [DataMember]
+        public string SerializedArgument { get; set; }
     }
 }

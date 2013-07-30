@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using DistrEx.Common;
+using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
@@ -31,11 +32,13 @@ namespace DistrEx.Communication.Service.Test.Executor
 
         private Instruction<int, int> _delegateIdentity;
         private int _argumentIdentity;
+        private string _serializedArgumentIdentity;
         private Guid _identityOperationId;
         private Instruction _instructionIdentity;
 
         private Instruction<Exception, Exception> _delegateThrow;
         private Exception _argumentThrow;
+        private string _serializedArgumentThrow;
         private Guid _throwOperationId;
         private Instruction _instructionThrow;
 
@@ -76,24 +79,28 @@ namespace DistrEx.Communication.Service.Test.Executor
         private void SetupInstructions()
         {
             _argumentIdentity = 1;
+            _serializedArgumentIdentity = Serializer.Serialize(_argumentIdentity);
             _identityOperationId = Guid.NewGuid();
             _delegateIdentity = (ct, p, i) => i;
             MethodInfo mi = _delegateIdentity.Method;
             _instructionIdentity = new Instruction()
                 {
-                    Argument = _argumentIdentity,
+                    ArgumentTypeName = _argumentIdentity.GetType().FullName,
+                    SerializedArgument = _serializedArgumentIdentity,
                     AssemblyQualifiedName = mi.ReflectedType.AssemblyQualifiedName,
                     MethodName = mi.Name,
                     OperationId = _identityOperationId
                 };
 
             _argumentThrow = new Exception("Expected");
+            _serializedArgumentThrow = Serializer.Serialize(_argumentThrow);
             _throwOperationId = Guid.NewGuid();
             _delegateThrow = (ct, p, e) => { throw e; };
             mi = _delegateThrow.Method;
             _instructionThrow = new Instruction()
             {
-                Argument = _argumentThrow,
+                ArgumentTypeName = _argumentThrow.GetType().FullName,
+                SerializedArgument = _serializedArgumentThrow,
                 AssemblyQualifiedName = mi.ReflectedType.AssemblyQualifiedName,
                 MethodName = mi.Name,
                 OperationId = _throwOperationId
