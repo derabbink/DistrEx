@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -32,15 +33,15 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         private readonly Client<IAssemblyManager> _assemblyManagerClient;
         private IAssemblyManager AssemblyManager { get { return _assemblyManagerClient.Channel; } }
-        private readonly Client<IExecutor> _executorClient;
+        private readonly DuplexClient<IExecutor> _executorClient;
         private IExecutor Executor { get { return _executorClient.Channel; } }
 
         private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, IExecutorCallback callbackHandler)
         {
             _callbackHandler = callbackHandler;
-            _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).Select(ePAttern => ePAttern.EventArgs);
-            _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).Select(ePAttern => ePAttern.EventArgs);
-            _errors = Observable.FromEventPattern<ErrorCallbackEventArgs>(_callbackHandler.SubscribeError, _callbackHandler.UnsubscribeError).Select(ePAttern => ePAttern.EventArgs);
+            _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).Select(ePattern => ePattern.EventArgs);
+            _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).Select(ePattern => ePattern.EventArgs);
+            _errors = Observable.FromEventPattern<ErrorCallbackEventArgs>(_callbackHandler.SubscribeError, _callbackHandler.UnsubscribeError).Select(ePattern => ePattern.EventArgs);
 
             ClientFactory<IAssemblyManager> assemblyManagerFactory = new ClientFactory<IAssemblyManager>(assemblyManagerEndpointConfigName);
             _assemblyManagerClient = assemblyManagerFactory.GetClient();
@@ -126,7 +127,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
                 {
-                    var resultOrErrorObs = resultObs.Amb(errorObs).Replay();
+                    var resultOrErrorObs = resultObs.Amb(errorObs).Replay(Scheduler.Default);
                     resultOrErrorObs.Connect();
                     Instruction msg = new Instruction() { OperationId = operationId, AssemblyQualifiedName = assemblyQualifiedName, MethodName = methodName, Argument = argument };
                     Executor.Execute(msg);

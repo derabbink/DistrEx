@@ -29,10 +29,10 @@ namespace DistrEx.Communication.Proxy
             _channelFactory = new DuplexChannelFactory<TService>(_instanceContext, endpointName);
         }
 
-        public Client<TService> GetClient()
+        public DuplexClient<TService> GetClient()
         {
             TService channel = _channelFactory.CreateChannel();
-            return new Client<TService>(channel);
+            return new DuplexClient<TService>(channel);
         }
     }
 }

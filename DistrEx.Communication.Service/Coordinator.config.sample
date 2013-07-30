@@ -13,7 +13,7 @@
       <!-- configure a binding that support duplex communication -->
       <wsDualHttpBinding>
         <binding name="ExecutorCallbackBinding" clientBaseAddress="http://localhost:8001/executorcallback"/>
-        <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8000/executorcallback user=yourlocaluser` -->
+        <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8001/executorcallback user=yourlocaluser` -->
       </wsDualHttpBinding>
     </bindings>
   </system.serviceModel>
