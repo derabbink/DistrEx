@@ -42,7 +42,7 @@ namespace DistrEx.Worker
             var cts = new CancellationTokenSource();
             
             var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
-            var cancelSubscription = cancelObs.Subscribe(_ => cts.Cancel());
+            var cancelSubscription = cancelObs.SubscribeOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
             
             var progressMsg = new Progress
             {

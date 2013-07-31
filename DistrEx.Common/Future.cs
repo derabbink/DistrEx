@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using DistrEx.Common.InstructionResult;
@@ -14,7 +15,8 @@ namespace DistrEx.Common
         public Future(IObservable<ProgressingResult<TResult>> observable, Action cancelOperation)
         {
             _cancelOperation = cancelOperation;
-            _observable = observable.Publish();
+            //subscribe triggers waiting for result
+            _observable = observable.SubscribeOn(Scheduler.Default).Publish();
             IObservable<Result<TResult>> resultObs = _observable.Where(pr => pr.IsResult).Select(r => r as Result<TResult>);
             _replayResult = resultObs.Replay();
             _replayResult.Connect();

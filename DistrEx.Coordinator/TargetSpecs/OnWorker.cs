@@ -138,24 +138,25 @@ namespace DistrEx.Coordinator.TargetSpecs
                     throw eArgs.Error;
                 });
 
+            //send out instruction...
+            IConnectableObservable<ProgressingResult<TResult>> resultOrErrorObs =
+                resultObs.Amb(errorObs).Replay(Scheduler.Default);
+            resultOrErrorObs.Connect();
+            string serializedArgument = Serializer.Serialize(argument);
+            var msg = new Instruction
+            {
+                OperationId = operationId,
+                AssemblyQualifiedName = assemblyQualifiedName,
+                MethodName = methodName,
+                ArgumentTypeName = argument.GetType().FullName,
+                SerializedArgument = serializedArgument
+            };
+            Executor.Execute(msg);
+
+            //this collects the instruction result
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
             {
-                IConnectableObservable<ProgressingResult<TResult>> resultOrErrorObs = resultObs.Amb(errorObs)
-                                                                                               .Replay(Scheduler.Default);
-                resultOrErrorObs.Connect();
-
-                string serializedArgument = Serializer.Serialize(argument);
-                var msg = new Instruction
-                {
-                    OperationId = operationId,
-                    AssemblyQualifiedName = assemblyQualifiedName,
-                    MethodName = methodName,
-                    ArgumentTypeName = argument.GetType().FullName,
-                    SerializedArgument = serializedArgument
-                };
-                Executor.Execute(msg);
-
                 IObservable<ProgressingResult<TResult>> combinedObs;
                 //wait here: (First() blocks)
                 try
