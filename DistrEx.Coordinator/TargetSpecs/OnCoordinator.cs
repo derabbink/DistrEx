@@ -43,19 +43,20 @@ namespace DistrEx.Coordinator.TargetSpecs
             return NonTransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
-        public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, CancellationToken cancellationToken, TArgument argument)
+        public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)
         {
             Instruction<TArgument, TResult> instr = instruction.GetDelegate();
+            CancellationTokenSource cts = new CancellationTokenSource();
 
             IObservable<ProgressingResult<TResult>> observable = Observable.Create((IObserver<ProgressingResult<TResult>> obs) =>
-            {
-                TResult result = instr(cancellationToken, () => obs.OnNext(Progress<TResult>.Default), argument);
-                obs.OnNext(new Result<TResult>(result));
-                obs.OnCompleted();
-                return Disposable.Empty;
-            });
+                {
+                    var result = instr(cts.Token, () => obs.OnNext(Progress<TResult>.Default), argument);
+                    obs.OnNext(new Result<TResult>(result));
+                    obs.OnCompleted();
+                    return Disposable.Empty;
+                });
 
-            return new Future<TResult>(observable);
+            return new Future<TResult>(observable, cts.Cancel);
         }
     }
 }

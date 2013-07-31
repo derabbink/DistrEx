@@ -9,9 +9,11 @@ namespace DistrEx.Common
     {
         private readonly IConnectableObservable<ProgressingResult<TResult>> _observable;
         private readonly IConnectableObservable<Result<TResult>> _replayResult;
-
-        public Future(IObservable<ProgressingResult<TResult>> observable)
+        private Action _cancelOperation;
+        
+        public Future(IObservable<ProgressingResult<TResult>> observable, Action cancelOperation)
         {
+            _cancelOperation = cancelOperation;
             _observable = observable.Publish();
             IObservable<Result<TResult>> resultObs = _observable.Where(pr => pr.IsResult).Select(r => r as Result<TResult>);
             _replayResult = resultObs.Replay();
@@ -20,14 +22,17 @@ namespace DistrEx.Common
             _observable.Connect();
         }
 
-        #region IObservable<ProgressingResult<TResult>> Members
-
         public IDisposable Subscribe(IObserver<ProgressingResult<TResult>> observer)
         {
             return _observable.Subscribe(observer);
         }
 
-        #endregion
+        public void Cancel()
+        {
+            _cancelOperation();
+            //you can cancel just once
+            _cancelOperation = () => {};
+        }
 
         /// <summary>
         /// </summary>

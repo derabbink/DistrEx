@@ -1,11 +1,14 @@
-﻿namespace DistrEx.Coordinator.Interface
+﻿using DistrEx.Common;
+
+namespace DistrEx.Coordinator.Interface
 {
     public class Coordinator
     {
         public static CompletedStep<TResult> Do<TArgument, TResult>(
             TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)
         {
-            TResult result = targetedInstruction.Invoke(argument).GetResult();
+            Future<TResult> future = targetedInstruction.Invoke(argument);
+            var result = future.GetResult();
             return new CompletedStep<TResult>(result);
         }
     }

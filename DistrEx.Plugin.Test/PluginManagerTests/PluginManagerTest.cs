@@ -13,7 +13,30 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
     [TestFixture]
     public class PluginManagerTest
     {
-        #region Setup/Teardown
+        private PluginManager _pluginManager;
+        private Instruction<int, int> _identity;
+        private Instruction<int, int> _progressIdentity;
+        private Instruction<int, int> _haltingIdentity;
+        private Instruction<Exception, Exception> _throw;
+        private int _identityArgument;
+        private string _serializedIdentityArgument;
+        private string _identityArgumentTypeName;
+        private Exception _throwArgument;
+        private string _serializedThrowArgument;
+        private string _throwArgumentTypeName;
+
+        private string _identityQualifiedName;
+        private string _identityMethodName;
+        private string _progressIdentityQualifiedName;
+        private string _progressIdentityMethodName;
+        private string _haltingIdentityQualifiedName;
+        private string _haltingIdentityMethodName;
+        private string _throwQualifiedName;
+        private string _throwMethodName;
+
+        private CancellationTokenSource _cancellationTokenSource;
+
+        #region Setup
 
         [TestFixtureSetUp]
         public void FixtureSetUp()
@@ -72,30 +95,6 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
 
         #endregion
 
-        private PluginManager _pluginManager;
-
-        private Instruction<int, int> _identity;
-        private Instruction<int, int> _progressIdentity;
-        private Instruction<int, int> _haltingIdentity;
-        private Instruction<Exception, Exception> _throw;
-        private int _identityArgument;
-        private string _serializedIdentityArgument;
-        private string _identityArgumentTypeName;
-        private Exception _throwArgument;
-        private string _serializedThrowArgument;
-        private string _throwArgumentTypeName;
-
-        private string _identityQualifiedName;
-        private string _identityMethodName;
-        private string _progressIdentityQualifiedName;
-        private string _progressIdentityMethodName;
-        private string _haltingIdentityQualifiedName;
-        private string _haltingIdentityMethodName;
-        private string _throwQualifiedName;
-        private string _throwMethodName;
-
-        private CancellationTokenSource _cancellationTokenSource;
-
         private void TransportThisAssembly()
         {
             Assembly thisAssembly = GetType().Assembly;
@@ -111,9 +110,10 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         }
 
         [Test]
+        [ExpectedException(typeof(OperationCanceledException))]
         public void CancelExecution()
         {
-            var progressBlock = new ManualResetEventSlim(false);
+            ManualResetEventSlim progressBlock = new ManualResetEventSlim(false);
             Action progress = progressBlock.Set;
             Task<int> t =
                 Task<int>.Factory.StartNew(() =>
@@ -123,11 +123,12 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
                                                                      _cancellationTokenSource.Token, progress,
                                                                      _identityArgumentTypeName,
                                                                      _serializedIdentityArgument);
-                    var castResult = (int) Deserializer.Deserialize(result.TypeName, result.Value);
+                    int castResult = (int)Deserializer.Deserialize(result.TypeName, result.Value);
                     return castResult;
                 });
+            //TODO ignore automatically sent progress heartbeats
             progressBlock.Wait();
-            progressBlock.Reset();
+            
             _cancellationTokenSource.Cancel();
             try
             {
@@ -135,9 +136,10 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             }
             catch (AggregateException e)
             {
-                Assert.That(e.InnerException, Is.TypeOf<OperationCanceledException>());
+                ExecutionException ee = (ExecutionException)e.InnerException;
+                Exception dse = (Exception)Deserializer.Deserialize(ee.InnerExceptionTypeName, ee.SerializedInnerException);
+                throw dse;
             }
-            Assert.That(progressBlock.IsSet, Is.False);
         }
 
         [Test]
@@ -166,7 +168,7 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             }
             catch (ExecutionException e)
             {
-                var inner = (Exception) Deserializer.Deserialize(e.InnerExceptionTypeName, e.InnerExceptionTypeName);
+                Exception inner = (Exception) Deserializer.Deserialize(e.InnerExceptionTypeName, e.SerializedInnerException);
                 throw inner;
             }
         }

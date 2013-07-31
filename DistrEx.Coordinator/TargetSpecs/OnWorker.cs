@@ -102,7 +102,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             return TransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
-        public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, CancellationToken cancellationToken, TArgument argument)
+        public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)
         {
             string methodName = instruction.GetMethodName();
             string assemblyQualifiedName = instruction.GetAssemblyQualifiedName();
@@ -175,7 +175,13 @@ namespace DistrEx.Coordinator.TargetSpecs
 
             IObservable<IObservable<ProgressingResult<TResult>>> metaObs = Observable.Return(progressObs);
             IObservable<ProgressingResult<TResult>> futureObs = metaObs.Concat(resultMetaObs).Switch();
-            return new Future<TResult>(futureObs);
+            return new Future<TResult>(futureObs, () => Cancel(operationId));
+        }
+
+        private void Cancel(Guid operationId)
+        {
+            Cancellation msg = new Cancellation(){OperationId = operationId};
+            Executor.Cancel(msg);
         }
     }
 }
