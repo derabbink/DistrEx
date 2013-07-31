@@ -33,6 +33,7 @@ namespace DistrEx.Worker.Service.Manager
 
             if (serviceController == null)
             {
+                service = null;
                 UpdateStatus("Not installed");
             }
             else
