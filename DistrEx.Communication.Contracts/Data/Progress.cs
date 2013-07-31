@@ -7,10 +7,6 @@ namespace DistrEx.Communication.Contracts.Data
     public class Progress
     {
         [DataMember]
-        public Guid OperationId
-        {
-            get;
-            set;
-        }
+        public Guid OperationId { get; set; }
     }
 }

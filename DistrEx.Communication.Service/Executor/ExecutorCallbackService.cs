@@ -12,7 +12,26 @@ namespace DistrEx.Communication.Service.Executor
     [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
     public class ExecutorCallbackService : IExecutorCallback
     {
-        #region IExecutorCallback Members
+
+        private event EventHandler<ProgressCallbackEventArgs> ProgressCallback;
+        private event EventHandler<CompleteCallbackEventArgs> CompleteCallback;
+        private event EventHandler<ErrorCallbackEventArgs> ErrorCallback;
+
+        protected virtual void OnProgressCallback(ProgressCallbackEventArgs e)
+        {
+            ProgressCallback.Raise(this, e);
+        }
+
+        protected virtual void OnCompleteCallback(CompleteCallbackEventArgs e)
+        {
+            CompleteCallback.Raise(this, e);
+        }
+
+        protected virtual void OnErrorCallback(ErrorCallbackEventArgs e)
+        {
+            ErrorCallback.Raise(this, e);
+        }
+
 
         public void Progress(Progress progress)
         {
@@ -59,7 +78,6 @@ namespace DistrEx.Communication.Service.Executor
         {
             ProgressCallback += handler;
         }
-
         public void UnsubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler)
         {
             ProgressCallback -= handler;
@@ -69,7 +87,6 @@ namespace DistrEx.Communication.Service.Executor
         {
             CompleteCallback += handler;
         }
-
         public void UnsubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler)
         {
             CompleteCallback -= handler;
@@ -79,31 +96,9 @@ namespace DistrEx.Communication.Service.Executor
         {
             ErrorCallback += handler;
         }
-
         public void UnsubscribeError(EventHandler<ErrorCallbackEventArgs> handler)
         {
             ErrorCallback -= handler;
-        }
-
-        #endregion
-
-        private event EventHandler<ProgressCallbackEventArgs> ProgressCallback;
-        private event EventHandler<CompleteCallbackEventArgs> CompleteCallback;
-        private event EventHandler<ErrorCallbackEventArgs> ErrorCallback;
-
-        protected virtual void OnProgressCallback(ProgressCallbackEventArgs e)
-        {
-            ProgressCallback.Raise(this, e);
-        }
-
-        protected virtual void OnCompleteCallback(CompleteCallbackEventArgs e)
-        {
-            CompleteCallback.Raise(this, e);
-        }
-
-        protected virtual void OnErrorCallback(ErrorCallbackEventArgs e)
-        {
-            ErrorCallback.Raise(this, e);
         }
     }
 }

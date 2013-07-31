@@ -3,30 +3,73 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.Threading;
+using DistrEx.Common;
 using DistrEx.Communication.Contracts.Data;
+using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Plugin;
 
 namespace DistrEx.Communication.Service.Executor
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, UseSynchronizationContext = false)]
     public class ExecutorService : IExecutor
     {
         private readonly IExecutorCallback _callbackChannel;
-        private readonly IDictionary<Guid, CancellationTokenSource> _cancellationTokenSources;
-        private readonly PluginManager _pluginManager;
 
-        public ExecutorService(PluginManager pluginManager)
-            : this(pluginManager, null)
+        private event EventHandler<ExecuteEventArgs> ExecuteRequest;
+        private event EventHandler<CancelEventArgs> CancelRequest;
+
+        public ExecutorService() : this(null)
         {
         }
 
         [Obsolete("Only used for testing", false)]
-        public ExecutorService(PluginManager pluginManager, IExecutorCallback callbackChannel)
+        public ExecutorService(IExecutorCallback callbackChannel)
         {
-            _pluginManager = pluginManager;
-            _cancellationTokenSources = new ConcurrentDictionary<Guid, CancellationTokenSource>();
             _callbackChannel = callbackChannel;
+        }
+
+        protected virtual void OnExecuteRequest(ExecuteEventArgs e)
+        {
+            ExecuteRequest.Raise(this, e);
+        }
+
+        protected virtual void OnCancelRequest(CancelEventArgs e)
+        {
+            CancelRequest.Raise(this, e);
+        }
+
+        public void Execute(Instruction instruction)
+        {
+            var args = new ExecuteEventArgs(instruction.OperationId, instruction.AssemblyQualifiedName,
+                                            instruction.MethodName, instruction.ArgumentTypeName,
+                                            instruction.SerializedArgument, Callback);
+            OnExecuteRequest(args);
+        }
+
+        public void Cancel(Cancellation cancellation)
+        {
+            var args = new CancelEventArgs(cancellation.OperationId, Callback);
+            OnCancelRequest(args);
+        }
+
+        public void SubscribeExecute(EventHandler<ExecuteEventArgs> handler)
+        {
+            ExecuteRequest += handler;
+        }
+        public void UnsubscribeExecute(EventHandler<ExecuteEventArgs> handler)
+        {
+            ExecuteRequest -= handler;
+        }
+
+        public void SubscribeCancel(EventHandler<CancelEventArgs> handler)
+        {
+            CancelRequest += handler;
+        }
+        public void UnsubscribeCancel(EventHandler<CancelEventArgs> handler)
+        {
+            CancelRequest -= handler;
         }
 
         private IExecutorCallback Callback
@@ -36,55 +79,5 @@ namespace DistrEx.Communication.Service.Executor
                 return _callbackChannel ?? OperationContext.Current.GetCallbackChannel<IExecutorCallback>();
             }
         }
-
-        #region IExecutor Members
-
-        public void Execute(Instruction instruction)
-        {
-            Guid operationId = instruction.OperationId;
-            var cts = new CancellationTokenSource();
-            _cancellationTokenSources.Add(operationId, cts);
-            var progressMsg = new Progress
-            {
-                OperationId = operationId
-            };
-            Action reportProgress = () => Callback.Progress(progressMsg);
-            try
-            {
-                SerializedResult serializedResult = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
-                                                                           reportProgress, instruction.ArgumentTypeName, instruction.SerializedArgument);
-                Callback.Complete(new Result
-                {
-                    OperationId = operationId,
-                    ResultTypeName = serializedResult.TypeName,
-                    SerializedResult = serializedResult.Value
-                });
-            }
-            catch (ExecutionException e)
-            {
-                var msg = new Error
-                {
-                    OperationId = operationId,
-                    ExceptionTypeName = e.InnerExceptionTypeName,
-                    SerializedException = e.SerializedInnerException
-                };
-                Callback.Error(msg);
-            }
-            finally
-            {
-                _cancellationTokenSources.Remove(operationId);
-            }
-        }
-
-        public void Cancel(Cancellation cancellation)
-        {
-            CancellationTokenSource cts;
-            if (_cancellationTokenSources.TryGetValue(cancellation.OperationId, out cts))
-            {
-                cts.Cancel();
-            }
-        }
-
-        #endregion
     }
 }

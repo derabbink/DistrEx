@@ -9,9 +9,10 @@ namespace DistrEx.Worker.Workers
     public class DefaultWorker : Interface.Worker
     {
         private readonly PluginManager _pluginManager;
+        private Executor _executor;
         private IAssemblyManager _assemblyManager;
         private ServiceHost _assemblyManagerServiceHost;
-        private IExecutor _executor;
+        private IExecutor _executorService;
         private ServiceHost _executorServiceHost;
 
         public DefaultWorker()
@@ -28,8 +29,9 @@ namespace DistrEx.Worker.Workers
 
         protected override void StartExecutorService()
         {
-            _executor = new ExecutorService(_pluginManager);
-            _executorServiceHost = new ServiceHost(_executor);
+            _executorService = new ExecutorService();
+            _executor = new Executor(_executorService, _pluginManager);
+            _executorServiceHost = new ServiceHost(_executorService);
             _executorServiceHost.Open();
         }
 
@@ -42,8 +44,9 @@ namespace DistrEx.Worker.Workers
 
         protected override void StopExecutorService()
         {
+            _executor.Dispose();
             _executorServiceHost.Close();
-            _executor = null;
+            _executorService = null;
         }
 
         public override void Dispose()

@@ -87,6 +87,10 @@
       <Project>{9D469A38-B8E6-436E-A54D-2265438C99CE}</Project>
       <Name>DistrEx.Plugin</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Worker\DistrEx.Worker.csproj">
+      <Project>{AF2201E9-11B2-418C-889D-3D5E05FE3376}</Project>
+      <Name>DistrEx.Worker</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="DistrEx.Communication.Service.Test.dll.config" />

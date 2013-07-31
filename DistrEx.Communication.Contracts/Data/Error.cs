@@ -7,24 +7,12 @@ namespace DistrEx.Communication.Contracts.Data
     public class Error
     {
         [DataMember]
-        public Guid OperationId
-        {
-            get;
-            set;
-        }
+        public Guid OperationId { get; set; }
 
         [DataMember]
-        public string ExceptionTypeName
-        {
-            get;
-            set;
-        }
+        public string ExceptionTypeName { get; set; }
 
         [DataMember]
-        public string SerializedException
-        {
-            get;
-            set;
-        }
+        public string SerializedException { get; set; }
     }
 }

@@ -17,6 +17,12 @@ namespace DistrEx.Communication.Contracts.Service
 
         [OperationContract(IsOneWay = true)]
         void Cancel(Cancellation cancellation);
+
+        void SubscribeExecute(EventHandler<ExecuteEventArgs> handler);
+        void UnsubscribeExecute(EventHandler<ExecuteEventArgs> handler);
+
+        void SubscribeCancel(EventHandler<CancelEventArgs> handler);
+        void UnsubscribeCancel(EventHandler<CancelEventArgs> handler);
     }
 
     //[ServiceContract(Name = "ExecutorCallback", Namespace = "http://schemas.fugro/distrex/service/executorcallback")]

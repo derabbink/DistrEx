@@ -48,7 +48,9 @@
     <Compile Include="Data\Instruction.cs" />
     <Compile Include="Data\Progress.cs" />
     <Compile Include="Data\Result.cs" />
+    <Compile Include="Events\CancelEventArgs.cs" />
     <Compile Include="Events\ErrorCallbackEventArgs.cs" />
+    <Compile Include="Events\ExecuteEventArgs.cs" />
     <Compile Include="Events\ProgressCallbackEventArgs.cs" />
     <Compile Include="Events\CompleteCallbackEventArgs.cs" />
     <Compile Include="Message\Assembly.cs" />

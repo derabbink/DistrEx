@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Threading;
 using DistrEx.Common;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Communication.Service.Executor;
@@ -19,10 +20,12 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private TargetSpec _onWorker;
 
         private Instruction<int, int> _identity;
+        private Instruction<int, int> _haltingIdentity;
         private Instruction<Exception, Exception> _throw;
         private int _argumentIdentity;
         private Exception _argumentThrow;
 
+        #region setup
         [TestFixtureSetUp]
         public void SetupFixture()
         {
@@ -36,6 +39,12 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private void ConfigureOperations()
         {
             _identity = (ct, p, i) => i;
+            _haltingIdentity = (ct, p, i) =>
+                {
+                    ManualResetEventSlim mres = new ManualResetEventSlim(false);
+                    mres.Wait(ct);
+                    return i;
+                };
             _throw = (ct, p, e) =>
             {
                 throw e;
@@ -43,12 +52,14 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             _argumentIdentity = 1;
             _argumentThrow = new Exception("Expected");
         }
+        #endregion
 
-        [TestFixtureTearDown]
-        public void TeardownFixture()
+        [Test]
+        public void SuccessfulOnWorker()
         {
-            _onWorker.ClearAssemblies();
-            ProcessHelper.Stop(_workerProcess);
+            int expected = _argumentIdentity;
+            int actual = Interface.Coordinator.Do(_onWorker.Do(_identity), _argumentIdentity).ResultValue;
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [Test]
@@ -59,11 +70,20 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         }
 
         [Test]
-        public void SuccessfulOnWorker()
+        [ExpectedException(typeof(OperationCanceledException))]
+        public void CancelOnWorker()
         {
-            int expected = _argumentIdentity;
-            int actual = Interface.Coordinator.Do(_onWorker.Do(_identity), _argumentIdentity).ResultValue;
-            Assert.That(actual, Is.EqualTo(expected));
+            var targetedInstruction = _onWorker.Do(_haltingIdentity);
+            var future = targetedInstruction.Invoke(_argumentIdentity);
+            future.Cancel();
+            future.GetResult();
+        }
+
+        [TestFixtureTearDown]
+        public void TeardownFixture()
+        {
+            _onWorker.ClearAssemblies();
+            ProcessHelper.Stop(_workerProcess);
         }
     }
 }

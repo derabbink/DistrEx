@@ -10,16 +10,8 @@ namespace DistrEx.Communication.Contracts.Events
             Error = error;
         }
 
-        public Guid OperationId
-        {
-            get;
-            private set;
-        }
+        public Guid OperationId { get; private set; }
 
-        public Exception Error
-        {
-            get;
-            private set;
-        }
+        public Exception Error { get; private set; }
     }
 }

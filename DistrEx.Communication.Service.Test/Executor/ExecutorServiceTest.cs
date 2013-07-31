@@ -20,24 +20,9 @@ namespace DistrEx.Communication.Service.Test.Executor
     [TestFixture]
     public class ExecutorServiceTest
     {
-        #region Setup/Teardown
-
-        [SetUp]
-        public void Setup()
-        {
-            _executorCallback = new ExecutorCallbackService();
-            _pluginManager = new PluginManager();
-            _executor = new ExecutorService(_pluginManager, _executorCallback);
-
-            TransportThisAssembly();
-            SetupCallbackObservables();
-            SetupInstructions();
-        }
-
-        #endregion
-
         private PluginManager _pluginManager;
-        private IExecutor _executor;
+        private IExecutor _executorService;
+        private Worker.Executor _executor;
         private IExecutorCallback _executorCallback;
 
         private IObservable<ProgressCallbackEventArgs> _progresses;
@@ -55,6 +40,23 @@ namespace DistrEx.Communication.Service.Test.Executor
         private string _serializedArgumentThrow;
         private Guid _throwOperationId;
         private Instruction _instructionThrow;
+
+        #region Setup
+
+        [SetUp]
+        public void Setup()
+        {
+            _executorCallback = new ExecutorCallbackService();
+            _pluginManager = new PluginManager();
+            _executorService = new ExecutorService(_executorCallback);
+            _executor = new Worker.Executor(_executorService, _pluginManager);
+
+            TransportThisAssembly();
+            SetupCallbackObservables();
+            SetupInstructions();
+        }
+
+        #endregion
 
         private void TransportThisAssembly()
         {
@@ -122,7 +124,7 @@ namespace DistrEx.Communication.Service.Test.Executor
                     .Replay(Scheduler.Default);
                 errorObs.Connect();
 
-                _executor.Execute(_instructionThrow);
+                _executorService.Execute(_instructionThrow);
 
                 Exception error = errorObs.First().Error;
                 observer.OnError(error);
@@ -143,7 +145,7 @@ namespace DistrEx.Communication.Service.Test.Executor
                     .Replay(Scheduler.Default);
                 resultObs.Connect();
 
-                _executor.Execute(_instructionIdentity);
+                _executorService.Execute(_instructionIdentity);
 
                 var result = (int) resultObs.First().Result;
                 observer.OnNext(result);
