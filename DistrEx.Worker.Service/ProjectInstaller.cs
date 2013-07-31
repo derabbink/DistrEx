@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
-using System.ServiceProcess;
+using System.Configuration.Install;
 
 namespace DistrEx.Worker.Service
 {
     [RunInstaller(true)]
-    public partial class ProjectInstaller : System.Configuration.Install.Installer
+    public partial class ProjectInstaller : Installer
     {
         public ProjectInstaller()
         {

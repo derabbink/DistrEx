@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DistrEx.Communication.Contracts.Events
 {
@@ -13,8 +10,16 @@ namespace DistrEx.Communication.Contracts.Events
             Error = error;
         }
 
-        public Guid OperationId { get; private set; }
+        public Guid OperationId
+        {
+            get;
+            private set;
+        }
 
-        public Exception Error { get; private set; }
+        public Exception Error
+        {
+            get;
+            private set;
+        }
     }
 }

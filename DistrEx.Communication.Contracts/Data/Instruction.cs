@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 
 namespace DistrEx.Communication.Contracts.Data
@@ -10,18 +7,38 @@ namespace DistrEx.Communication.Contracts.Data
     public class Instruction
     {
         [DataMember]
-        public Guid OperationId { get; set; }
+        public Guid OperationId
+        {
+            get;
+            set;
+        }
 
         [DataMember]
-        public string AssemblyQualifiedName { get; set; }
+        public string AssemblyQualifiedName
+        {
+            get;
+            set;
+        }
 
         [DataMember]
-        public string MethodName { get; set; }
+        public string MethodName
+        {
+            get;
+            set;
+        }
 
         [DataMember]
-        public string ArgumentTypeName { get; set; }
+        public string ArgumentTypeName
+        {
+            get;
+            set;
+        }
 
         [DataMember]
-        public string SerializedArgument { get; set; }
+        public string SerializedArgument
+        {
+            get;
+            set;
+        }
     }
 }

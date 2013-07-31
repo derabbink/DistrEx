@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
 using System.Threading;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
@@ -15,18 +10,23 @@ using DistrEx.Coordinator.Interface;
 namespace DistrEx.Coordinator.TargetSpecs
 {
     /// <summary>
-    /// TargetSpec for execution on the coordinator
+    ///     TargetSpec for execution on the coordinator
     /// </summary>
     public class OnCoordinator : TargetSpec
     {
-        private static OnCoordinator _defaultInstance = null;
+        private static OnCoordinator _defaultInstance;
+
+        private OnCoordinator()
+        {
+        }
 
         public static OnCoordinator Default
         {
-            get { return _defaultInstance ?? (_defaultInstance = new OnCoordinator()); }
+            get
+            {
+                return _defaultInstance ?? (_defaultInstance = new OnCoordinator());
+            }
         }
-
-        private OnCoordinator() { }
 
         public override void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction)
         {
@@ -48,12 +48,12 @@ namespace DistrEx.Coordinator.TargetSpecs
             Instruction<TArgument, TResult> instr = instruction.GetDelegate();
 
             IObservable<ProgressingResult<TResult>> observable = Observable.Create((IObserver<ProgressingResult<TResult>> obs) =>
-                {
-                    var result = instr(cancellationToken, () => obs.OnNext(Progress<TResult>.Default), argument);
-                    obs.OnNext(new Result<TResult>(result));
-                    obs.OnCompleted();
-                    return Disposable.Empty;
-                });
+            {
+                TResult result = instr(cancellationToken, () => obs.OnNext(Progress<TResult>.Default), argument);
+                obs.OnNext(new Result<TResult>(result));
+                obs.OnCompleted();
+                return Disposable.Empty;
+            });
 
             return new Future<TResult>(observable);
         }

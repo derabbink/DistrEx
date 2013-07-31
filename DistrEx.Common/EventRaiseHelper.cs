@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DistrEx.Common
 {
@@ -10,15 +8,19 @@ namespace DistrEx.Common
         public static void Raise(this EventHandler eh, object sender, EventArgs e)
         {
             if (eh == null)
+            {
                 return;
+            }
 
-            foreach (var handler in eh.GetInvocationList().Cast<EventHandler>())
+            foreach (EventHandler handler in eh.GetInvocationList().Cast<EventHandler>())
             {
                 try
                 {
                     handler(sender, e);
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
 
@@ -27,11 +29,15 @@ namespace DistrEx.Common
             if (eh != null)
             {
                 foreach (var handler in eh.GetInvocationList().Cast<EventHandler<T>>())
+                {
                     try
                     {
                         handler(sender, e);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
+                }
             }
         }
     }

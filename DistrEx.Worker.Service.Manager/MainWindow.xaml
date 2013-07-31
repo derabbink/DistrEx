@@ -31,7 +31,7 @@
                 VerticalAlignment="Top"
                 Width="86"
                 Click="StopServiceButtonClick" />
-        <Label Content ="Not available"
+        <Label Content="Not available"
                Height="28"
                HorizontalAlignment="Right"
                Margin="0,109,12,0"
@@ -52,7 +52,7 @@
                 Width="24"
                 Click="RefreshClick"
                 DataContext="{Binding}">
-                <Image Source="Refresh.jpg"></Image>
+            <Image Source="Refresh.jpg"></Image>
         </Button>
         <Button Content="Windows Services ..."
                 Height="23"

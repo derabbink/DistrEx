@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace DistrEx.Communication.Contracts.Data
 {
@@ -10,6 +7,10 @@ namespace DistrEx.Communication.Contracts.Data
     public class Progress
     {
         [DataMember]
-        public Guid OperationId { get; set; }
+        public Guid OperationId
+        {
+            get;
+            set;
+        }
     }
 }

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DistrEx.Plugin
 {
     internal class ExecutorCallback : MarshalByRefObject
     {
-        private Action _progress;
+        private readonly Action _progress;
 
         public ExecutorCallback(Action progress)
         {
@@ -18,6 +15,5 @@ namespace DistrEx.Plugin
         {
             _progress();
         }
-
     }
 }

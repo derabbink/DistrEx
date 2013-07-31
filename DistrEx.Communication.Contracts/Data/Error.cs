@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace DistrEx.Communication.Contracts.Data
 {
@@ -10,12 +7,24 @@ namespace DistrEx.Communication.Contracts.Data
     public class Error
     {
         [DataMember]
-        public Guid OperationId { get; set; }
+        public Guid OperationId
+        {
+            get;
+            set;
+        }
 
         [DataMember]
-        public string ExceptionTypeName { get; set; }
+        public string ExceptionTypeName
+        {
+            get;
+            set;
+        }
 
         [DataMember]
-        public string SerializedException { get; set; }
+        public string SerializedException
+        {
+            get;
+            set;
+        }
     }
 }

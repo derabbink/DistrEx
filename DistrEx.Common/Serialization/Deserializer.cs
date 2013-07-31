@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 
 namespace DistrEx.Common.Serialization
 {
@@ -17,7 +14,7 @@ namespace DistrEx.Common.Serialization
             try
             {
                 byte[] bytes = Convert.FromBase64String(value);
-                using (MemoryStream mStream = new MemoryStream(bytes))
+                using (var mStream = new MemoryStream(bytes))
                 {
                     return new BinaryFormatter().Deserialize(mStream);
                 }

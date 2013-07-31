@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
-using System.Text;
+using DependencyResolver;
 using DistrEx.Common;
 using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
@@ -15,13 +14,28 @@ using DistrEx.Communication.Contracts.Service;
 using DistrEx.Communication.Service.Executor;
 using DistrEx.Plugin;
 using NUnit.Framework;
-using DependencyResolver;
 
 namespace DistrEx.Communication.Service.Test.Executor
 {
     [TestFixture]
     public class ExecutorServiceTest
     {
+        #region Setup/Teardown
+
+        [SetUp]
+        public void Setup()
+        {
+            _executorCallback = new ExecutorCallbackService();
+            _pluginManager = new PluginManager();
+            _executor = new ExecutorService(_pluginManager, _executorCallback);
+
+            TransportThisAssembly();
+            SetupCallbackObservables();
+            SetupInstructions();
+        }
+
+        #endregion
+
         private PluginManager _pluginManager;
         private IExecutor _executor;
         private IExecutorCallback _executorCallback;
@@ -41,19 +55,6 @@ namespace DistrEx.Communication.Service.Test.Executor
         private string _serializedArgumentThrow;
         private Guid _throwOperationId;
         private Instruction _instructionThrow;
-
-        #region setup
-        [SetUp]
-        public void Setup()
-        {
-            _executorCallback = new ExecutorCallbackService();
-            _pluginManager = new PluginManager();
-            _executor = new ExecutorService(_pluginManager, _executorCallback);
-
-            TransportThisAssembly();
-            SetupCallbackObservables();
-            SetupInstructions();
-        }
 
         private void TransportThisAssembly()
         {
@@ -83,21 +84,24 @@ namespace DistrEx.Communication.Service.Test.Executor
             _identityOperationId = Guid.NewGuid();
             _delegateIdentity = (ct, p, i) => i;
             MethodInfo mi = _delegateIdentity.Method;
-            _instructionIdentity = new Instruction()
-                {
-                    ArgumentTypeName = _argumentIdentity.GetType().FullName,
-                    SerializedArgument = _serializedArgumentIdentity,
-                    AssemblyQualifiedName = mi.ReflectedType.AssemblyQualifiedName,
-                    MethodName = mi.Name,
-                    OperationId = _identityOperationId
-                };
+            _instructionIdentity = new Instruction
+            {
+                ArgumentTypeName = _argumentIdentity.GetType().FullName,
+                SerializedArgument = _serializedArgumentIdentity,
+                AssemblyQualifiedName = mi.ReflectedType.AssemblyQualifiedName,
+                MethodName = mi.Name,
+                OperationId = _identityOperationId
+            };
 
             _argumentThrow = new Exception("Expected");
             _serializedArgumentThrow = Serializer.Serialize(_argumentThrow);
             _throwOperationId = Guid.NewGuid();
-            _delegateThrow = (ct, p, e) => { throw e; };
+            _delegateThrow = (ct, p, e) =>
+            {
+                throw e;
+            };
             mi = _delegateThrow.Method;
-            _instructionThrow = new Instruction()
+            _instructionThrow = new Instruction
             {
                 ArgumentTypeName = _argumentThrow.GetType().FullName,
                 SerializedArgument = _serializedArgumentThrow,
@@ -106,31 +110,6 @@ namespace DistrEx.Communication.Service.Test.Executor
                 OperationId = _throwOperationId
             };
         }
-        #endregion
-
-        #region tests
-        [Test]
-        public void ExecuteSuccess()
-        {
-            var expected = _argumentIdentity;
-            IObservable<int> observable = Observable.Create((IObserver<int> observer) =>
-                {
-                    var resultObs = _completes
-                        .Where(eArgs => eArgs.OperationId == _identityOperationId)
-                        .Replay(Scheduler.Default);
-                    resultObs.Connect();
-
-                    _executor.Execute(_instructionIdentity);
-
-                    int result = (int)resultObs.First().Result;
-                    observer.OnNext(result);
-                    observer.OnCompleted();
-
-                    return Disposable.Empty;
-                });
-            var actual = observable.Last();
-            Assert.That(actual, Is.EqualTo(expected));
-        }
 
         [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
@@ -138,20 +117,42 @@ namespace DistrEx.Communication.Service.Test.Executor
         {
             IObservable<Exception> observable = Observable.Create((IObserver<Exception> observer) =>
             {
-                var errorObs = _errors
+                IConnectableObservable<ErrorCallbackEventArgs> errorObs = _errors
                     .Where(eArgs => eArgs.OperationId == _throwOperationId)
                     .Replay(Scheduler.Default);
                 errorObs.Connect();
 
                 _executor.Execute(_instructionThrow);
 
-                Exception error = (Exception) errorObs.First().Error;
+                Exception error = errorObs.First().Error;
                 observer.OnError(error);
-                
+
                 return Disposable.Empty;
             });
-            var actual = observable.Last();
+            Exception actual = observable.Last();
         }
-        #endregion
+
+        [Test]
+        public void ExecuteSuccess()
+        {
+            int expected = _argumentIdentity;
+            IObservable<int> observable = Observable.Create((IObserver<int> observer) =>
+            {
+                IConnectableObservable<CompleteCallbackEventArgs> resultObs = _completes
+                    .Where(eArgs => eArgs.OperationId == _identityOperationId)
+                    .Replay(Scheduler.Default);
+                resultObs.Connect();
+
+                _executor.Execute(_instructionIdentity);
+
+                var result = (int) resultObs.First().Result;
+                observer.OnNext(result);
+                observer.OnCompleted();
+
+                return Disposable.Empty;
+            });
+            int actual = observable.Last();
+            Assert.That(actual, Is.EqualTo(expected));
+        }
     }
 }

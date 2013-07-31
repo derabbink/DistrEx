@@ -1,4 +1,5 @@
-﻿using System.ServiceProcess;
+﻿using System.Diagnostics;
+using System.ServiceProcess;
 
 namespace DistrEx.Worker.Service
 {
@@ -8,9 +9,9 @@ namespace DistrEx.Worker.Service
         {
             InitializeComponent();
 
-            if (!System.Diagnostics.EventLog.SourceExists("MySource"))
+            if (!EventLog.SourceExists("MySource"))
             {
-                System.Diagnostics.EventLog.CreateEventSource("MySource", "MyNewLog");
+                EventLog.CreateEventSource("MySource", "MyNewLog");
             }
             eventLog1.Source = "MySource";
             eventLog1.Log = "MyNewLog";

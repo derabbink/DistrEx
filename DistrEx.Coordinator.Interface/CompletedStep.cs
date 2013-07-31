@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace DistrEx.Coordinator.Interface
+﻿namespace DistrEx.Coordinator.Interface
 {
     public class CompletedStep<TResult>
     {
@@ -12,7 +7,11 @@ namespace DistrEx.Coordinator.Interface
             ResultValue = result;
         }
 
-        public TResult ResultValue { get; private set; }
+        public TResult ResultValue
+        {
+            get;
+            private set;
+        }
 
         public CompletedStep<TNextResult> ThenDo<TNextResult>(TargetedInstruction<TResult, TNextResult> targetedInstruction)
         {

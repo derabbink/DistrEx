@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using NUnit.Framework;
 using DependencyResolver;
+using NUnit.Framework;
 
 namespace DistrEx.Plugin.Test.PluginManagerTests
 {

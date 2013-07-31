@@ -9,22 +9,22 @@ using Microsoft.Win32;
 namespace DistrEx.Worker.Service.Manager
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string ServiceName = "Worker";
-        const string InstallUtilCommand = "installutil";
-        const string FullServiceName = "DistrEx.Worker.Service.exe";
         private const string FullLogName = "DistrEx.Worker.Service.InstallLog";
+        private const string FullServiceName = "DistrEx.Worker.Service.exe";
+        private const string InstallUtilCommand = "installutil";
+        private const string ServiceName = "Worker";
 
-        private ServiceController service; 
+        private ServiceController service;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            InitializeService(); 
+            InitializeService();
         }
 
         private void InitializeService()
@@ -38,7 +38,7 @@ namespace DistrEx.Worker.Service.Manager
             }
             else
             {
-                UpdateStatus("Installed"); 
+                UpdateStatus("Installed");
                 service = serviceController;
             }
         }
@@ -48,10 +48,10 @@ namespace DistrEx.Worker.Service.Manager
             if (FileName.Text == String.Empty)
             {
                 UpdateStatus("Enter service to install");
-                return; 
+                return;
             }
             string commandText = "/C " + Directory.GetParent(FileName.Text).FullName + "\\" + InstallUtilCommand +
-                                 " " + Directory.GetParent(FileName.Text).FullName + "\\" + FullServiceName; 
+                                 " " + Directory.GetParent(FileName.Text).FullName + "\\" + FullServiceName;
             RunCommand(commandText);
 
             InitializeService();
@@ -65,7 +65,7 @@ namespace DistrEx.Worker.Service.Manager
                 return;
             }
             string commandText = "/C " + Directory.GetParent(FileName.Text).FullName + "\\" + InstallUtilCommand +
-                                " -u " + Directory.GetParent(FileName.Text).FullName + "\\" + FullServiceName;
+                                 " -u " + Directory.GetParent(FileName.Text).FullName + "\\" + FullServiceName;
             RunCommand(commandText);
 
             InitializeService();
@@ -85,7 +85,6 @@ namespace DistrEx.Worker.Service.Manager
                 service.WaitForStatus(ServiceControllerStatus.Running);
             }
             UpdateStatus(ServiceControllerStatus.Running.ToString());
-
         }
 
         private void StopServiceButtonClick(object sender, RoutedEventArgs e)
@@ -93,7 +92,7 @@ namespace DistrEx.Worker.Service.Manager
             if (service == null)
             {
                 UpdateStatus("Not installed");
-                return; 
+                return;
             }
 
             if (service.Status == ServiceControllerStatus.Running)
@@ -106,9 +105,9 @@ namespace DistrEx.Worker.Service.Manager
 
         private void UpdateStatus(string status)
         {
-            StatusLable.Content = status; 
+            StatusLable.Content = status;
         }
-        
+
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
             UpdateStatus(service != null ? service.Status.ToString() : "Not installed");

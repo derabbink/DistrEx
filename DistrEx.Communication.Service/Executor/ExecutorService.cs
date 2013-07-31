@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
 using System.Threading;
-using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Plugin;
@@ -15,13 +12,13 @@ namespace DistrEx.Communication.Service.Executor
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
     public class ExecutorService : IExecutor
     {
-        private readonly PluginManager _pluginManager;
-        //TODO make the key a Tuple<Guid, session-id>
-        private readonly IDictionary<Guid, CancellationTokenSource> _cancellationTokenSources;
         private readonly IExecutorCallback _callbackChannel;
+        private readonly IDictionary<Guid, CancellationTokenSource> _cancellationTokenSources;
+        private readonly PluginManager _pluginManager;
 
-        public ExecutorService(PluginManager pluginManager) : this(pluginManager, null)
-        {   
+        public ExecutorService(PluginManager pluginManager)
+            : this(pluginManager, null)
+        {
         }
 
         [Obsolete("Only used for testing", false)]
@@ -32,27 +29,45 @@ namespace DistrEx.Communication.Service.Executor
             _callbackChannel = callbackChannel;
         }
 
+        private IExecutorCallback Callback
+        {
+            get
+            {
+                return _callbackChannel ?? OperationContext.Current.GetCallbackChannel<IExecutorCallback>();
+            }
+        }
+
+        #region IExecutor Members
+
         public void Execute(Instruction instruction)
         {
-            var operationId = instruction.OperationId;
-            CancellationTokenSource cts = new CancellationTokenSource();
+            Guid operationId = instruction.OperationId;
+            var cts = new CancellationTokenSource();
             _cancellationTokenSources.Add(operationId, cts);
-            Progress progressMsg = new Progress() {OperationId = operationId};
+            var progressMsg = new Progress
+            {
+                OperationId = operationId
+            };
             Action reportProgress = () => Callback.Progress(progressMsg);
             try
             {
                 SerializedResult serializedResult = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
                                                                            reportProgress, instruction.ArgumentTypeName, instruction.SerializedArgument);
-                Callback.Complete(new Result() { OperationId = operationId, ResultTypeName = serializedResult.TypeName, SerializedResult = serializedResult.Value });
+                Callback.Complete(new Result
+                {
+                    OperationId = operationId,
+                    ResultTypeName = serializedResult.TypeName,
+                    SerializedResult = serializedResult.Value
+                });
             }
             catch (ExecutionException e)
             {
-                Error msg = new Error()
-                    {
-                        OperationId = operationId,
-                        ExceptionTypeName = e.InnerExceptionTypeName,
-                        SerializedException = e.SerializedInnerException
-                    };
+                var msg = new Error
+                {
+                    OperationId = operationId,
+                    ExceptionTypeName = e.InnerExceptionTypeName,
+                    SerializedException = e.SerializedInnerException
+                };
                 Callback.Error(msg);
             }
             finally
@@ -65,12 +80,11 @@ namespace DistrEx.Communication.Service.Executor
         {
             CancellationTokenSource cts;
             if (_cancellationTokenSources.TryGetValue(cancellation.OperationId, out cts))
+            {
                 cts.Cancel();
+            }
         }
 
-        private IExecutorCallback Callback
-        {
-            get { return _callbackChannel ?? OperationContext.Current.GetCallbackChannel<IExecutorCallback>(); }
-        }
+        #endregion
     }
 }

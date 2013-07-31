@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
-using System.Text;
 using System.Threading;
 using DependencyResolver;
 
 namespace DistrEx.Plugin
 {
     /// <summary>
-    /// wraps assemblies in another appdomain
+    ///     wraps assemblies in another appdomain
     /// </summary>
     public class PluginManager : IDisposable
     {
+        private readonly string _cacheDir;
+        private readonly string _storageDir;
         private AppDomain _appDomain;
-        private string _storageDir;
-        private string _cacheDir;
 
         public PluginManager()
         {
@@ -26,6 +24,15 @@ namespace DistrEx.Plugin
             _cacheDir = ConfigurationManager.AppSettings.Get("DistrEx.Plugin.assembly-cache-dir");
             CreateAppDomain();
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            UnloadAppDomain();
+        }
+
+        #endregion
 
         private void CreateAppDomain()
         {
@@ -42,7 +49,6 @@ namespace DistrEx.Plugin
             setup.PrivateBinPathProbe = string.Empty; //any non-null string will do
 
             _appDomain = AppDomain.CreateDomain(name, evidence, setup);
-
         }
 
         private string GetNewAppDomainName()
@@ -54,34 +60,40 @@ namespace DistrEx.Plugin
         private void PrepareAppDomainAppBasePath()
         {
             if (!Directory.Exists(_storageDir))
+            {
                 Directory.CreateDirectory(_storageDir);
+            }
 
             //copy this assembly (and dependencies) to private bin path
             Resolver.GetAllDependencies(Assembly.GetExecutingAssembly().GetName()).Subscribe(an =>
+            {
+                string path = new Uri(an.CodeBase).LocalPath;
+                string fName = Path.GetFileName(path);
+                try
                 {
-                    string path = new Uri(an.CodeBase).LocalPath;
-                    string fName = Path.GetFileName(path);
-                    try
+                    File.Copy(path, Path.Combine(_storageDir, fName), true);
+                }
+                catch (IOException ex)
+                {
+                    //skip over locked files. this means they are already loaded
+                    if (!IsFileLocked(ex))
                     {
-                        File.Copy(path, Path.Combine(_storageDir, fName), true);
+                        throw;
                     }
-                    catch (IOException ex)
-                    {
-                        //skip over locked files. this means they are already loaded
-                        if (!IsFileLocked(ex))
-                            throw;
-                    }
-                });
+                }
+            });
         }
 
         private void PrepareAppDomainCachePath()
         {
             if (!Directory.Exists(_cacheDir))
+            {
                 Directory.CreateDirectory(_cacheDir);
+            }
         }
 
         /// <summary>
-        /// Loads an assembly
+        ///     Loads an assembly
         /// </summary>
         /// <param name="assembly"></param>
         /// <param name="assemblyName"></param>
@@ -97,7 +109,9 @@ namespace DistrEx.Plugin
             {
                 //skip over locked files. this means they are already loaded
                 if (!IsFileLocked(ex))
+                {
                     throw;
+                }
             }
             //no explicit load required
             //load happens implicitly when creating an instance
@@ -108,19 +122,21 @@ namespace DistrEx.Plugin
         {
             string filename = Path.Combine(_storageDir, string.Format("{0}.dll", assemblyName));
 
-            using (FileStream outfile = new FileStream(filename, FileMode.Create))
+            using (var outfile = new FileStream(filename, FileMode.Create))
             {
                 const int bufferSize = 4096; //4KiB
-                Byte[] buffer = new Byte[bufferSize];
+                var buffer = new Byte[bufferSize];
                 int bytesRead;
                 while ((bytesRead = assembly.Read(buffer, 0, bufferSize)) > 0)
+                {
                     outfile.Write(buffer, 0, bytesRead);
+                }
             }
         }
 
         /// <summary>
-        /// checks if a file is locked, given its IOException
-        /// see http://stackoverflow.com/a/3202085/1296709
+        ///     checks if a file is locked, given its IOException
+        ///     see http://stackoverflow.com/a/3202085/1296709
         /// </summary>
         /// <param name="exception"></param>
         /// <returns></returns>
@@ -137,7 +153,6 @@ namespace DistrEx.Plugin
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="assemblyQualifiedName"></param>
         /// <param name="methodName"></param>
@@ -150,7 +165,7 @@ namespace DistrEx.Plugin
         {
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
             cancellationToken.Register(executor.Cancel);
-            ExecutorCallback callback = new ExecutorCallback(reportProgress);
+            var callback = new ExecutorCallback(reportProgress);
 
             return executor.Execute(callback, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
         }
@@ -172,11 +187,6 @@ namespace DistrEx.Plugin
             {
                 //suppress bogus errors about non-empty directory
             }
-        }
-
-        public void Dispose()
-        {
-            UnloadAppDomain();
         }
     }
 }

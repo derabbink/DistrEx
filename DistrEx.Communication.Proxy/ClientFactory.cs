@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
+﻿using System.ServiceModel;
 
 namespace DistrEx.Communication.Proxy
 {
     /// <summary>
-    /// generates wrapped client channels
+    ///     generates wrapped client channels
     /// </summary>
     /// <typeparam name="TService">service contract</typeparam>
     public class ClientFactory<TService>

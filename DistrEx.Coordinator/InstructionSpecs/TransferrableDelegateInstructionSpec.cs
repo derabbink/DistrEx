@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
+﻿using System.Diagnostics.Contracts;
 using System.Reflection;
-using System.Text;
 using DistrEx.Common;
 
 namespace DistrEx.Coordinator.InstructionSpecs
@@ -24,7 +20,7 @@ namespace DistrEx.Coordinator.InstructionSpecs
             string methodName = methodInfo.Name;
             string assemblyQualifiedName = methodInfo.ReflectedType.AssemblyQualifiedName;
 
-            var staticMethodSpec = StaticMethodInstructionSpec<TArgument, TResult>.Create(assemblyQualifiedName, methodName);
+            StaticMethodInstructionSpec<TArgument, TResult> staticMethodSpec = StaticMethodInstructionSpec<TArgument, TResult>.Create(assemblyQualifiedName, methodName);
             return new TransferrableDelegateInstructionSpec<TArgument, TResult>(staticMethodSpec);
         }
 

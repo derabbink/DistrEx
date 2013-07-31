@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace DistrEx.Common.InstructionResult
+﻿namespace DistrEx.Common.InstructionResult
 {
     public class Result<TResult> : ProgressingResult<TResult>
     {
@@ -16,12 +11,18 @@ namespace DistrEx.Common.InstructionResult
 
         public override bool IsResult
         {
-            get { return true; }
+            get
+            {
+                return true;
+            }
         }
 
         public override TResult ResultValue
         {
-            get { return _resultValue; }
+            get
+            {
+                return _resultValue;
+            }
         }
     }
 }

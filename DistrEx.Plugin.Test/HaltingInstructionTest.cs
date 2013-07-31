@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DistrEx.Common;
@@ -12,38 +9,38 @@ namespace DistrEx.Plugin.Test
     [TestFixture]
     public class HaltingInstructionTest
     {
-        private Instruction<int, int> _haltingIdentity;
+        #region Setup/Teardown
 
-        #region setup
         [SetUp]
         public void Setup()
         {
             //need explicit types: http://stackoverflow.com/questions/4466859
             _haltingIdentity = (CancellationToken ct, Action p, int i) =>
-                {
-                    p();
-                    ManualResetEventSlim block = new ManualResetEventSlim(false);
-                    block.Wait(ct);
-                    p();
-                    return i;
-                };
+            {
+                p();
+                var block = new ManualResetEventSlim(false);
+                block.Wait(ct);
+                p();
+                return i;
+            };
         }
+
         #endregion
 
+        private Instruction<int, int> _haltingIdentity;
 
-        #region tests
         [Test]
         public void Test()
         {
-            var argument = 1;
-            CancellationTokenSource cts = new CancellationTokenSource();
-            ManualResetEventSlim progressBlock = new ManualResetEventSlim(false);
+            int argument = 1;
+            var cts = new CancellationTokenSource();
+            var progressBlock = new ManualResetEventSlim(false);
             Action progress = progressBlock.Set;
             Task<int> t = Task<int>.Factory.StartNew(() =>
-                {
-                    var result = _haltingIdentity(cts.Token, progress, argument);
-                    return result;
-                });
+            {
+                int result = _haltingIdentity(cts.Token, progress, argument);
+                return result;
+            });
             progressBlock.Wait();
             progressBlock.Reset();
             cts.Cancel();
@@ -57,6 +54,5 @@ namespace DistrEx.Plugin.Test
             }
             Assert.That(progressBlock.IsSet, Is.False);
         }
-        #endregion
     }
 }

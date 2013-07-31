@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using DistrEx.Common;
 
 namespace DistrEx.Coordinator.InstructionSpecs
 {
     public class NonTransferrableDelegateInstructionSpec<TArgument, TResult> : DelegateInstructionSpec<TArgument, TResult>
     {
-        private Instruction<TArgument, TResult> _instruction;
+        private readonly Instruction<TArgument, TResult> _instruction;
 
         private NonTransferrableDelegateInstructionSpec(Instruction<TArgument, TResult> instruction)
         {

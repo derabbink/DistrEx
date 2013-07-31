@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.ServiceModel;
-using System.Text;
-using System.Threading;
 using DistrEx.Common;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Communication.Service.Executor;
@@ -30,7 +23,6 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private int _argumentIdentity;
         private Exception _argumentThrow;
 
-        #region setup
         [TestFixtureSetUp]
         public void SetupFixture()
         {
@@ -44,20 +36,19 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private void ConfigureOperations()
         {
             _identity = (ct, p, i) => i;
-            _throw = (ct, p, e) => { throw e; };
+            _throw = (ct, p, e) =>
+            {
+                throw e;
+            };
             _argumentIdentity = 1;
             _argumentThrow = new Exception("Expected");
         }
-        #endregion
 
-        #region tests
-
-        [Test]
-        public void SuccessfulOnWorker()
+        [TestFixtureTearDown]
+        public void TeardownFixture()
         {
-            int expected = _argumentIdentity;
-            int actual = Interface.Coordinator.Do(_onWorker.Do(_identity), _argumentIdentity).ResultValue;
-            Assert.That(actual, Is.EqualTo(expected));
+            _onWorker.ClearAssemblies();
+            ProcessHelper.Stop(_workerProcess);
         }
 
         [Test]
@@ -67,15 +58,12 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             Exception actual = Interface.Coordinator.Do(_onWorker.Do(_throw), _argumentThrow).ResultValue;
         }
 
-        #endregion
-
-        #region teardown
-        [TestFixtureTearDown]
-        public void TeardownFixture()
+        [Test]
+        public void SuccessfulOnWorker()
         {
-            _onWorker.ClearAssemblies();
-            ProcessHelper.Stop(_workerProcess);
+            int expected = _argumentIdentity;
+            int actual = Interface.Coordinator.Do(_onWorker.Do(_identity), _argumentIdentity).ResultValue;
+            Assert.That(actual, Is.EqualTo(expected));
         }
-        #endregion
     }
 }

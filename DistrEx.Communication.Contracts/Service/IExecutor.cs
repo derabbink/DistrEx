@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 
@@ -12,7 +9,7 @@ namespace DistrEx.Communication.Contracts.Service
     public interface IExecutor
     {
         /// <summary>
-        /// Requesting execution of an instruction
+        ///     Requesting execution of an instruction
         /// </summary>
         /// <param name="instruction"></param>
         [OperationContract(IsOneWay = true)]
@@ -26,21 +23,21 @@ namespace DistrEx.Communication.Contracts.Service
     public interface IExecutorCallback
     {
         /// <summary>
-        /// Reporting progress for an insruction's execution
+        ///     Reporting progress for an insruction's execution
         /// </summary>
         /// <param name="progress"></param>
         [OperationContract(IsOneWay = true)]
         void Progress(Progress progress);
 
         /// <summary>
-        /// Returning a result for an completed instruction
+        ///     Returning a result for an completed instruction
         /// </summary>
         /// <param name="result"></param>
         [OperationContract(IsOneWay = true)]
         void Complete(Result result);
 
         /// <summary>
-        /// Reporting an error for an instruction
+        ///     Reporting an error for an instruction
         /// </summary>
         /// <param name="error"></param>
         [OperationContract(IsOneWay = true)]

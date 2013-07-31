@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using DistrEx.Common.Serialization;
 
 namespace DistrEx.Plugin
 {
     /// <summary>
-    /// Helper to execute code in other appdomain
-    /// Usable for ONE instruction only. Create a new instance for each instruction
+    ///     Helper to execute code in other appdomain
+    ///     Usable for ONE instruction only. Create a new instance for each instruction
     /// </summary>
     internal class Executor : MarshalByRefObject
     {
@@ -30,7 +27,6 @@ namespace DistrEx.Plugin
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="callback"></param>
         /// <param name="assemblyQualifiedName"></param>
@@ -61,7 +57,7 @@ namespace DistrEx.Plugin
                 catch
                 {
                     serializedEx = null;
-                    serializedExTypeName = typeof (Exception).FullName;
+                    serializedExTypeName = typeof(Exception).FullName;
                 }
                 throw new ExecutionException(serializedExTypeName, serializedEx);
             }
@@ -77,7 +73,10 @@ namespace DistrEx.Plugin
                 object argument = Deserializer.Deserialize(argumentTypeName, serializedArgument);
                 reportProgress();
 
-                object result = func.Invoke(null, new object[] { _cancellationTokenSource.Token, reportProgress, argument });
+                object result = func.Invoke(null, new[]
+                {
+                    _cancellationTokenSource.Token, reportProgress, argument
+                });
                 reportProgress();
 
                 string serializedResult = Serializer.Serialize(result);

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
 using NUnit.Framework;
 
 namespace DistrEx.Coordinator.Test
@@ -14,71 +11,69 @@ namespace DistrEx.Coordinator.Test
     [TestFixture]
     public class ObservableErrorTest
     {
-
         [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
-        public void ErrorInReplaySubject()
-        {
-            Exception expected = new Exception("Expected");
-            IObservable<Unit> obs = Observable.Create((IObserver<Unit> observer) =>
-                {
-                    observer.OnNext(Unit.Default);
-                    observer.OnError(expected);
-                    return Disposable.Empty;
-                });
-            ReplaySubject<Unit> rps = new ReplaySubject<Unit>();
-            obs.Subscribe(rps);
-            //Tease out exception
-            var last = rps.Last();
-        }
-
-        [Test]
-        [ExpectedException(typeof (Exception), ExpectedMessage = "Expected")]
         public void ErrorInAmb1()
         {
-            var left = Observable.Throw<Unit>(new Exception("Expected"));
-            var right = Observable.Never<Unit>();
+            IObservable<Unit> left = Observable.Throw<Unit>(new Exception("Expected"));
+            IObservable<Unit> right = Observable.Never<Unit>();
 
-            var both = left.Amb(right);
+            IObservable<Unit> both = left.Amb(right);
             //tease out exceptions
-            var last = both.Last();
+            Unit last = both.Last();
         }
 
         [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void ErrorInAmb2()
         {
-            var left = Observable.Never<Unit>();
-            var right = Observable.Throw<Unit>(new Exception("Expected"));
+            IObservable<Unit> left = Observable.Never<Unit>();
+            IObservable<Unit> right = Observable.Throw<Unit>(new Exception("Expected"));
 
-            var both = left.Amb(right);
+            IObservable<Unit> both = left.Amb(right);
             //tease out exceptions
-            var last = both.Last();
+            Unit last = both.Last();
         }
 
         [Test]
-        [ExpectedException(typeof (Exception), ExpectedMessage = "Expected")]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void ErrorInReplaySubject()
+        {
+            var expected = new Exception("Expected");
+            IObservable<Unit> obs = Observable.Create((IObserver<Unit> observer) =>
+            {
+                observer.OnNext(Unit.Default);
+                observer.OnError(expected);
+                return Disposable.Empty;
+            });
+            var rps = new ReplaySubject<Unit>();
+            obs.Subscribe(rps);
+            //Tease out exception
+            Unit last = rps.Last();
+        }
+
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void ErrorInReplayedObservable()
         {
-            var throws = Observable.Throw<Unit>(new Exception("Expected"));
-            var replayed = throws.Replay();
+            IObservable<Unit> throws = Observable.Throw<Unit>(new Exception("Expected"));
+            IConnectableObservable<Unit> replayed = throws.Replay();
             replayed.Connect();
 
             //tease out exception
-            var last = replayed.Last();
+            Unit last = replayed.Last();
         }
-
 
         [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void ErrorInReplayedObservableOnScheduler()
         {
-            var throws = Observable.Throw<Unit>(new Exception("Expected"));
-            var replayed = throws.Replay(Scheduler.Default);
+            IObservable<Unit> throws = Observable.Throw<Unit>(new Exception("Expected"));
+            IConnectableObservable<Unit> replayed = throws.Replay(Scheduler.Default);
             replayed.Connect();
 
             //tease out exception
-            var last = replayed.Last();
+            Unit last = replayed.Last();
         }
     }
 }

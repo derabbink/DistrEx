@@ -4,6 +4,15 @@ namespace DistrEx.Worker.Interface
 {
     public abstract class Worker : IDisposable
     {
+        #region IDisposable Members
+
+        public virtual void Dispose()
+        {
+            StopServices();
+        }
+
+        #endregion
+
         public void StartServices()
         {
             StartAssemblyManagerService();
@@ -21,10 +30,5 @@ namespace DistrEx.Worker.Interface
 
         protected abstract void StopAssemblyManagerService();
         protected abstract void StopExecutorService();
-        
-        public virtual void Dispose()
-        {
-            StopServices();
-        }
     }
 }

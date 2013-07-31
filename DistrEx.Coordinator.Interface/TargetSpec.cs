@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface
@@ -18,7 +14,7 @@ namespace DistrEx.Coordinator.Interface
         protected TargetedInstruction<TArgument, TResult> Do<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction)
         {
             return TargetedInstruction<TArgument, TResult>.Create(this, instruction);
-        } 
+        }
 
         public Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)
         {

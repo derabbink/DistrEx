@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DistrEx.Common;
+﻿using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface
 {
@@ -14,14 +10,22 @@ namespace DistrEx.Coordinator.Interface
             Instruction = instruction;
         }
 
+        protected internal TargetSpec Target
+        {
+            get;
+            private set;
+        }
+
+        protected InstructionSpec<TArgument, TResult> Instruction
+        {
+            get;
+            private set;
+        }
+
         public static TargetedInstruction<TArgument, TResult> Create(TargetSpec target, InstructionSpec<TArgument, TResult> instruction)
         {
             return new TargetedInstruction<TArgument, TResult>(target, instruction);
         }
-
-        protected internal TargetSpec Target { get; private set; }
-
-        protected InstructionSpec<TArgument, TResult> Instruction { get; private set; }
 
         public Future<TResult> Invoke(TArgument argument)
         {
