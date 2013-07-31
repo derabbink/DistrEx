@@ -10,7 +10,7 @@
           </baseAddresses>
         </host>
         <!-- endpoint is exposed at address http://localhost:8000/executor -->
-        <endpoint address="" binding="wsDualHttpBinding" contract="DistrEx.Communication.Contracts.Service.IExecutor"/>
+        <endpoint address="" binding="wsDualHttpBinding" bindingConfiguration="executorBinding" contract="DistrEx.Communication.Contracts.Service.IExecutor"/>
       </service>
       <service name="DistrEx.Communication.Service.AssemblyManager.AssemblyManagerService" behaviorConfiguration="AssemblyManagerBehavior">
         <host>
@@ -25,6 +25,12 @@
     </services>
 
     <bindings>
+      <wsDualHttpBinding>
+        <!-- binding for transferring instructions and arguments (<=1MiB) (max pool size: 2MiB) -->
+        <binding name="executorBinding" maxReceivedMessageSize="1049000" maxBufferPoolSize="2097000">
+          <readerQuotas maxStringContentLength="1049000" />
+        </binding>
+      </wsDualHttpBinding>
       <basicHttpBinding>
         <!-- binding for transferring assemblies (can be large) as streams (<=10MiB) -->
         <binding name="assemblyTransferBinding" transferMode="StreamedRequest" maxReceivedMessageSize="10490000" />

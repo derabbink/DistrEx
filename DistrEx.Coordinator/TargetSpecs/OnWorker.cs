@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -40,9 +41,9 @@ namespace DistrEx.Coordinator.TargetSpecs
         private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, IExecutorCallback callbackHandler)
         {
             _callbackHandler = callbackHandler;
-            _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).Select(ePattern => ePattern.EventArgs).ObserveOn(Scheduler.Default);
-            _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).Select(ePattern => ePattern.EventArgs).ObserveOn(Scheduler.Default);
-            _errors = Observable.FromEventPattern<ErrorCallbackEventArgs>(_callbackHandler.SubscribeError, _callbackHandler.UnsubscribeError).Select(ePattern => ePattern.EventArgs).ObserveOn(Scheduler.Default);
+            _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
+            _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
+            _errors = Observable.FromEventPattern<ErrorCallbackEventArgs>(_callbackHandler.SubscribeError, _callbackHandler.UnsubscribeError).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
 
             ClientFactory<IAssemblyManager> assemblyManagerFactory = new ClientFactory<IAssemblyManager>(assemblyManagerEndpointConfigName);
             _assemblyManagerClient = assemblyManagerFactory.GetClient();

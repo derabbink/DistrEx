@@ -42,12 +42,18 @@ namespace DistrEx.Communication.Service.Executor
             try
             {
                 SerializedResult serializedResult = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
-                                                              reportProgress, instruction.ArgumentTypeName, instruction.SerializedArgument);
+                                                                           reportProgress, instruction.ArgumentTypeName, instruction.SerializedArgument);
                 Callback.Complete(new Result() { OperationId = operationId, ResultTypeName = serializedResult.TypeName, SerializedResult = serializedResult.Value });
             }
             catch (ExecutionException e)
             {
-                Callback.Error(new Error() {OperationId = operationId, ExceptionTypeName = e.InnerExceptionTypeName, SerializedException = e.SerializedInnerException});
+                Error msg = new Error()
+                    {
+                        OperationId = operationId,
+                        ExceptionTypeName = e.InnerExceptionTypeName,
+                        SerializedException = e.SerializedInnerException
+                    };
+                Callback.Error(msg);
             }
             finally
             {

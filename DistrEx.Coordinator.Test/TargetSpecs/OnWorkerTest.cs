@@ -44,7 +44,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private void ConfigureOperations()
         {
             _identity = (ct, p, i) => i;
-            _throw = (ct, p, e) => { throw new Exception("Not expected"); };
+            _throw = (ct, p, e) => { throw e; };
             _argumentIdentity = 1;
             _argumentThrow = new Exception("Expected");
         }
@@ -70,15 +70,10 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         #endregion
 
         #region teardown
-        [TearDown]
-        public void Teardown()
-        {
-            _onWorker.ClearAssemblies();
-        }
-
         [TestFixtureTearDown]
         public void TeardownFixture()
         {
+            _onWorker.ClearAssemblies();
             ProcessHelper.Stop(_workerProcess);
         }
         #endregion
