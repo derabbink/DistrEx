@@ -79,6 +79,13 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             future.GetResult();
         }
 
+        [Test]
+        [ExpectedException(typeof(OperationCanceledException))]
+        public void TimeoutOnWorker()
+        {
+            var result = Interface.Coordinator.Do(_onWorker.Do(_haltingIdentity), _argumentIdentity).ResultValue;
+        }
+
         [TestFixtureTearDown]
         public void TeardownFixture()
         {

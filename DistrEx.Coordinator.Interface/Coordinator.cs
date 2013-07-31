@@ -8,7 +8,7 @@ namespace DistrEx.Coordinator.Interface
             TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)
         {
             Future<TResult> future = targetedInstruction.Invoke(argument);
-            //TimeoutMonitor.MonitorTimeout(future);
+            TimeoutMonitor.MonitorTimeout(future);
             var result = future.GetResult();
             return new CompletedStep<TResult>(result);
         }
