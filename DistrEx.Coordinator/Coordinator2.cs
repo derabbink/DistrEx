@@ -22,5 +22,13 @@ namespace DistrEx.Coordinator
             var wrappedInstruction = TargetedInstruction<TArgument, Tuple<TResult1, TResult2>>.Create(local, monitored);
             return Interface.Coordinator.Do(wrappedInstruction, argument);
         }
+
+        public static TargetedInstruction<TArgument, Tuple<TResult1, TResult2>> Do<TArgument, TResult1, TResult2>(
+            TargetedInstruction<TArgument, TResult1> targetedInstruction1,
+            TargetedInstruction<TArgument, TResult2> targetedInstruction2
+            )
+        {
+            throw new NotImplementedException();
+        }
     }
 }

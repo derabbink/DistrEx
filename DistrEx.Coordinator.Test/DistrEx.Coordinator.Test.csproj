@@ -75,6 +75,7 @@
     <Compile Include="DelegateTest.cs" />
     <Compile Include="ObservableErrorTest.cs" />
     <Compile Include="ObservableSwitchTest.cs" />
+    <Compile Include="Integration\Parallel2Tests.cs" />
     <Compile Include="Parallel\Parallel1Test.cs" />
     <Compile Include="Parallel\Parallel2Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
