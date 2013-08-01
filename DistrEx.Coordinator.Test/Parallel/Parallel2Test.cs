@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using DistrEx.Common;
 using DistrEx.Coordinator.Interface;
 using DistrEx.Coordinator.TargetSpecs;
@@ -27,7 +28,7 @@ namespace DistrEx.Coordinator.Test.Parallel
         private Exception _throwArgument;
 
         #region setup
-        [TestFixtureSetUp]
+        [SetUp]
         public void FixtureSetup()
         {
             _local = OnCoordinator.Default;
@@ -54,11 +55,7 @@ namespace DistrEx.Coordinator.Test.Parallel
             
             _identityArgument = new Exception("Identity");
             _throwArgument = new Exception("Expected");
-        }
 
-        [SetUp]
-        public void Setup()
-        {
             _identityInstructions = new TargetedInstruction<Exception, Exception>[ParallelCount];
             _blockingIdentityInstructions = new TargetedInstruction<Exception, Exception>[ParallelCount];
             _throwInstructions = new TargetedInstruction<Exception, Exception>[ParallelCount];
@@ -79,6 +76,20 @@ namespace DistrEx.Coordinator.Test.Parallel
             var expected = _identityArgument;
             var instructions = _identityInstructions;
             var result = GetResult(instructions, _identityArgument);
+            Assert.That(result.Item1, Is.EqualTo(expected));
+            Assert.That(result.Item2, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ParallelAllSimultaneous()
+        {
+            var expected = _identityArgument;
+            var instructions = _blockingIdentityInstructions;
+            Task<Tuple<Exception, Exception>> task = Task<Tuple<Exception, Exception>>.Factory.StartNew(() => GetResult(instructions, _identityArgument));
+            WaitAll(_blockingIdentityNotifies);
+            SetAll(_blockingIdentityHolds);
+            task.Wait();
+            var result = task.Result;
             Assert.That(result.Item1, Is.EqualTo(expected));
             Assert.That(result.Item2, Is.EqualTo(expected));
         }
@@ -120,6 +131,24 @@ namespace DistrEx.Coordinator.Test.Parallel
         private Tuple<Exception, Exception> GetResult(TargetedInstruction<Exception, Exception>[] instructions, Exception argument)
         {
             return Coordinator2.Do(instructions[0], instructions[1], argument).ResultValue;
+        }
+
+        private static void WaitAll(ManualResetEventSlim[] blocks)
+        {
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                if (blocks[i] != null)
+                    blocks[i].Wait();
+            }
+        }
+
+        private static void SetAll(ManualResetEventSlim[] blocks)
+        {
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                if (blocks[i] != null)
+                    blocks[i].Set();
+            }
         }
     }
 }
