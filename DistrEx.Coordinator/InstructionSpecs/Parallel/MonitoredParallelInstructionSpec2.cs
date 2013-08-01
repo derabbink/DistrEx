@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
@@ -18,7 +19,7 @@ namespace DistrEx.Coordinator.InstructionSpecs.Parallel
             TargetedInstruction2 = targetedInstruction2;
         }
 
-        public static MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2> Create(
+        internal static MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2> Create(
             TargetedInstruction<TArgument, TResult1> targetedInstruction1,
             TargetedInstruction<TArgument, TResult2> targetedInstruction2)
         {
@@ -45,8 +46,8 @@ namespace DistrEx.Coordinator.InstructionSpecs.Parallel
             {
                 ConcurrentQueue<Exception> errors = new ConcurrentQueue<Exception>();
 
-                var futureObs1 = Interface.Coordinator.InvokeAsync(targetedInstruction1, argument).Replay();
-                var futureObs2 = Interface.Coordinator.InvokeAsync(targetedInstruction2, argument).Replay();
+                var futureObs1 = Interface.Coordinator.GetInvocationFuture(targetedInstruction1, argument).Replay(Scheduler.Default);
+                var futureObs2 = Interface.Coordinator.GetInvocationFuture(targetedInstruction2, argument).Replay(Scheduler.Default);
                 //triggers creating futures asynchronously
                 futureObs1.Connect();
                 futureObs2.Connect();

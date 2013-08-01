@@ -18,7 +18,7 @@ namespace DistrEx.Common
             //subscribe triggers waiting for result
             _observable = observable.SubscribeOn(Scheduler.Default).Publish();
             IObservable<Result<TResult>> resultObs = _observable.Where(pr => pr.IsResult).Select(r => r as Result<TResult>);
-            _replayResult = resultObs.Replay();
+            _replayResult = resultObs.Replay(Scheduler.Default);
             _replayResult.Connect();
 
             _observable.Connect();
