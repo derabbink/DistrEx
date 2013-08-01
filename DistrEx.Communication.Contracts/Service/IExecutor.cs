@@ -9,17 +9,27 @@ namespace DistrEx.Communication.Contracts.Service
     public interface IExecutor
     {
         /// <summary>
-        ///     Requesting execution of an instruction
+        /// Requesting execution of an instruction
         /// </summary>
         /// <param name="instruction"></param>
         [OperationContract(IsOneWay = true)]
         void Execute(Instruction instruction);
 
         [OperationContract(IsOneWay = true)]
+        void ExecuteAsync(AsyncInstruction asyncInstruction);
+
+        /// <summary>
+        /// Requesting cancellation of an instruction
+        /// </summary>
+        /// <param name="cancellation"></param>
+        [OperationContract(IsOneWay = true)]
         void Cancel(Cancellation cancellation);
 
         void SubscribeExecute(EventHandler<ExecuteEventArgs> handler);
         void UnsubscribeExecute(EventHandler<ExecuteEventArgs> handler);
+
+        void SubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler);
+        void UnsubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler);
 
         void SubscribeCancel(EventHandler<CancelEventArgs> handler);
         void UnsubscribeCancel(EventHandler<CancelEventArgs> handler);
@@ -29,21 +39,21 @@ namespace DistrEx.Communication.Contracts.Service
     public interface IExecutorCallback
     {
         /// <summary>
-        ///     Reporting progress for an insruction's execution
+        /// Reporting progress for an insruction's execution
         /// </summary>
         /// <param name="progress"></param>
         [OperationContract(IsOneWay = true)]
         void Progress(Progress progress);
 
         /// <summary>
-        ///     Returning a result for an completed instruction
+        /// Returning a result for an completed instruction
         /// </summary>
         /// <param name="result"></param>
         [OperationContract(IsOneWay = true)]
         void Complete(Result result);
 
         /// <summary>
-        ///     Reporting an error for an instruction
+        /// Reporting an error for an instruction
         /// </summary>
         /// <param name="error"></param>
         [OperationContract(IsOneWay = true)]

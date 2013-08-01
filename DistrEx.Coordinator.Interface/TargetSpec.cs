@@ -27,9 +27,9 @@ namespace DistrEx.Coordinator.Interface
         public abstract Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,
                                                                    TArgument argument);
 
-        public abstract Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction,
-                                                                     TArgument argument);
+        public abstract TargetedAsyncSendInstruction<TArgument, TResult> DoAsync<TArgument, TResult>
+            (AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument);
 
-        public abstract Future<TResult> GetAsyncResult<TResult>(Guid resultId);
+        public abstract TargetedAsyncGetInstruction<TResult> GetAsyncResult<TResult>(Guid resultId);
     }
 }

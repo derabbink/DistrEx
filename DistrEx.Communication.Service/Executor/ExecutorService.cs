@@ -18,6 +18,7 @@ namespace DistrEx.Communication.Service.Executor
         private readonly IExecutorCallback _callbackChannel;
 
         private event EventHandler<ExecuteEventArgs> ExecuteRequest;
+        private event EventHandler<ExecuteAsyncEventArgs> ExecuteAsyncRequest;
         private event EventHandler<CancelEventArgs> CancelRequest;
 
         public ExecutorService() : this(null)
@@ -34,7 +35,10 @@ namespace DistrEx.Communication.Service.Executor
         {
             ExecuteRequest.Raise(this, e);
         }
-
+        protected virtual void OnExecuteAsyncRequest(ExecuteAsyncEventArgs e)
+        {
+            ExecuteAsyncRequest.Raise(this, e);
+        }
         protected virtual void OnCancelRequest(CancelEventArgs e)
         {
             CancelRequest.Raise(this, e);
@@ -46,6 +50,14 @@ namespace DistrEx.Communication.Service.Executor
                                             instruction.MethodName, instruction.ArgumentTypeName,
                                             instruction.SerializedArgument, Callback);
             OnExecuteRequest(args);
+        }
+
+        public void ExecuteAsync(AsyncInstruction instruction)
+        {
+            var args = new ExecuteAsyncEventArgs(instruction.OperationId, instruction.AssemblyQualifiedName,
+                                            instruction.MethodName, instruction.ArgumentTypeName,
+                                            instruction.SerializedArgument, Callback);
+            OnExecuteAsyncRequest(args);
         }
 
         public void Cancel(Cancellation cancellation)
@@ -61,6 +73,15 @@ namespace DistrEx.Communication.Service.Executor
         public void UnsubscribeExecute(EventHandler<ExecuteEventArgs> handler)
         {
             ExecuteRequest -= handler;
+        }
+
+        public void SubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler)
+        {
+            ExecuteAsyncRequest += handler;
+        }
+        public void UnsubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler)
+        {
+            ExecuteAsyncRequest -= handler;
         }
 
         public void SubscribeCancel(EventHandler<CancelEventArgs> handler)

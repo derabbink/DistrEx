@@ -44,11 +44,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Cancellation.cs" />
+    <Compile Include="Data\AsyncInstruction.cs" />
     <Compile Include="Data\Error.cs" />
     <Compile Include="Data\Instruction.cs" />
     <Compile Include="Data\Progress.cs" />
     <Compile Include="Data\Result.cs" />
     <Compile Include="Events\CancelEventArgs.cs" />
+    <Compile Include="Events\ExecuteAsyncEventArgs.cs" />
     <Compile Include="Events\ErrorCallbackEventArgs.cs" />
     <Compile Include="Events\ExecuteEventArgs.cs" />
     <Compile Include="Events\ProgressCallbackEventArgs.cs" />

@@ -20,19 +20,23 @@ namespace DistrEx.Worker
         private readonly IExecutor _executor;
 
         private readonly IObservable<ExecuteEventArgs> _executes;
+        private readonly IObservable<ExecuteAsyncEventArgs> _executeAsyncs;
         private readonly IObservable<CancelEventArgs> _cancels;
 
         private readonly IDisposable _executeSubscription;
+        private readonly IDisposable _executeAsyncSubscription;
 
         public Executor(IExecutor executor, PluginManager pluginManager)
         {
             _executor = executor;
             _executes = Observable.FromEventPattern<ExecuteEventArgs>(_executor.SubscribeExecute, _executor.UnsubscribeExecute).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
+            _executeAsyncs = Observable.FromEventPattern<ExecuteAsyncEventArgs>(_executor.SubscribeExecuteAsync, _executor.UnsubscribeExecuteAsync).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
             _cancels = Observable.FromEventPattern<CancelEventArgs>(_executor.SubscribeCancel, _executor.UnsubscribeCancel).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
 
             _pluginManager = pluginManager;
 
             _executeSubscription = _executes.Subscribe(Execute);
+            _executeAsyncSubscription = _executeAsyncs.Subscribe(ExecuteAsync);
         }
 
         private void Execute(ExecuteEventArgs instruction)
@@ -76,9 +80,15 @@ namespace DistrEx.Worker
             }
         }
 
+        private void ExecuteAsync(ExecuteAsyncEventArgs asyncInstruction)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Dispose()
         {
             _executeSubscription.Dispose();
+            _executeAsyncSubscription.Dispose();
         }
     }
 }
