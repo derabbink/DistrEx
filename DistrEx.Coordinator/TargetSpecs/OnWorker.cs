@@ -181,5 +181,15 @@ namespace DistrEx.Coordinator.TargetSpecs
             Cancellation msg = new Cancellation(){OperationId = operationId};
             Executor.Cancel(msg);
         }
+
+        public override Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Future<TResult> GetAsyncResult<TResult>(Guid resultId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -65,5 +65,15 @@ namespace DistrEx.Coordinator.TargetSpecs
 
             return new Future<TResult>(observable, cts.Cancel);
         }
+
+        public override Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Future<TResult> GetAsyncResult<TResult>(Guid resultId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
