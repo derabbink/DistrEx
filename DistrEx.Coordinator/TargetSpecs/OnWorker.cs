@@ -68,15 +68,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             return new OnWorker(assemblyManagerEndpointConfigName, executorEndpointConfigName, callbackHandler);
         }
 
-        public override void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction)
-        {
-            Assembly assy = instruction.GetAssembly();
-            IObservable<AssemblyName> dependencies = Resolver.GetAllDependencies(assy.GetName())
-                                                             .Where(aName => !_transportedAssemblies.Contains(aName));
-            dependencies.Subscribe(TransportAssembly);
-        }
-
-        private void TransportAssembly(AssemblyName assemblyName)
+        public override void TransportAssembly(AssemblyName assemblyName)
         {
             String path = new Uri(assemblyName.CodeBase).LocalPath;
             using (Stream assyFileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
@@ -90,6 +82,11 @@ namespace DistrEx.Coordinator.TargetSpecs
                 AssemblyManager.AddAssembly(msg);
             }
             _transportedAssemblies.Add(assemblyName);
+        }
+
+        public override bool AssemblyIsTransported(AssemblyName assembly)
+        {
+            return _transportedAssemblies.Contains(assembly);
         }
 
         public override void ClearAssemblies()

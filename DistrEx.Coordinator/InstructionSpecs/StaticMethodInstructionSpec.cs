@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Reflection;
 using DistrEx.Common;
 using DistrEx.Coordinator.Interface;
+using DependencyResolver;
 
 namespace DistrEx.Coordinator.InstructionSpecs
 {
@@ -39,6 +41,14 @@ namespace DistrEx.Coordinator.InstructionSpecs
         public override Assembly GetAssembly()
         {
             return Type.GetType(AssemblyQualifiedName).Assembly;
+        }
+
+        public override void TransportAssemblies(TargetSpec target)
+        {
+            Assembly assy = GetAssembly();
+            IObservable<AssemblyName> dependencies = Resolver.GetAllDependencies(assy.GetName())
+                                                             .Where(aName => !target.AssemblyIsTransported(aName));
+            dependencies.Subscribe(target.TransportAssembly);
         }
 
         public override string GetAssemblyQualifiedName()

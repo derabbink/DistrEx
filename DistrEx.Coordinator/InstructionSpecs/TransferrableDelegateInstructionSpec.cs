@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Reflection;
 using DistrEx.Common;
+using DistrEx.Coordinator.Interface;
 
 namespace DistrEx.Coordinator.InstructionSpecs
 {
@@ -32,6 +33,11 @@ namespace DistrEx.Coordinator.InstructionSpecs
         public override Assembly GetAssembly()
         {
             return _staticMethodSpec.GetAssembly();
+        }
+
+        public override void TransportAssemblies(TargetSpec target)
+        {
+            _staticMethodSpec.TransportAssemblies(target);
         }
 
         public override string GetAssemblyQualifiedName()

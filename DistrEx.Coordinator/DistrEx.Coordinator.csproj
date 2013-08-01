@@ -59,7 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Coordinator2.cs" />
     <Compile Include="InstructionSpecs\DelegateInstructionSpec.cs" />
+    <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec2.cs" />
+    <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\NonTransferrableDelegateInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\StaticMethodInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\TransferrableDelegateInstructionSpec.cs" />

@@ -74,6 +74,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         public void CancelOnWorker()
         {
             var targetedInstruction = _onWorker.Do(_haltingIdentity);
+            targetedInstruction.TransportAssemblies();
             var future = targetedInstruction.Invoke(_argumentIdentity);
             future.Cancel();
             future.GetResult();

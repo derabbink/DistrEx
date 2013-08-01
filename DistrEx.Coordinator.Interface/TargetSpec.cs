@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Reflection;
+using System.Threading;
 using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface
@@ -16,7 +17,9 @@ namespace DistrEx.Coordinator.Interface
             return TargetedInstruction<TArgument, TResult>.Create(this, instruction);
         }
 
-        public abstract void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction);
+        public abstract void TransportAssembly(AssemblyName assembly);
+
+        public abstract bool AssemblyIsTransported(AssemblyName assembly);
 
         public abstract void ClearAssemblies();
 

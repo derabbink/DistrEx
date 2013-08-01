@@ -27,9 +27,13 @@ namespace DistrEx.Coordinator.Interface
             return new TargetedInstruction<TArgument, TResult>(target, instruction);
         }
 
+        public void TransportAssemblies()
+        {
+            Instruction.TransportAssemblies(Target);
+        }
+
         public Future<TResult> Invoke(TArgument argument)
         {
-            Target.TransportAssemblies(Instruction);
             return Target.Invoke(Instruction, argument);
         }
     }

@@ -7,7 +7,7 @@ namespace DistrEx.Coordinator.InstructionSpecs
     {
         private readonly Instruction<TArgument, TResult> _instruction;
 
-        private NonTransferrableDelegateInstructionSpec(Instruction<TArgument, TResult> instruction)
+        protected NonTransferrableDelegateInstructionSpec(Instruction<TArgument, TResult> instruction)
         {
             _instruction = instruction;
         }
@@ -20,6 +20,11 @@ namespace DistrEx.Coordinator.InstructionSpecs
         public override Instruction<TArgument, TResult> GetDelegate()
         {
             return _instruction;
+        }
+
+        public override void TransportAssemblies(Interface.TargetSpec target)
+        {
+            //do nothing here
         }
 
         public override Assembly GetAssembly()
