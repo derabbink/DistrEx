@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using DistrEx.Common;
@@ -65,11 +66,7 @@ namespace DistrEx.Coordinator.InstructionSpecs.Parallel
                     return new Tuple<TResult1>(getResult1());
                 else
                 {
-                    Exception e;
-                    if (errors.TryDequeue(out e))
-                        throw e;
-                    else
-                        throw new Exception("There was an error during parallel execution, but the error is unknown.");
+                    throw errors.First();
                 }
             };
 
