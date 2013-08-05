@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using DistrEx.Common;
 using DistrEx.Coordinator.Interface;
 using DistrEx.Coordinator.TargetSpecs;
@@ -14,6 +11,7 @@ namespace DistrEx.Coordinator.Test.Integration
     {
         private TargetSpec _local;
         private Instruction<int, int> _identity;
+        private Instruction<Tuple<int, int>, Tuple<int, int>> _identityTpl;
         private int _identityArgument;
 
         #region setup
@@ -22,6 +20,7 @@ namespace DistrEx.Coordinator.Test.Integration
         {
             _local = OnCoordinator.Default;
             _identity = (ct, p, i) => i;
+            _identityTpl = (ct, p, tpl) => tpl;
             _identityArgument = 1;
         }
         #endregion
@@ -30,15 +29,18 @@ namespace DistrEx.Coordinator.Test.Integration
         public void Test()
         {
             var expected = _identityArgument;
-            Tuple<int, Tuple<int, int>> result =
+            Tuple<Tuple<int, int>, Tuple<int, int>> result =
                 Coordinator2.Do(
-                    _local.Do(_identity),
-                    Coordinator2.Do(
-                        _local.Do(_identity),
-                        _local.Do(_identity)),
+                    Coordinator.Do(_local.Do(_identity))
+                               .ThenDo(_local.Do(_identity),
+                                       _local.Do(_identity)),
+                    Coordinator2.Do(_local.Do(_identity),
+                                    _local.Do(_identity))
+                                .ThenDo(_local.Do(_identityTpl)),
                     _identityArgument)
-                    .ResultValue;
-            Assert.That(result.Item1, Is.EqualTo(expected));
+                            .ResultValue;
+            Assert.That(result.Item1.Item1, Is.EqualTo(expected));
+            Assert.That(result.Item1.Item2, Is.EqualTo(expected));
             Assert.That(result.Item2.Item1, Is.EqualTo(expected));
             Assert.That(result.Item2.Item2, Is.EqualTo(expected));
         }

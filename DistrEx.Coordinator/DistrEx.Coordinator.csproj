@@ -59,14 +59,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Coordinator.cs" />
     <Compile Include="Coordinator2.cs" />
     <Compile Include="InstructionSpecs\DelegateInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec2.cs" />
     <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\NonTransferrableDelegateInstructionSpec.cs" />
+    <Compile Include="InstructionSpecs\Sequential\MonitoredSequentialInstructionSpec.cs" />
+    <Compile Include="InstructionSpecs\Sequential\MonitoredSingleInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\StaticMethodInstructionSpec.cs" />
     <Compile Include="InstructionSpecs\TransferrableDelegateInstructionSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TargetedInstructions\CoordinatorInstruction.cs" />
     <Compile Include="TargetSpecs\OnCoordinator.cs" />
     <Compile Include="TargetSpecs\OnWorker.cs" />
   </ItemGroup>
