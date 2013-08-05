@@ -7,11 +7,11 @@ using NUnit.Framework;
 namespace DistrEx.Coordinator.Test.Integration
 {
     [TestFixture]
-    public class Parallel3IntegrationTests
+    public class Parallel2SequentialTest
     {
         private TargetSpec _local;
         private Instruction<int, int> _identity;
-        private Instruction<Tuple<int, int, int>, Tuple<int, int, int>> _identityTpl;
+        private Instruction<Tuple<int, int>, Tuple<int, int>> _identityTpl;
         private int _identityArgument;
 
         #region setup
@@ -29,26 +29,20 @@ namespace DistrEx.Coordinator.Test.Integration
         public void Test()
         {
             var expected = _identityArgument;
-            Tuple<Tuple<int, int, int>, Tuple<int, int, int>, int> result =
-                Coordinator3.Do(
+            Tuple<Tuple<int, int>, Tuple<int, int>> result =
+                Coordinator2.Do(
                     Coordinator.Do(_local.Do(_identity))
                                .ThenDo(_local.Do(_identity),
-                                       _local.Do(_identity),
                                        _local.Do(_identity)),
-                    Coordinator3.Do(_local.Do(_identity),
-                                    _local.Do(_identity),
+                    Coordinator2.Do(_local.Do(_identity),
                                     _local.Do(_identity))
                                 .ThenDo(_local.Do(_identityTpl)),
-                    _local.Do(_identity),
                     _identityArgument)
                             .ResultValue;
             Assert.That(result.Item1.Item1, Is.EqualTo(expected));
             Assert.That(result.Item1.Item2, Is.EqualTo(expected));
-            Assert.That(result.Item1.Item3, Is.EqualTo(expected));
             Assert.That(result.Item2.Item1, Is.EqualTo(expected));
             Assert.That(result.Item2.Item2, Is.EqualTo(expected));
-            Assert.That(result.Item2.Item3, Is.EqualTo(expected));
-            Assert.That(result.Item3, Is.EqualTo(expected));
         }
     }
 }

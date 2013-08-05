@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace DistrEx.Coordinator.Test.Integration
 {
     [TestFixture]
-    public class Parallel4IntegrationTests
+    public class Parallel4SequentialTest
     {
         private TargetSpec _local;
         private Instruction<int, int> _identity;
