@@ -6,7 +6,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
-using System.Threading;
 using DependencyResolver;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
@@ -68,6 +67,14 @@ namespace DistrEx.Coordinator.TargetSpecs
             return new OnWorker(assemblyManagerEndpointConfigName, executorEndpointConfigName, callbackHandler);
         }
 
+        public override void TransportAssemblies<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> instruction)
+        {
+            Assembly assy = instruction.GetAssembly();
+            IObservable<AssemblyName> dependencies = Resolver.GetAllDependencies(assy.GetName())
+                                                             .Where(aName => !_transportedAssemblies.Contains(aName));
+            dependencies.Subscribe(TransportAssembly);
+        }
+
         public override void TransportAssembly(AssemblyName assemblyName)
         {
             String path = new Uri(assemblyName.CodeBase).LocalPath;
@@ -97,6 +104,11 @@ namespace DistrEx.Coordinator.TargetSpecs
         protected override InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction)
         {
             return TransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
+        }
+
+        protected override AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction)
+        {
+            return new TwoPartInstructionSpec<TArgument, TResult>(instruction); 
         }
 
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)
@@ -182,13 +194,86 @@ namespace DistrEx.Coordinator.TargetSpecs
             Executor.Cancel(msg);
         }
 
-        public override TargetedAsyncSendInstruction<TArgument, TResult> DoAsync<TArgument, TResult>
-            (AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
+        public override Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
         {
-            throw new NotImplementedException();
+            string methodName = asyncInstruction.GetMethodName();
+            string assemblyQualifiedName = asyncInstruction.GetAssemblyQualifiedName();
+
+            Guid operationId = Guid.NewGuid();
+            IObservable<Progress<TResult>> progressObs = _progresses
+                .Where(eArgs => eArgs.OperationId == operationId)
+                .Select(_ => Progress<TResult>.Default);
+            IObservable<ProgressingResult<TResult>> resultObs = _completes
+                .Where(eArgs => eArgs.OperationId == operationId)
+                .Select(eArgs =>
+                {
+                    object result = eArgs.Result;
+                    try
+                    {
+                        var castRes = (TResult)result;
+                        return new Result<TResult>(castRes);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(
+                            String.Format(
+                                "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
+                                result.GetType().FullName, methodName, assemblyQualifiedName,
+                                typeof(TResult).FullName),
+                            e);
+                    }
+                });
+            IObservable<ProgressingResult<TResult>> errorObs = _errors
+                .Where(eArgs => eArgs.OperationId == operationId)
+                .Select<ErrorCallbackEventArgs, ProgressingResult<TResult>>(eArgs =>
+                {
+                    throw eArgs.Error;
+                });
+
+            //send out instruction...
+            IConnectableObservable<ProgressingResult<TResult>> resultOrErrorObs =
+                resultObs.Amb(errorObs).Replay(Scheduler.Default);
+            resultOrErrorObs.Connect();
+            string serializedArgument = Serializer.Serialize(argument);
+
+            var msg = new AsyncInstruction
+            {
+                OperationId = operationId,
+                AssemblyQualifiedName = assemblyQualifiedName,
+                MethodName = methodName,
+                ArgumentTypeName = argument.GetType().FullName,
+                SerializedArgument = serializedArgument
+            };
+
+            Executor.ExecuteAsync(msg);
+
+            //this collects the instruction result
+            IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
+                IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
+            {
+                IObservable<ProgressingResult<TResult>> combinedObs;
+                //wait here: (First() blocks)
+                try
+                {
+                    //might throw
+                    ProgressingResult<TResult> resultOrError = resultOrErrorObs.First();
+                    combinedObs = Observable.Return(resultOrError);
+                }
+                catch (Exception e)
+                {
+                    combinedObs = Observable.Throw<ProgressingResult<TResult>>(e);
+                }
+                obs.OnNext(combinedObs);
+                obs.OnCompleted();
+                return Disposable.Empty;
+            });
+
+            IObservable<IObservable<ProgressingResult<TResult>>> metaObs = Observable.Return(progressObs);
+            IObservable<ProgressingResult<TResult>> futureObs = metaObs.Concat(resultMetaObs).Switch();
+            return new Future<TResult>(futureObs, () => Cancel(operationId));
         }
 
-        public override TargetedAsyncGetInstruction<TResult> GetAsyncResult<TResult>(Guid resultId)
+        public override Future<TResult> GetAsyncResult<TResult>(Guid resultId)
         {
             throw new NotImplementedException();
         }

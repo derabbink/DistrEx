@@ -63,6 +63,11 @@ namespace DistrEx.Plugin
             }
         }
 
+        internal SerializedResult ExecuteAsync(ExecutorCallback callback, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
+        {
+            throw new NotImplementedException();
+        }
+
         private SerializedResult ExecuteWrapped(MethodInfo func, ExecutorCallback callback, string argumentTypeName, string serializedArgument)
         {
             try

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -82,7 +83,45 @@ namespace DistrEx.Worker
 
         private void ExecuteAsync(ExecuteAsyncEventArgs asyncInstruction)
         {
-            throw new NotImplementedException();
+            Guid operationId = asyncInstruction.OperationId;
+            IExecutorCallback callback = asyncInstruction.CallbackChannel;
+            var cts = new CancellationTokenSource();
+
+            var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
+            var cancelSubscription = cancelObs.SubscribeOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
+
+            var progressMsg = new Progress
+            {
+                OperationId = operationId
+            };
+            Action reportProgress = () => callback.Progress(progressMsg);
+            Action reportCompleted1 = () => { }; 
+            
+            try
+            {
+                SerializedResult serializedResult = _pluginManager.ExecuteAsync(asyncInstruction.AssemblyQualifiedName, asyncInstruction.MethodName, cts.Token,
+                                                                           reportProgress, reportCompleted1, asyncInstruction.ArgumentTypeName, asyncInstruction.SerializedArgument);
+                callback.Complete(new Result
+                {
+                    OperationId = operationId,
+                    ResultTypeName = serializedResult.TypeName,
+                    SerializedResult = serializedResult.Value
+                });
+            }
+            catch (ExecutionException e)
+            {
+                var msg = new Error
+                {
+                    OperationId = operationId,
+                    ExceptionTypeName = e.InnerExceptionTypeName,
+                    SerializedException = e.SerializedInnerException
+                };
+                callback.Error(msg);
+            }
+            finally
+            {
+                cancelSubscription.Dispose();
+            }
         }
 
         public void Dispose()

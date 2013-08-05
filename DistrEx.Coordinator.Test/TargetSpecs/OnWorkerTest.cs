@@ -22,7 +22,10 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private Instruction<int, int> _identity;
         private Instruction<int, int> _haltingIdentity;
         private Instruction<Exception, Exception> _throw;
-        private int _argumentIdentity;
+
+        private TwoPartInstruction<int, int> _twoPart;
+
+        int _argumentIdentity;
         private Exception _argumentThrow;
 
         #region setup
@@ -39,6 +42,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private void ConfigureOperations()
         {
             _identity = (ct, p, i) => i;
+            _twoPart = (ct, p, q, i) => i; 
             _haltingIdentity = (ct, p, i) =>
                 {
                     ManualResetEventSlim mres = new ManualResetEventSlim(false);
@@ -60,6 +64,12 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             int expected = _argumentIdentity;
             int actual = Interface.Coordinator.Do(_onWorker.Do(_identity), _argumentIdentity).ResultValue;
             Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void SuccessfulTwoPart()
+        {
+            var result = Interface.Coordinator.Do(_onWorker.Do(_twoPart), _argumentIdentity).ThenDo(_onWorker.Do(_twoPart)).ResultValue;
         }
 
         [Test]

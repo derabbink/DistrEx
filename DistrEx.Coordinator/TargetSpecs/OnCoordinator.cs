@@ -40,6 +40,11 @@ namespace DistrEx.Coordinator.TargetSpecs
             return true;
         }
 
+        public override void TransportAssemblies<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> instruction)
+        {
+            //no need to do anything
+        }
+
         public override void ClearAssemblies()
         {
             //no need to do anything
@@ -48,6 +53,11 @@ namespace DistrEx.Coordinator.TargetSpecs
         protected override InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction)
         {
             return NonTransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
+        }
+
+        protected override AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction)
+        {
+            throw new NotImplementedException();
         }
 
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)
@@ -66,13 +76,12 @@ namespace DistrEx.Coordinator.TargetSpecs
             return new Future<TResult>(observable, cts.Cancel);
         }
 
-        public override TargetedAsyncSendInstruction<TArgument, TResult> DoAsync<TArgument, TResult>
-            (AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
+        public override Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
         {
             throw new NotImplementedException();
         }
 
-        public override TargetedAsyncGetInstruction<TResult> GetAsyncResult<TResult>(Guid resultId)
+        public override Future<TResult> GetAsyncResult<TResult>(Guid resultId)
         {
             throw new NotImplementedException();
         }

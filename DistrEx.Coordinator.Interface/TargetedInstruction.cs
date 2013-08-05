@@ -10,6 +10,12 @@ namespace DistrEx.Coordinator.Interface
             Instruction = instruction;
         }
 
+        protected TargetedInstruction(TargetSpec target, AsyncInstructionSpec<TArgument, TResult> instruction)
+        {
+            Target = target;
+            AsyncInstruction = instruction;
+        }
+
         protected internal TargetSpec Target
         {
             get;
@@ -22,6 +28,12 @@ namespace DistrEx.Coordinator.Interface
             private set;
         }
 
+        protected AsyncInstructionSpec<TArgument, TResult> AsyncInstruction
+        {
+            get;
+            private set; 
+        }
+
         public static TargetedInstruction<TArgument, TResult> Create(TargetSpec target, InstructionSpec<TArgument, TResult> instruction)
         {
             return new TargetedInstruction<TArgument, TResult>(target, instruction);
@@ -31,10 +43,25 @@ namespace DistrEx.Coordinator.Interface
         {
             Instruction.TransportAssemblies(Target);
         }
+		
+        public static TargetedInstruction<TArgument, TResult> Create(TargetSpec target, AsyncInstructionSpec<TArgument, TResult> instruction)
+        {
+            return new TargetedInstruction<TArgument, TResult>(target, instruction);
+        }
 
         public Future<TResult> Invoke(TArgument argument)
         {
+            if (Instruction == null)
+            {
+                Target.TransportAssemblies(AsyncInstruction);
+                return Target.InvokeAsync(AsyncInstruction, argument);
+            }
             return Target.Invoke(Instruction, argument);
         }
+
+        //public Future<TResult> InvokeAsync(TArgument argument)
+        //{
+           
+        //}
     }
 }
