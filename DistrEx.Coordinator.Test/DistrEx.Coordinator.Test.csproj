@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DelegateTest.cs" />
+    <Compile Include="Integration\Parallel7Tests.cs" />
     <Compile Include="Integration\Parallel6Tests.cs" />
     <Compile Include="Integration\Parallel5Tests.cs" />
     <Compile Include="Integration\Parallel4Tests.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="ObservableErrorTest.cs" />
     <Compile Include="ObservableSwitchTest.cs" />
     <Compile Include="Integration\Parallel2Tests.cs" />
+    <Compile Include="Parallel\Parallel7Test.cs" />
     <Compile Include="Parallel\Parallel6Test.cs" />
     <Compile Include="Parallel\Parallel5Test.cs" />
     <Compile Include="Parallel\Parallel4Test.cs" />
