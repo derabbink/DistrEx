@@ -73,14 +73,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DelegateTest.cs" />
-    <Compile Include="Integration\Parallel7Tests.cs" />
-    <Compile Include="Integration\Parallel6Tests.cs" />
-    <Compile Include="Integration\Parallel5Tests.cs" />
-    <Compile Include="Integration\Parallel4Tests.cs" />
-    <Compile Include="Integration\Parallel3Tests.cs" />
+    <Compile Include="Integration\Parallel7SequentialTest.cs" />
+    <Compile Include="Integration\Parallel6SequentialTest.cs" />
+    <Compile Include="Integration\Parallel5SequentialTest.cs" />
+    <Compile Include="Integration\Parallel4SequentialTest.cs" />
+    <Compile Include="Integration\Parallel3SequentialTest.cs" />
     <Compile Include="ObservableErrorTest.cs" />
     <Compile Include="ObservableSwitchTest.cs" />
-    <Compile Include="Integration\Parallel2Tests.cs" />
+    <Compile Include="Integration\Parallel2SequentialTest.cs" />
     <Compile Include="Parallel\Parallel7Test.cs" />
     <Compile Include="Parallel\Parallel6Test.cs" />
     <Compile Include="Parallel\Parallel5Test.cs" />
@@ -89,6 +89,8 @@
     <Compile Include="Parallel\Parallel1Test.cs" />
     <Compile Include="Parallel\Parallel2Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sequential\NestedSequentialTest.cs" />
+    <Compile Include="Sequential\NonNestedSequentialTest.cs" />
     <Compile Include="TargetSpecs\OnWorkerTest.cs" />
     <Compile Include="Util\ProcessHelper.cs" />
   </ItemGroup>
