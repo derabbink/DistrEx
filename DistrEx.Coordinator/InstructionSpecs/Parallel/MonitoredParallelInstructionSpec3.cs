@@ -50,7 +50,7 @@ namespace DistrEx.Coordinator.InstructionSpecs.Parallel
         public override void TransportAssemblies(TargetSpec target)
         {
             base.TransportAssemblies(target);
-            TargetedInstruction2.TransportAssemblies();
+            TargetedInstruction3.TransportAssemblies();
         }
 
         private static Instruction<TArgument, Tuple<TResult1, TResult2, TResult3>> Parallelize(

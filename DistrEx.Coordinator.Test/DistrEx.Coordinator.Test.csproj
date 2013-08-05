@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DelegateTest.cs" />
+    <Compile Include="Integration\Parallel4Tests.cs" />
     <Compile Include="Integration\Parallel3Tests.cs" />
     <Compile Include="ObservableErrorTest.cs" />
     <Compile Include="ObservableSwitchTest.cs" />

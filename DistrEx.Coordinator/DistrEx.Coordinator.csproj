@@ -62,7 +62,9 @@
     <Compile Include="Coordinator.cs" />
     <Compile Include="Coordinator2.cs" />
     <Compile Include="Coordinator3.cs" />
+    <Compile Include="Coordinator4.cs" />
     <Compile Include="InstructionSpecs\DelegateInstructionSpec.cs" />
+    <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec4.cs" />
     <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec3.cs" />
     <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec2.cs" />
     <Compile Include="InstructionSpecs\Parallel\MonitoredParallelInstructionSpec.cs" />
