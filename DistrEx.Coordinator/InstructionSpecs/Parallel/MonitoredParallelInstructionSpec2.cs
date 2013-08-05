@@ -8,15 +8,28 @@ using DistrEx.Coordinator.Interface;
 
 namespace DistrEx.Coordinator.InstructionSpecs.Parallel
 {
+    internal abstract class MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2, TCombinedResult> :
+        MonitoredParallelInstructionSpec<TArgument, TResult1, TCombinedResult>
+    {
+        protected MonitoredParallelInstructionSpec2(TargetedInstruction<TArgument, TResult1> targetedInstruction1,
+                                                    TargetedInstruction<TArgument, TResult2> targetedInstruction2,
+                                                    Instruction<TArgument, TCombinedResult> monitoredInstruction)
+            : base(targetedInstruction1, monitoredInstruction)
+        {
+            TargetedInstruction2 = targetedInstruction2;
+        }
+
+        protected TargetedInstruction<TArgument, TResult2> TargetedInstruction2 { get; set; }
+    }
+
     internal class MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2> :
-        MonitoredParallelInstructionSpec<TArgument, TResult1, Tuple<TResult1, TResult2>>
+        MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2, Tuple<TResult1, TResult2>>
     {
         protected MonitoredParallelInstructionSpec2(TargetedInstruction<TArgument, TResult1> targetedInstruction1,
                                                     TargetedInstruction<TArgument, TResult2> targetedInstruction2,
                                                     Instruction<TArgument, Tuple<TResult1, TResult2>> monitoredInstruction)
-            : base(targetedInstruction1, monitoredInstruction)
+            : base(targetedInstruction1, targetedInstruction2, monitoredInstruction)
         {
-            TargetedInstruction2 = targetedInstruction2;
         }
 
         internal static MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2> Create(
@@ -29,8 +42,6 @@ namespace DistrEx.Coordinator.InstructionSpecs.Parallel
                                                                                         targetedInstruction2,
                                                                                         monitoredInstruction);
         }
-
-        protected TargetedInstruction<TArgument, TResult2> TargetedInstruction2 { get; set; }
 
         public override void TransportAssemblies(TargetSpec target)
         {
