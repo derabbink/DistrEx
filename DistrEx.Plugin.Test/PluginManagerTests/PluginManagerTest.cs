@@ -186,5 +186,45 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             Assert.That(progressReported, Is.True);
             Assert.That(actual, Is.EqualTo(expected));
         }
+
+        [Test]
+        [ExpectedException(typeof(AppDomainUnloadedException))]
+        public void ResettingWhileRunning()
+        {
+            ManualResetEventSlim progressBlock = new ManualResetEventSlim(false);
+            Action progress = progressBlock.Set;
+            Task<int> t =
+                Task<int>.Factory.StartNew(() =>
+                {
+                    SerializedResult result = _pluginManager.Execute(_haltingIdentityQualifiedName,
+                                                                     _haltingIdentityMethodName,
+                                                                     _cancellationTokenSource.Token, progress,
+                                                                     _identityArgumentTypeName,
+                                                                     _serializedIdentityArgument);
+                    int castResult = (int)Deserializer.Deserialize(result.TypeName, result.Value);
+                    return castResult;
+                });
+            //TODO ignore automatically sent progress heartbeats
+            progressBlock.Wait();
+
+            _pluginManager.Reset();
+            try
+            {
+                t.Wait();
+            }
+            catch (AggregateException e)
+            {
+                throw e.InnerException;
+            }
+
+        }
+
+        #region teardown
+        [TearDown]
+        public void Teardown()
+        {
+            _pluginManager.Dispose();
+        }
+        #endregion
     }
 }
