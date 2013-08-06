@@ -1,4 +1,5 @@
 ﻿using DistrEx.Common;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 
 namespace DistrEx.Coordinator.Interface
 {
@@ -7,24 +8,18 @@ namespace DistrEx.Coordinator.Interface
         public TargetedInstruction<TArgument, TResult> Do<TArgument, TResult>(
             Instruction<TArgument, TResult> instruction)
         {
-            return Do(CreateInstructionSpec(instruction));
-        }
-
-        protected TargetedInstruction<TArgument, TResult> Do<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction)
-        {
-            return TargetedInstruction<TArgument, TResult>.Create(this, instruction);
+            return TargetedSyncInstruction<TArgument, TResult>.Create(this, CreateInstructionSpec(instruction));
         }
 
         public TargetedInstruction<TArgument, TResult> Do<TArgument, TResult>(
-            TwoPartInstruction<TArgument, TResult> twoPartInstruction)
+            TwoPartInstruction<TArgument, TResult> asyncInstruction)
         {
-            return DoAsync(CreateAsyncInstructionSpec(twoPartInstruction));
+            return TargetedAsyncInstruction<TArgument, TResult>.Create(this, CreateAsyncInstructionSpec(asyncInstruction));
         }
 
-        public TargetedInstruction<TArgument, TResult> DoAsync<TArgument, TResult>
-            (AsyncInstructionSpec<TArgument, TResult> asyncInstruction)
+        public TargetedInstruction<Guid, TResult> GetAsyncResult<TResult>()
         {
-            return TargetedInstruction<TArgument, TResult>.Create(this, asyncInstruction);
+            return TargetedGetAsyncResultInstruction<TResult>.Create(this);
         }
 
         public abstract void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction);
@@ -38,8 +33,8 @@ namespace DistrEx.Coordinator.Interface
 
         public abstract Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,TArgument argument);
         public abstract Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument);
+        public abstract Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId);
 
-        public abstract Future<TResult> GetAsyncResult<TResult>(Guid resultId);
 
     }
 }

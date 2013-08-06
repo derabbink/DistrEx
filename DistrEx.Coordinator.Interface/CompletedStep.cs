@@ -1,4 +1,6 @@
-﻿namespace DistrEx.Coordinator.Interface
+﻿using DistrEx.Coordinator.Interface.TargetedInstructions;
+
+namespace DistrEx.Coordinator.Interface
 {
     public class CompletedStep<TResult>
     {

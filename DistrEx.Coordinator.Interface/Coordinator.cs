@@ -2,6 +2,7 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DistrEx.Common;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 
 namespace DistrEx.Coordinator.Interface
 {
@@ -12,6 +13,7 @@ namespace DistrEx.Coordinator.Interface
         {
             targetedInstruction.TransportAssemblies();
             Future<TResult> future = GetInvocationFuture(targetedInstruction, argument).Last();
+            TimeoutMonitor.MonitorTimeout(future);
             var result = future.GetResult();
             return new CompletedStep<TResult>(result);
         }

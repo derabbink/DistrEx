@@ -8,6 +8,7 @@ using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
 using DistrEx.Coordinator.InstructionSpecs;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 
 namespace DistrEx.Coordinator.TargetSpecs
 {
@@ -79,7 +80,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             throw new NotImplementedException();
         }
 
-        public override Future<TResult> GetAsyncResult<TResult>(Guid resultId)
+        public override Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId)
         {
             throw new NotImplementedException();
         }

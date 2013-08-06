@@ -273,7 +273,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             return new Future<TResult>(futureObs, () => Cancel(operationId));
         }
 
-        public override Future<TResult> GetAsyncResult<TResult>(Guid resultId)
+        public override Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId)
         {
             throw new NotImplementedException();
         }
