@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DistrEx.Coordinator.InstructionSpecs.Sequential;
+﻿using DistrEx.Coordinator.InstructionSpecs.Sequential;
 using DistrEx.Coordinator.Interface;
 using DistrEx.Coordinator.TargetedInstructions;
 
 namespace DistrEx.Coordinator
 {
-    public static class Coordinator
+    public static partial class Coordinator
     {
         public static CompletedStep<TResult> Do<TArgument, TResult>(
             TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)

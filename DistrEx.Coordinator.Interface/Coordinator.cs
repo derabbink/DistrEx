@@ -5,7 +5,7 @@ using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface
 {
-    public class Coordinator
+    public static class Coordinator
     {
         public static CompletedStep<TResult> Do<TArgument, TResult>(
             TargetedInstruction<TArgument, TResult> targetedInstruction, TArgument argument)

@@ -37,17 +37,11 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         private CancellationTokenSource _cancellationTokenSource;
 
         #region Setup
-
-        [TestFixtureSetUp]
-        public void FixtureSetUp()
-        {
-            _pluginManager = new PluginManager();
-            TransportThisAssembly();
-        }
-
         [SetUp]
         public void Setup()
         {
+            _pluginManager = new PluginManager();
+            TransportThisAssembly();
             _identityArgument = 1;
             _serializedIdentityArgument = Serializer.Serialize(_identityArgument);
             _identityArgumentTypeName = _identityArgument.GetType().FullName;

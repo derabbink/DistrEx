@@ -30,7 +30,7 @@ namespace DistrEx.Coordinator.Test.Integration
         {
             var expected = _identityArgument;
             Tuple<Tuple<int, int, int, int, int, int>, Tuple<int, int, int, int, int, int>, int, int, int, int> result =
-                Coordinator6.Do(
+                Coordinator.Do(
                     Coordinator.Do(_local.Do(_identity))
                                .ThenDo(_local.Do(_identity),
                                        _local.Do(_identity),
@@ -38,7 +38,7 @@ namespace DistrEx.Coordinator.Test.Integration
                                        _local.Do(_identity),
                                        _local.Do(_identity),
                                        _local.Do(_identity)),
-                    Coordinator6.Do(_local.Do(_identity),
+                    Coordinator.Do(_local.Do(_identity),
                                     _local.Do(_identity),
                                     _local.Do(_identity),
                                     _local.Do(_identity),

@@ -132,7 +132,7 @@ namespace DistrEx.Coordinator.Test.Parallel
 
         private Tuple<Exception, Exception, Exception, Exception> GetResult(TargetedInstruction<Exception, Exception>[] instructions, Exception argument)
         {
-            return Coordinator4.Do(instructions[0], instructions[1], instructions[2], instructions[3], argument).ResultValue;
+            return Coordinator.Do(instructions[0], instructions[1], instructions[2], instructions[3], argument).ResultValue;
         }
 
         private static void WaitAll(ManualResetEventSlim[] blocks)

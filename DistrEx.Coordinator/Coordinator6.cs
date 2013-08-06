@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Reactive.Linq;
-using DistrEx.Common;
-using DistrEx.Common.InstructionResult;
 using DistrEx.Coordinator.InstructionSpecs.Parallel;
-using DistrEx.Coordinator.InstructionSpecs.Sequential;
 using DistrEx.Coordinator.Interface;
-using DistrEx.Coordinator.TargetSpecs;
 using DistrEx.Coordinator.TargetedInstructions;
 
 namespace DistrEx.Coordinator
 {
-    public static class Coordinator6
+    public static partial class Coordinator
     {
         public static CompletedStep<Tuple<TResult1, TResult2, TResult3, TResult4, TResult5, TResult6>> Do<TArgument, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6>(
             TargetedInstruction<TArgument, TResult1> targetedInstruction1,
