@@ -67,12 +67,6 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         }
 
         [Test]
-        public void SuccessfulTwoPart()
-        {
-            var result = Interface.Coordinator.Do(_onWorker.Do(_twoPart), _argumentIdentity).ThenDo(_onWorker.Do(_twoPart)).ResultValue;
-        }
-
-        [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void FailureOnWorker()
         {

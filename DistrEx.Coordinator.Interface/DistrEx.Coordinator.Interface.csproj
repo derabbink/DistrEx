@@ -60,6 +60,7 @@
     <Compile Include="AsyncInstructionSpec.cs" />
     <Compile Include="InstructionSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Spec.cs" />
     <Compile Include="TargetedInstruction.cs" />
     <Compile Include="TargetSpec.cs" />
     <Compile Include="TimeoutMonitor.cs" />

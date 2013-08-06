@@ -27,8 +27,7 @@ namespace DistrEx.Coordinator.Interface
             return TargetedInstruction<TArgument, TResult>.Create(this, asyncInstruction);
         }
 
-        public abstract void TransportAssembly(AssemblyName assembly);
-        public abstract void TransportAssemblies<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> instruction);
+        public abstract void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction);
         public abstract bool AssemblyIsTransported(AssemblyName assembly);
 
         public abstract void ClearAssemblies();

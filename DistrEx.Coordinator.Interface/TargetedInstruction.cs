@@ -51,17 +51,16 @@ namespace DistrEx.Coordinator.Interface
 
         public Future<TResult> Invoke(TArgument argument)
         {
-            if (Instruction == null)
+            if (Instruction != null)
+            {
+                Target.TransportAssemblies(Instruction);
+                return Target.Invoke(Instruction, argument); 
+            }
+            else
             {
                 Target.TransportAssemblies(AsyncInstruction);
-                return Target.InvokeAsync(AsyncInstruction, argument);
+                return Target.InvokeAsync(AsyncInstruction, argument); 
             }
-            return Target.Invoke(Instruction, argument);
         }
-
-        //public Future<TResult> InvokeAsync(TArgument argument)
-        //{
-           
-        //}
     }
 }

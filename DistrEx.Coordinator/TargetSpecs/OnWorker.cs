@@ -67,9 +67,9 @@ namespace DistrEx.Coordinator.TargetSpecs
             return new OnWorker(assemblyManagerEndpointConfigName, executorEndpointConfigName, callbackHandler);
         }
 
-        public override void TransportAssemblies<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> instruction)
+        public override void TransportAssemblies(Spec instructionSpec)
         {
-            Assembly assy = instruction.GetAssembly();
+            Assembly assy = instructionSpec.GetAssembly();
             IObservable<AssemblyName> dependencies = Resolver.GetAllDependencies(assy.GetName())
                                                              .Where(aName => !_transportedAssemblies.Contains(aName));
             dependencies.Subscribe(TransportAssembly);
