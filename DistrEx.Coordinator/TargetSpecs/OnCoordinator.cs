@@ -59,7 +59,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             return NonTransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
-        protected override AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction)
+        protected override AsyncInstructionSpec<TArgument, Guid> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, Guid> instruction)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,5 @@
-﻿using DistrEx.Common;
+﻿using System;
+using DistrEx.Common;
 
 namespace DistrEx.Coordinator.Interface.TargetedInstructions
 {

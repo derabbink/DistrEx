@@ -111,9 +111,9 @@ namespace DistrEx.Coordinator.TargetSpecs
             return TransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
-        protected override AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction)
+        protected override AsyncInstructionSpec<TArgument, Guid> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, Guid> instruction)
         {
-            return new TwoPartInstructionSpec<TArgument, TResult>(instruction); 
+            return new TwoPartInstructionSpec<TArgument, Guid>(instruction); 
         }
 
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)

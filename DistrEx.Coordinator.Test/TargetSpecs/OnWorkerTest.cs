@@ -5,6 +5,7 @@ using DistrEx.Common;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Communication.Service.Executor;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetSpecs;
 using DistrEx.Coordinator.Test.Util;
 using Microsoft.Test.ApplicationControl;
@@ -22,8 +23,8 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private Instruction<int, int> _identity;
         private Instruction<int, int> _haltingIdentity;
         private Instruction<Exception, Exception> _throw;
-
-        private TwoPartInstruction<int, int> _twoPart;
+        
+        private TwoPartInstruction<int, Guid> _twoPart;
 
         int _argumentIdentity;
         private Exception _argumentThrow;
@@ -42,7 +43,6 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private void ConfigureOperations()
         {
             _identity = (ct, p, i) => i;
-            _twoPart = (ct, p, q, i) => i; 
             _haltingIdentity = (ct, p, i) =>
                 {
                     ManualResetEventSlim mres = new ManualResetEventSlim(false);
@@ -82,6 +82,14 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             var future = targetedInstruction.Invoke(_argumentIdentity);
             future.Cancel();
             future.GetResult();
+        }
+
+        [Test]
+        public void AsyncTestOnWorker()
+        {
+            int result = Interface.Coordinator.Do(_onWorker.Do<int, Guid>(_twoPart), _argumentIdentity)
+                                              .ThenDo(_onWorker.GetAsyncResult<int>())
+                                              .ResultValue;
         }
 
         [Test]
