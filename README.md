@@ -12,7 +12,7 @@ Imagine a scenario where you have three machines (`pc1`, `pc2`, `pc3`) that you 
 DistrEx lets you do just with a single line of code:
 
 ```c#
-Coordinator3.Do(pc1.Do(GetTime), pc2.Do(GetTime), pc3.Do(GetTime)) //...
+Coordinator.Do(pc1.Do(GetTime), pc2.Do(GetTime), pc3.Do(GetTime)) //...
 ```
 
 The result of this operation will be a `Tuple<Time, Time, Time>`, and it can be used in the next operation:
