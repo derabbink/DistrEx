@@ -171,14 +171,15 @@ namespace DistrEx.Plugin
             return executor.Execute(callback, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
         }
 
-        public SerializedResult ExecuteAsync(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress,
-                                             Action reportCompleted1, string argumentTypeName, string serializedArgument)
+        public SerializedResult ExecuteTwoStep(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress,
+                                             Action reportCompletedStep1, string argumentTypeName, string serializedArgument)
         {
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
             cancellationToken.Register(executor.Cancel);
-            var callback = new ExecutorCallback(reportProgress, reportCompleted1);
+            var callback = new ExecutorCallback(reportProgress);
+            var completedStep1 = new ExecutorCallback(reportCompletedStep1);
             
-            return executor.ExecuteAsync(callback, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
+            return executor.ExecuteTwoStep(callback, completedStep1, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
         }
 
         private void UnloadAppDomain()

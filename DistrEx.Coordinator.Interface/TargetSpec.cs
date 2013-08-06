@@ -25,7 +25,14 @@ namespace DistrEx.Coordinator.Interface
         public abstract void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction);
         public abstract bool AssemblyIsTransported(AssemblyName assembly);
 
-        public abstract void ClearAssemblies();
+        public void ClearEverything()
+        {
+            ClearAsyncResults();
+            ClearAssemblies();
+        }
+
+        protected abstract void ClearAssemblies();
+        protected abstract void ClearAsyncResults();
 
         protected abstract InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction);
         protected abstract AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction);

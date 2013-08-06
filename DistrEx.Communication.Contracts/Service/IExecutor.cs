@@ -18,6 +18,12 @@ namespace DistrEx.Communication.Contracts.Service
         [OperationContract(IsOneWay = true)]
         void ExecuteAsync(AsyncInstruction asyncInstruction);
 
+        [OperationContract(IsOneWay = true)]
+        void GetAsyncResult(GetAsyncResultInstruction getAsyncResultInstruction);
+
+        [OperationContract(IsOneWay = true)]
+        void ClearAsyncResults();
+
         /// <summary>
         /// Requesting cancellation of an instruction
         /// </summary>
@@ -25,11 +31,17 @@ namespace DistrEx.Communication.Contracts.Service
         [OperationContract(IsOneWay = true)]
         void Cancel(Cancellation cancellation);
 
+        void SubscribeClearAsyncResults(EventHandler<ClearAsyncResultsEventArgs> handler);
+        void UnsubscribeClearAsyncResults(EventHandler<ClearAsyncResultsEventArgs> handler);
+
         void SubscribeExecute(EventHandler<ExecuteEventArgs> handler);
         void UnsubscribeExecute(EventHandler<ExecuteEventArgs> handler);
 
         void SubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler);
         void UnsubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler);
+
+        void SubscribeGetAsyncResult(EventHandler<GetAsyncResultEventArgs> handler);
+        void UnsubscribeGetAsyncResult(EventHandler<GetAsyncResultEventArgs> handler);
 
         void SubscribeCancel(EventHandler<CancelEventArgs> handler);
         void UnsubscribeCancel(EventHandler<CancelEventArgs> handler);

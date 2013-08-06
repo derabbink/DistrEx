@@ -44,7 +44,12 @@ namespace DistrEx.Coordinator.TargetSpecs
             //no need to do anything
         }
 
-        public override void ClearAssemblies()
+        protected override void ClearAsyncResults()
+        {
+            //TODO
+        }
+
+        protected override void ClearAssemblies()
         {
             //no need to do anything
         }
@@ -64,9 +69,10 @@ namespace DistrEx.Coordinator.TargetSpecs
             Instruction<TArgument, TResult> instr = instruction.GetDelegate();
             CancellationTokenSource cts = new CancellationTokenSource();
 
+            var progress = Progress<TResult>.Default;
             IObservable<ProgressingResult<TResult>> observable = Observable.Create((IObserver<ProgressingResult<TResult>> obs) =>
                 {
-                    var result = instr(cts.Token, () => obs.OnNext(Progress<TResult>.Default), argument);
+                    var result = instr(cts.Token, () => obs.OnNext(progress), argument);
                     obs.OnNext(new Result<TResult>(result));
                     obs.OnCompleted();
                     return Disposable.Empty;

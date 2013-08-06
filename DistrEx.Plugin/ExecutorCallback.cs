@@ -4,28 +4,16 @@ namespace DistrEx.Plugin
 {
     internal class ExecutorCallback : MarshalByRefObject
     {
-        private readonly Action _progress;
-        private readonly Action _reportCompleted1; 
+        private readonly Action _callback;
 
-        public ExecutorCallback(Action progress)
+        public ExecutorCallback(Action callback)
         {
-            _progress = progress;
+            _callback = callback;
         }
 
-        public ExecutorCallback(Action progress, Action reportCompleted1)
+        internal void Callback()
         {
-            _progress = progress;
-            _reportCompleted1 = reportCompleted1; 
-        }
-
-        internal void Progress()
-        {
-            _progress();
-        }
-
-        internal void ReportCompleted1()
-        {
-            _reportCompleted1(); 
+            _callback();
         }
     }
 }

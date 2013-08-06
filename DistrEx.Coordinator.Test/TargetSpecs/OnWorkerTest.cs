@@ -94,7 +94,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [TestFixtureTearDown]
         public void TeardownFixture()
         {
-            _onWorker.ClearAssemblies();
+            _onWorker.ClearEverything();
             ProcessHelper.Stop(_workerProcess);
         }
     }

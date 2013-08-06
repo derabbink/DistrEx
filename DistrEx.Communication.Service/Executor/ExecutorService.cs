@@ -17,8 +17,10 @@ namespace DistrEx.Communication.Service.Executor
     {
         private readonly IExecutorCallback _callbackChannel;
 
+        private event EventHandler<ClearAsyncResultsEventArgs> ClearAsyncResultsRequest;
         private event EventHandler<ExecuteEventArgs> ExecuteRequest;
         private event EventHandler<ExecuteAsyncEventArgs> ExecuteAsyncRequest;
+        private event EventHandler<GetAsyncResultEventArgs> GetAsyncResultRequest;
         private event EventHandler<CancelEventArgs> CancelRequest;
 
         public ExecutorService() : this(null)
@@ -31,6 +33,10 @@ namespace DistrEx.Communication.Service.Executor
             _callbackChannel = callbackChannel;
         }
 
+        protected virtual void OnClearAsyncResultsRequest(ClearAsyncResultsEventArgs e)
+        {
+            ClearAsyncResultsRequest.Raise(this, e);
+        }
         protected virtual void OnExecuteRequest(ExecuteEventArgs e)
         {
             ExecuteRequest.Raise(this, e);
@@ -38,6 +44,10 @@ namespace DistrEx.Communication.Service.Executor
         protected virtual void OnExecuteAsyncRequest(ExecuteAsyncEventArgs e)
         {
             ExecuteAsyncRequest.Raise(this, e);
+        }
+        protected virtual void OnGetAsyncResultRequest(GetAsyncResultEventArgs e)
+        {
+            GetAsyncResultRequest.Raise(this, e);
         }
         protected virtual void OnCancelRequest(CancelEventArgs e)
         {
@@ -60,10 +70,33 @@ namespace DistrEx.Communication.Service.Executor
             OnExecuteAsyncRequest(args);
         }
 
+        public void GetAsyncResult(GetAsyncResultInstruction getAsyncResultInstruction)
+        {
+            var args = new GetAsyncResultEventArgs(getAsyncResultInstruction.OperationId,
+                                                   getAsyncResultInstruction.AsyncOperationId,
+                                                   Callback);
+            OnGetAsyncResultRequest(args);
+        }
+
+        public void ClearAsyncResults()
+        {
+            var args = new ClearAsyncResultsEventArgs();
+            OnClearAsyncResultsRequest(args);
+        }
+
         public void Cancel(Cancellation cancellation)
         {
             var args = new CancelEventArgs(cancellation.OperationId, Callback);
             OnCancelRequest(args);
+        }
+
+        public void SubscribeClearAsyncResults(EventHandler<ClearAsyncResultsEventArgs> handler)
+        {
+            ClearAsyncResultsRequest += handler;
+        }
+        public void UnsubscribeClearAsyncResults(EventHandler<ClearAsyncResultsEventArgs> handler)
+        {
+            ClearAsyncResultsRequest -= handler;
         }
 
         public void SubscribeExecute(EventHandler<ExecuteEventArgs> handler)
@@ -82,6 +115,15 @@ namespace DistrEx.Communication.Service.Executor
         public void UnsubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler)
         {
             ExecuteAsyncRequest -= handler;
+        }
+
+        public void SubscribeGetAsyncResult(EventHandler<GetAsyncResultEventArgs> handler)
+        {
+            GetAsyncResultRequest += handler;
+        }
+        public void UnsubscribeGetAsyncResult(EventHandler<GetAsyncResultEventArgs> handler)
+        {
+            GetAsyncResultRequest -= handler;
         }
 
         public void SubscribeCancel(EventHandler<CancelEventArgs> handler)

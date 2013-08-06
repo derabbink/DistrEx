@@ -35,7 +35,38 @@ namespace DistrEx.Plugin
         /// <param name="serializedArgument"></param>
         /// <returns>serialized result</returns>
         /// <exception cref="ExecutionException">If something went wrong with the execution</exception>
-        internal SerializedResult Execute(ExecutorCallback callback, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
+        internal SerializedResult Execute(ExecutorCallback callback, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument){
+            Type t = Type.GetType(assemblyQualifiedName, true);
+            MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
+                                                      | BindingFlags.Public
+                                                      | BindingFlags.Static);
+            try
+            {
+                Action progressCallback = callback.Callback;
+                return ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
+                    {
+                        _cancellationTokenSource.Token,
+                        progressCallback,
+                        default(object) //placeholder for deserialized argument
+                    });
+            }
+            catch (Exception e)
+            {
+                throw HandleException(e);
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="completedStep1"></param>
+        /// <param name="assemblyQualifiedName"></param>
+        /// <param name="methodName"></param>
+        /// <param name="argumentTypeName"></param>
+        /// <param name="serializedArgument"></param>
+        /// <returns>serialized result</returns>
+        /// <exception cref="ExecutionException">If something went wrong with the execution</exception>
+        internal SerializedResult ExecuteTwoStep(ExecutorCallback callback, ExecutorCallback completedStep1, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
         {
             Type t = Type.GetType(assemblyQualifiedName, true);
             MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
@@ -43,45 +74,34 @@ namespace DistrEx.Plugin
                                                       | BindingFlags.Static);
             try
             {
-                return ExecuteWrapped(func, callback, argumentTypeName, serializedArgument);
+                Action progressCallback = callback.Callback;
+                Action completedStep1Callback = completedStep1.Callback;
+                return ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
+                    {
+                        _cancellationTokenSource.Token,
+                        progressCallback,
+                        completedStep1Callback,
+                        default(object) //placeholder for deserialized argument
+                    });
             }
             catch (Exception e)
             {
-                string serializedExTypeName;
-                string serializedEx;
-                try
-                {
-                    serializedEx = Serializer.Serialize(e);
-                    serializedExTypeName = e.GetType().FullName;
-                }
-                catch
-                {
-                    serializedEx = null;
-                    serializedExTypeName = typeof(Exception).FullName;
-                }
-                throw new ExecutionException(serializedExTypeName, serializedEx);
+                throw HandleException(e);
             }
         }
 
-        internal SerializedResult ExecuteAsync(ExecutorCallback callback, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
-        {
-            throw new NotImplementedException();
-        }
-
-        private SerializedResult ExecuteWrapped(MethodInfo func, ExecutorCallback callback, string argumentTypeName, string serializedArgument)
+        private SerializedResult ExecuteWrapped(MethodInfo func, ExecutorCallback callback, string argumentTypeName, string serializedArgument, object[] arguments)
         {
             try
             {
-                Action reportProgress = callback.Progress;
+                Action reportProgress = callback.Callback;
                 reportProgress();
 
                 object argument = Deserializer.Deserialize(argumentTypeName, serializedArgument);
+                arguments[arguments.Length - 1] = argument;
                 reportProgress();
 
-                object result = func.Invoke(null, new[]
-                {
-                    _cancellationTokenSource.Token, reportProgress, argument
-                });
+                object result = func.Invoke(null, arguments);
                 reportProgress();
 
                 string serializedResult = Serializer.Serialize(result);
@@ -91,6 +111,23 @@ namespace DistrEx.Plugin
             {
                 throw e.InnerException;
             }
+        }
+
+        private ExecutionException HandleException(Exception e)
+        {
+            string serializedExTypeName;
+            string serializedEx;
+            try
+            {
+                serializedEx = Serializer.Serialize(e);
+                serializedExTypeName = e.GetType().FullName;
+            }
+            catch
+            {
+                serializedEx = null;
+                serializedExTypeName = typeof(Exception).FullName;
+            }
+            return new ExecutionException(serializedExTypeName, serializedEx);
         }
 
         internal void Cancel()
