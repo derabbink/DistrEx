@@ -22,11 +22,6 @@ namespace DistrEx.Coordinator.InstructionSpecs
             return _instruction;
         }
 
-        public override void TransportAssemblies(Interface.TargetSpec target)
-        {
-            //do nothing here
-        }
-
         public override Assembly GetAssembly()
         {
             return _instruction.Method.ReflectedType.Assembly;

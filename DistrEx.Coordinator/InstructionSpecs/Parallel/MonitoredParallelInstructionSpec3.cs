@@ -47,13 +47,7 @@ namespace DistrEx.Coordinator.InstructionSpecs.Parallel
                                                                                         targetedInstruction3,
                                                                                         monitoredInstruction);
         }
-
-        public override void TransportAssemblies(TargetSpec target)
-        {
-            base.TransportAssemblies(target);
-            TargetedInstruction3.TransportAssemblies();
-        }
-
+        
         private static Instruction<TArgument, Tuple<TResult1, TResult2, TResult3>> Parallelize(
             TargetedInstruction<TArgument, TResult1> targetedInstruction1,
             TargetedInstruction<TArgument, TResult2> targetedInstruction2,

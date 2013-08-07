@@ -33,10 +33,5 @@ namespace DistrEx.Coordinator.InstructionSpecs
         {
             return _instruction.Method.Name;
         }
-
-        public override void TransportAssemblies(TargetSpec target)
-        {
-           target.TransportAssemblies(this);
-        }
     }
 }

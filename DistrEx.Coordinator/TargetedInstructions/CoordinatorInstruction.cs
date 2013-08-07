@@ -43,7 +43,7 @@ namespace DistrEx.Coordinator.TargetedInstructions
 
         public override void TransportAssemblies()
         {
-            Instruction.TransportAssemblies(Target);
+            Target.TransportAssemblies(Instruction);
         }
     }
 }

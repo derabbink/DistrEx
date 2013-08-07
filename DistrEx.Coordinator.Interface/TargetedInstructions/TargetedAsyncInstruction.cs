@@ -24,13 +24,12 @@ namespace DistrEx.Coordinator.Interface.TargetedInstructions
 
         public override Future<TResult> Invoke(TArgument argument)
         {
-            Target.TransportAssemblies(Instruction);
             return Target.InvokeAsync(Instruction, argument);
         }
 
         public override void TransportAssemblies()
         {
-            Instruction.TransportAssemblies(Target);
+            Target.TransportAssemblies(Instruction);
         }
     }
 }

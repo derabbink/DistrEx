@@ -43,14 +43,6 @@ namespace DistrEx.Coordinator.InstructionSpecs
             return Type.GetType(AssemblyQualifiedName).Assembly;
         }
 
-        public override void TransportAssemblies(TargetSpec target)
-        {
-            Assembly assy = GetAssembly();
-            IObservable<AssemblyName> dependencies = Resolver.GetAllDependencies(assy.GetName())
-                                                             .Where(aName => !target.AssemblyIsTransported(aName));
-            dependencies.Subscribe(target.TransportAssembly);
-        }
-
         public override string GetAssemblyQualifiedName()
         {
             return AssemblyQualifiedName;

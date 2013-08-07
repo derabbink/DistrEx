@@ -35,11 +35,6 @@ namespace DistrEx.Coordinator.InstructionSpecs
             return _staticMethodSpec.GetAssembly();
         }
 
-        public override void TransportAssemblies(TargetSpec target)
-        {
-            _staticMethodSpec.TransportAssemblies(target);
-        }
-
         public override string GetAssemblyQualifiedName()
         {
             return _staticMethodSpec.GetAssemblyQualifiedName();

@@ -10,6 +10,9 @@ namespace DistrEx.Coordinator.Interface
 
         public abstract string GetMethodName();
 
-        public abstract void TransportAssemblies(TargetSpec target);
+        public void TransportAssemblies(TargetSpec target)
+        {
+            target.TransportAssemblies(this);
+        }
     }
 }
