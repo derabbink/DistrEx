@@ -1,4 +1,6 @@
-﻿using DistrEx.Common;
+﻿using System;
+using System.Reflection;
+using DistrEx.Common;
 using DistrEx.Coordinator.Interface.TargetedInstructions;
 
 namespace DistrEx.Coordinator.Interface
@@ -22,8 +24,9 @@ namespace DistrEx.Coordinator.Interface
             return TargetedGetAsyncResultInstruction<TResult>.Create(this);
         }
 
-        public abstract void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction);
+        public abstract void TransportAssemblies(Spec instructionSpec);
         public abstract bool AssemblyIsTransported(AssemblyName assembly);
+        public abstract void TransportAssembly(AssemblyName assemblyName);
 
         public void ClearEverything()
         {
@@ -41,7 +44,5 @@ namespace DistrEx.Coordinator.Interface
         public abstract Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,TArgument argument);
         public abstract Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument);
         public abstract Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId);
-
-
     }
 }

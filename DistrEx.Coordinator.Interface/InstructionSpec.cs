@@ -9,7 +9,5 @@ namespace DistrEx.Coordinator.Interface
         /// </summary>
         /// <returns></returns>
         public abstract Instruction<TArgument, TResult> GetDelegate();
-        public abstract void TransportAssemblies(TargetSpec target);
-
     }
 }

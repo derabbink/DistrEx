@@ -27,5 +27,10 @@ namespace DistrEx.Coordinator.Interface.TargetedInstructions
             Target.TransportAssemblies(Instruction);
             return Target.InvokeAsync(Instruction, argument);
         }
+
+        public override void TransportAssemblies()
+        {
+            Instruction.TransportAssemblies(Target);
+        }
     }
 }

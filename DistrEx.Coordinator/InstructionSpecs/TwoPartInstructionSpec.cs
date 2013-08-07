@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using DistrEx.Common;
 using DistrEx.Coordinator.Interface;
 
@@ -31,6 +32,11 @@ namespace DistrEx.Coordinator.InstructionSpecs
         public override string GetMethodName()
         {
             return _instruction.Method.Name;
+        }
+
+        public override void TransportAssemblies(TargetSpec target)
+        {
+           target.TransportAssemblies(this);
         }
     }
 }

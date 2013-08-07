@@ -9,5 +9,7 @@ namespace DistrEx.Coordinator.Interface
         public abstract string GetAssemblyQualifiedName();
 
         public abstract string GetMethodName();
+
+        public abstract void TransportAssemblies(TargetSpec target);
     }
 }

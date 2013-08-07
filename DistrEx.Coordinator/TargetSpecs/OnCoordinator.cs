@@ -31,17 +31,19 @@ namespace DistrEx.Coordinator.TargetSpecs
             }
         }
 
-        public override void TransportAssemblies<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction)
+        public override void TransportAssemblies(Spec instructionSpec)
         {
+            //no need to do anything
         }
 
         public override bool AssemblyIsTransported(AssemblyName assembly)
         {
             return true;
         }
-        public override void TransportAssemblies<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> instruction)
+
+        public override void TransportAssembly(AssemblyName assemblyName)
         {
-            //no need to do anything
+            //TODO
         }
 
         protected override void ClearAsyncResults()

@@ -6,6 +6,7 @@ using System.Text;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 
 namespace DistrEx.Coordinator.InstructionSpecs.Sequential
 {

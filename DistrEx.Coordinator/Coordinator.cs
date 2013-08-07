@@ -1,5 +1,6 @@
 ﻿using DistrEx.Coordinator.InstructionSpecs.Sequential;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetedInstructions;
 
 namespace DistrEx.Coordinator

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DistrEx.Common;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetSpecs;
 using NUnit.Framework;
 

@@ -16,5 +16,6 @@ namespace DistrEx.Coordinator.Interface.TargetedInstructions
         }
 
         public abstract Future<TResult> Invoke(TArgument argument);
+        public abstract void TransportAssemblies();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using DistrEx.Coordinator.InstructionSpecs.Parallel;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetedInstructions;
 
 namespace DistrEx.Coordinator

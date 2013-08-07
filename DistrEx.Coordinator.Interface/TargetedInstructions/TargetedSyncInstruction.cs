@@ -2,7 +2,7 @@
 
 namespace DistrEx.Coordinator.Interface.TargetedInstructions
 {
-    internal class TargetedSyncInstruction<TArgument, TResult> : TargetedInstruction<TArgument, TResult>
+    public class TargetedSyncInstruction<TArgument, TResult> : TargetedInstruction<TArgument, TResult>
     {
         protected TargetedSyncInstruction(TargetSpec target, InstructionSpec<TArgument, TResult> instruction) : base(target)
         {
@@ -24,6 +24,11 @@ namespace DistrEx.Coordinator.Interface.TargetedInstructions
         {
             Target.TransportAssemblies(Instruction);
             return Target.Invoke(Instruction, argument); 
+        }
+
+        public override void TransportAssemblies()
+        {
+            Instruction.TransportAssemblies(Target);
         }
     }
 }

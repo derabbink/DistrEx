@@ -2,6 +2,7 @@
 using System.Threading;
 using DistrEx.Common;
 using DistrEx.Coordinator.Interface;
+using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetSpecs;
 using NUnit.Framework;
 
@@ -47,7 +48,7 @@ namespace DistrEx.Coordinator.Test.Parallel
             var expected = _identityArgument;
             var monitored = InstructionSpecs.Parallel.MonitoredParallelInstructionSpec<int, int, Tuple<int>>.Create(
                 _local.Do(_identity));
-            var wrappedInstruction = TargetedInstruction<int, Tuple<int>>.Create(_local, monitored);
+            var wrappedInstruction = TargetedSyncInstruction<int, Tuple<int>>.Create(_local, monitored);
             Tuple<int> result = Interface.Coordinator.Do(wrappedInstruction, _identityArgument).ResultValue;
             Assert.That(result.Item1, Is.EqualTo(expected));
         }
@@ -58,7 +59,7 @@ namespace DistrEx.Coordinator.Test.Parallel
         {
             var monitored = InstructionSpecs.Parallel.MonitoredParallelInstructionSpec<Exception, Exception, Tuple<Exception>>.Create(
                 _local.Do(_throw));
-            var wrappedInstruction = TargetedInstruction<Exception, Tuple<Exception>>.Create(_local, monitored);
+            var wrappedInstruction = TargetedSyncInstruction<Exception, Tuple<Exception>>.Create(_local, monitored);
             Tuple<Exception> result = Interface.Coordinator.Do(wrappedInstruction, _throwArgument).ResultValue;
         }
 
@@ -68,7 +69,7 @@ namespace DistrEx.Coordinator.Test.Parallel
         {
             var monitored = InstructionSpecs.Parallel.MonitoredParallelInstructionSpec<int, int, Tuple<int>>.Create(
                 _local.Do(_blockingIdentity));
-            var wrappedInstruction = TargetedInstruction<int, Tuple<int>>.Create(_local, monitored);
+            var wrappedInstruction = TargetedSyncInstruction<int, Tuple<int>>.Create(_local, monitored);
             Tuple<int> result = Interface.Coordinator.Do(wrappedInstruction, _identityArgument).ResultValue;
         }
     }

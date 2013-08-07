@@ -18,5 +18,10 @@ namespace DistrEx.Coordinator.Interface.TargetedInstructions
         {
             return Target.InvokeGetAsyncResult<TResult>(asyncOperationId);
         }
+
+        public override void TransportAssemblies()
+        {
+            //Nothing to do here
+        }
     }
 }
