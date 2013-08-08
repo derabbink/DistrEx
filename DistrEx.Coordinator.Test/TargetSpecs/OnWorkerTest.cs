@@ -2,10 +2,9 @@
 using System.Configuration;
 using System.Threading;
 using DistrEx.Common;
-using DistrEx.Communication.Contracts.Service;
+using DistrEx.Common.Exceptions;
 using DistrEx.Communication.Service.Executor;
 using DistrEx.Coordinator.Interface;
-using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetSpecs;
 using DistrEx.Coordinator.Test.Util;
 using Microsoft.Test.ApplicationControl;
@@ -17,14 +16,18 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
     public class OnWorkerTest
     {
         private AutomatedApplication _workerProcess;
-        private IExecutorCallback _callbackHandler;
+        private ExecutorCallbackService _callbackHandler;
         private TargetSpec _onWorker;
 
         private Instruction<int, int> _identity;
         private Instruction<int, int> _haltingIdentity;
+        private Instruction<int, int> _uncancellableHaltingIdentity;
         private Instruction<Exception, Exception> _throw;
         
-        private TwoPartInstruction<int, Guid> _twoPart;
+        private TwoPartInstruction<int, int> _twoPartIdentity;
+        private TwoPartInstruction<int, int> _haltingTwoPartIdentity;
+        private TwoPartInstruction<int, int> _uncancellableHaltingTwoPartIdentity;
+        private TwoPartInstruction<Exception, Exception> _throwTwoPart;  
 
         int _argumentIdentity;
         private Exception _argumentThrow;
@@ -42,17 +45,57 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
 
         private void ConfigureOperations()
         {
+            #region Instruction
+
             _identity = (ct, p, i) => i;
             _haltingIdentity = (ct, p, i) =>
-                {
-                    ManualResetEventSlim mres = new ManualResetEventSlim(false);
-                    mres.Wait(ct);
-                    return i;
-                };
+            {
+                ManualResetEventSlim mres = new ManualResetEventSlim(false);
+                mres.Wait(ct);
+                return i;
+            };
+            _uncancellableHaltingIdentity = (ct, p, i) =>
+            {
+                ManualResetEventSlim mres = new ManualResetEventSlim(false);
+                mres.Wait();
+                return i;
+            };
+
             _throw = (ct, p, e) =>
             {
                 throw e;
             };
+
+            #endregion
+
+            #region TwoPartInstruction 
+            _twoPartIdentity = (ct, p, p1, i) =>
+            {
+                p1();
+                return i;
+            };
+
+            _haltingTwoPartIdentity = (ct, p, p1, i) =>
+            {
+                var mres = new ManualResetEventSlim(false);
+                mres.Wait(ct);
+                return i; 
+            };
+
+            _uncancellableHaltingTwoPartIdentity = (ct, p, p1, i) =>
+            {
+                var mres = new ManualResetEventSlim(false);
+                mres.Wait();
+                return i; 
+            };
+
+            _throwTwoPart = (ct, p, p1, e) =>
+            {
+                throw e; 
+            };
+
+            #endregion 
+            
             _argumentIdentity = 1;
             _argumentThrow = new Exception("Expected");
         }
@@ -67,10 +110,27 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         }
 
         [Test]
+        public void SuccessfulOnWorkerAsync()
+        {
+            var expected = _argumentIdentity;
+            int result = Coordinator.Do(_onWorker.Do(_twoPartIdentity), _argumentIdentity)
+                                              .ThenDo(_onWorker.GetAsyncResult<int>())
+                                              .ResultValue;
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void FailureOnWorker()
         {
             Exception actual = Interface.Coordinator.Do(_onWorker.Do(_throw), _argumentThrow).ResultValue;
+        }
+
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void FailureOnWorkerAsync()
+        {
+            var result = Coordinator.Do(_onWorker.Do(_throwTwoPart), _argumentThrow).ResultValue;
         }
 
         [Test]
@@ -83,13 +143,38 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             future.Cancel();
             future.GetResult();
         }
+        
+        [Test]
+        [ExpectedException(typeof(OperationCanceledException))]
+        public void CancelOnWorkerAsync()
+        {
+            var targetedInstruction = _onWorker.Do(_haltingTwoPartIdentity);
+            targetedInstruction.TransportAssemblies();
+            var future = targetedInstruction.Invoke(_argumentIdentity);
+            future.Cancel();
+            future.GetResult();
+        }
 
         [Test]
-        public void AsyncTestOnWorker()
+        [ExpectedException(typeof(AsymmetricTerminationException))]
+        public void KillOnWorker()
         {
-            int result = Interface.Coordinator.Do(_onWorker.Do<int, Guid>(_twoPart), _argumentIdentity)
-                                              .ThenDo(_onWorker.GetAsyncResult<int>())
-                                              .ResultValue;
+            var targetedInstruction = _onWorker.Do(_uncancellableHaltingIdentity);
+            targetedInstruction.TransportAssemblies();
+            var future = targetedInstruction.Invoke(_argumentIdentity);
+            future.Cancel();
+            future.GetResult();
+        }
+
+        [Test]
+        [ExpectedException(typeof(AsymmetricTerminationException))]
+        public void KillOnWorkerAsync()
+        {
+            var targetedInstruction = _onWorker.Do(_uncancellableHaltingTwoPartIdentity);
+            targetedInstruction.TransportAssemblies();
+            var future = targetedInstruction.Invoke(_argumentIdentity);
+            future.Cancel();
+            future.GetResult();
         }
 
         [Test]

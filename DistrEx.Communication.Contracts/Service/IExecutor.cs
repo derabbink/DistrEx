@@ -30,21 +30,6 @@ namespace DistrEx.Communication.Contracts.Service
         /// <param name="cancellation"></param>
         [OperationContract(IsOneWay = true)]
         void Cancel(Cancellation cancellation);
-
-        void SubscribeClearAsyncResults(EventHandler<ClearAsyncResultsEventArgs> handler);
-        void UnsubscribeClearAsyncResults(EventHandler<ClearAsyncResultsEventArgs> handler);
-
-        void SubscribeExecute(EventHandler<ExecuteEventArgs> handler);
-        void UnsubscribeExecute(EventHandler<ExecuteEventArgs> handler);
-
-        void SubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler);
-        void UnsubscribeExecuteAsync(EventHandler<ExecuteAsyncEventArgs> handler);
-
-        void SubscribeGetAsyncResult(EventHandler<GetAsyncResultEventArgs> handler);
-        void UnsubscribeGetAsyncResult(EventHandler<GetAsyncResultEventArgs> handler);
-
-        void SubscribeCancel(EventHandler<CancelEventArgs> handler);
-        void UnsubscribeCancel(EventHandler<CancelEventArgs> handler);
     }
 
     //[ServiceContract(Name = "ExecutorCallback", Namespace = "http://schemas.fugro/distrex/service/executorcallback")]
@@ -70,14 +55,5 @@ namespace DistrEx.Communication.Contracts.Service
         /// <param name="error"></param>
         [OperationContract(IsOneWay = true)]
         void Error(Error error);
-
-        void SubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler);
-        void UnsubscribeProgress(EventHandler<ProgressCallbackEventArgs> handler);
-
-        void SubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler);
-        void UnsubscribeComplete(EventHandler<CompleteCallbackEventArgs> handler);
-
-        void SubscribeError(EventHandler<ErrorCallbackEventArgs> handler);
-        void UnsubscribeError(EventHandler<ErrorCallbackEventArgs> handler);
     }
 }

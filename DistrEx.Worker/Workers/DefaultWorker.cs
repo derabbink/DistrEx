@@ -12,7 +12,7 @@ namespace DistrEx.Worker.Workers
         private Executor _executor;
         private IAssemblyManager _assemblyManager;
         private ServiceHost _assemblyManagerServiceHost;
-        private IExecutor _executorService;
+        private ExecutorService _executorService;
         private ServiceHost _executorServiceHost;
 
         public DefaultWorker()

@@ -140,6 +140,10 @@
       <Project>{4731676A-F515-4F92-9AA1-1D295B48EDCC}</Project>
       <Name>DistrEx.Communication.Proxy</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Communication.Service\DistrEx.Communication.Service.csproj">
+      <Project>{27D24BB7-BE46-4654-A51F-204B5F289113}</Project>
+      <Name>DistrEx.Communication.Service</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DistrEx.Coordinator.Interface\DistrEx.Coordinator.Interface.csproj">
       <Project>{4BFD50CB-CB92-4374-BFFA-105406C6B281}</Project>
       <Name>DistrEx.Coordinator.Interface</Name>

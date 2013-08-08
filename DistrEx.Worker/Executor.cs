@@ -12,6 +12,7 @@ using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
+using DistrEx.Communication.Service.Executor;
 using DistrEx.Plugin;
 
 namespace DistrEx.Worker
@@ -19,7 +20,7 @@ namespace DistrEx.Worker
     public class Executor : IDisposable
     {
         private readonly PluginManager _pluginManager;
-        private readonly IExecutor _executor;
+        private readonly ExecutorService _executor;
         private readonly IDictionary<Guid, Future<SerializedResult>> _asyncResults;
 
         private readonly IObservable<ClearAsyncResultsEventArgs> _clearAsyncResults;
@@ -33,7 +34,7 @@ namespace DistrEx.Worker
         private readonly IDisposable _executeAsyncSubscription;
         private readonly IDisposable _executeGetAsyncResultSubscription;
 
-        public Executor(IExecutor executor, PluginManager pluginManager)
+        public Executor(ExecutorService executor, PluginManager pluginManager)
         {
             _asyncResults = new ConcurrentDictionary<Guid, Future<SerializedResult>>();
             
@@ -129,7 +130,7 @@ namespace DistrEx.Worker
                                 executionObserver.OnCompleted();
                                 return Disposable.Empty;
                             });
-                    var future = new Future<SerializedResult>(executionObs, cts.Cancel);
+                    var future = new Future<SerializedResult>(executionObs, cts.Cancel, ()=>{});
                     var errorSubscription = future.Subscribe(_ => { }, observer.OnError, () => { });
                     var progressSubscription = future.Where(pRes => pRes.IsProgress).Subscribe(_ => sendProgress());
                     

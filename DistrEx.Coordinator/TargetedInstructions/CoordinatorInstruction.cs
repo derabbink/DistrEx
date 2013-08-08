@@ -38,12 +38,12 @@ namespace DistrEx.Coordinator.TargetedInstructions
 
         public override Future<TResult> Invoke(TArgument argument)
         {
-            throw new NotImplementedException();
+            return Target.Invoke(Instruction, argument);
         }
 
         public override void TransportAssemblies()
         {
-            Instruction.TransportAssemblies(Target);
+            Target.TransportAssemblies(Instruction);
         }
     }
 }
