@@ -111,9 +111,9 @@ namespace DistrEx.Coordinator.TargetSpecs
             return TransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
-        protected override AsyncInstructionSpec<TArgument, Guid> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, Guid> instruction)
+        protected override AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction)
         {
-            return new TwoPartInstructionSpec<TArgument, Guid>(instruction); 
+            return new TwoPartInstructionSpec<TArgument, TResult>(instruction); 
         }
 
         public override Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction, TArgument argument)
@@ -199,24 +199,24 @@ namespace DistrEx.Coordinator.TargetSpecs
             Executor.Cancel(msg);
         }
 
-        public override Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
+        public override Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
         {
             string methodName = asyncInstruction.GetMethodName();
             string assemblyQualifiedName = asyncInstruction.GetAssemblyQualifiedName();
 
             Guid operationId = Guid.NewGuid();
-            IObservable<Progress<TResult>> progressObs = _progresses
+            IObservable<Progress<Guid>> progressObs = _progresses
                 .Where(eArgs => eArgs.OperationId == operationId)
-                .Select(_ => Progress<TResult>.Default);
-            IObservable<ProgressingResult<TResult>> resultObs = _completes
+                .Select(_ => Progress<Guid>.Default);
+            IObservable<ProgressingResult<Guid>> resultObs = _completes
                 .Where(eArgs => eArgs.OperationId == operationId)
                 .Select(eArgs =>
                 {
                     object result = eArgs.Result;
                     try
                     {
-                        var castRes = (TResult)result;
-                        return new Result<TResult>(castRes);
+                        var castRes = (Guid)result;
+                        return new Result<Guid>(castRes);
                     }
                     catch (Exception e)
                     {
@@ -224,19 +224,19 @@ namespace DistrEx.Coordinator.TargetSpecs
                             String.Format(
                                 "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
                                 result.GetType().FullName, methodName, assemblyQualifiedName,
-                                typeof(TResult).FullName),
+                                typeof(Guid).FullName),
                             e);
                     }
                 });
-            IObservable<ProgressingResult<TResult>> errorObs = _errors
+            IObservable<ProgressingResult<Guid>> errorObs = _errors
                 .Where(eArgs => eArgs.OperationId == operationId)
-                .Select<ErrorCallbackEventArgs, ProgressingResult<TResult>>(eArgs =>
+                .Select<ErrorCallbackEventArgs, ProgressingResult<Guid>>(eArgs =>
                 {
                     throw eArgs.Error;
                 });
 
             //send out instruction...
-            IConnectableObservable<ProgressingResult<TResult>> resultOrErrorObs =
+            IConnectableObservable<ProgressingResult<Guid>> resultOrErrorObs =
                 resultObs.Amb(errorObs).Replay(Scheduler.Default);
             resultOrErrorObs.Connect();
             string serializedArgument = Serializer.Serialize(argument);
@@ -253,29 +253,29 @@ namespace DistrEx.Coordinator.TargetSpecs
             Executor.ExecuteAsync(msg);
 
             //this collects the instruction result
-            IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
-                IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
+            IObservable<IObservable<ProgressingResult<Guid>>> resultMetaObs = Observable.Create((
+                IObserver<IObservable<ProgressingResult<Guid>>> obs) =>
             {
-                IObservable<ProgressingResult<TResult>> combinedObs;
+                IObservable<ProgressingResult<Guid>> combinedObs;
                 //wait here: (First() blocks)
                 try
                 {
                     //might throw
-                    ProgressingResult<TResult> resultOrError = resultOrErrorObs.First();
+                    ProgressingResult<Guid> resultOrError = resultOrErrorObs.First();
                     combinedObs = Observable.Return(resultOrError);
                 }
                 catch (Exception e)
                 {
-                    combinedObs = Observable.Throw<ProgressingResult<TResult>>(e);
+                    combinedObs = Observable.Throw<ProgressingResult<Guid>>(e);
                 }
                 obs.OnNext(combinedObs);
                 obs.OnCompleted();
                 return Disposable.Empty;
             });
 
-            IObservable<IObservable<ProgressingResult<TResult>>> metaObs = Observable.Return(progressObs);
-            IObservable<ProgressingResult<TResult>> futureObs = metaObs.Concat(resultMetaObs).Switch();
-            return new Future<TResult>(futureObs, () => Cancel(operationId));
+            IObservable<IObservable<ProgressingResult<Guid>>> metaObs = Observable.Return(progressObs);
+            IObservable<ProgressingResult<Guid>> futureObs = metaObs.Concat(resultMetaObs).Switch();
+            return new Future<Guid>(futureObs, () => Cancel(operationId));
         }
 
         public override Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId)

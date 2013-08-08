@@ -24,7 +24,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private Instruction<int, int> _haltingIdentity;
         private Instruction<Exception, Exception> _throw;
         
-        private TwoPartInstruction<int, Guid> _twoPart;
+        private TwoPartInstruction<int, int> _twoPartIdentity;
 
         int _argumentIdentity;
         private Exception _argumentThrow;
@@ -55,6 +55,12 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             };
             _argumentIdentity = 1;
             _argumentThrow = new Exception("Expected");
+
+            _twoPartIdentity = (ct, p, p1, i) =>
+                {
+                    p1();
+                    return i;
+                };
         }
         #endregion
 
@@ -87,9 +93,11 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [Test]
         public void AsyncTestOnWorker()
         {
-            int result = Interface.Coordinator.Do(_onWorker.Do<int, Guid>(_twoPart), _argumentIdentity)
+            var expected = _argumentIdentity;
+            int result = Interface.Coordinator.Do(_onWorker.Do(_twoPartIdentity), _argumentIdentity)
                                               .ThenDo(_onWorker.GetAsyncResult<int>())
                                               .ResultValue;
+            Assert.That(result, Is.EqualTo(expected));
         }
 
         [Test]

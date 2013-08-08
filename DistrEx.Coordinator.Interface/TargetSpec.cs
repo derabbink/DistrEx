@@ -14,9 +14,9 @@ namespace DistrEx.Coordinator.Interface
         }
 
         public TargetedInstruction<TArgument, Guid> Do<TArgument, TResult>(
-            TwoPartInstruction<TArgument, Guid> asyncInstruction)
+            TwoPartInstruction<TArgument, TResult> asyncInstruction)
         {
-            return TargetedAsyncInstruction<TArgument, Guid>.Create(this, CreateAsyncInstructionSpec<TArgument, TResult>(asyncInstruction)); 
+            return TargetedAsyncInstruction<TArgument, TResult>.Create(this, CreateAsyncInstructionSpec(asyncInstruction)); 
         }
 
         public TargetedInstruction<Guid, TResult> GetAsyncResult<TResult>()
@@ -38,11 +38,11 @@ namespace DistrEx.Coordinator.Interface
         protected abstract void ClearAsyncResults();
 
         protected abstract InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction);
-        protected abstract AsyncInstructionSpec<TArgument, Guid> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, Guid> instruction);
+        protected abstract AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction);
 
 
         public abstract Future<TResult> Invoke<TArgument, TResult>(InstructionSpec<TArgument, TResult> instruction,TArgument argument);
-        public abstract Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument);
+        public abstract Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument);
         public abstract Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId);
     }
 }

@@ -61,7 +61,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             return NonTransferrableDelegateInstructionSpec<TArgument, TResult>.Create(instruction);
         }
 
-        protected override AsyncInstructionSpec<TArgument, Guid> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, Guid> instruction)
+        protected override AsyncInstructionSpec<TArgument, TResult> CreateAsyncInstructionSpec<TArgument, TResult>(TwoPartInstruction<TArgument, TResult> instruction)
         {
             throw new NotImplementedException();
         }
@@ -83,7 +83,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             return new Future<TResult>(observable, cts.Cancel);
         }
 
-        public override Future<TResult> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
+        public override Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
         {
             throw new NotImplementedException();
         }
