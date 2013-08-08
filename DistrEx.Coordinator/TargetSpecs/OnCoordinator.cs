@@ -80,7 +80,7 @@ namespace DistrEx.Coordinator.TargetSpecs
                     return Disposable.Empty;
                 });
 
-            return new Future<TResult>(observable, cts.Cancel);
+            return new Future<TResult>(observable, cts.Cancel, ()=>{});
         }
 
         public override Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)

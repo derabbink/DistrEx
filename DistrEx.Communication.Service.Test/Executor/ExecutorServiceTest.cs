@@ -21,9 +21,9 @@ namespace DistrEx.Communication.Service.Test.Executor
     public class ExecutorServiceTest
     {
         private PluginManager _pluginManager;
-        private IExecutor _executorService;
+        private ExecutorService _executorService;
         private Worker.Executor _executor;
-        private IExecutorCallback _executorCallback;
+        private ExecutorCallbackService _executorCallback;
 
         private IObservable<ProgressCallbackEventArgs> _progresses;
         private IObservable<CompleteCallbackEventArgs> _completes;

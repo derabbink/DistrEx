@@ -17,17 +17,17 @@ namespace DistrEx.Communication.Service.Executor
         private event EventHandler<CompleteCallbackEventArgs> CompleteCallback;
         private event EventHandler<ErrorCallbackEventArgs> ErrorCallback;
 
-        protected virtual void OnProgressCallback(ProgressCallbackEventArgs e)
+        public virtual void OnProgressCallback(ProgressCallbackEventArgs e)
         {
             ProgressCallback.Raise(this, e);
         }
 
-        protected virtual void OnCompleteCallback(CompleteCallbackEventArgs e)
+        public virtual void OnCompleteCallback(CompleteCallbackEventArgs e)
         {
             CompleteCallback.Raise(this, e);
         }
 
-        protected virtual void OnErrorCallback(ErrorCallbackEventArgs e)
+        public virtual void OnErrorCallback(ErrorCallbackEventArgs e)
         {
             ErrorCallback.Raise(this, e);
         }

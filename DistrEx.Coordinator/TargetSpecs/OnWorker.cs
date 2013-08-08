@@ -8,12 +8,14 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using DependencyResolver;
 using DistrEx.Common;
+using DistrEx.Common.Exceptions;
 using DistrEx.Common.InstructionResult;
 using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
 using DistrEx.Communication.Proxy;
+using DistrEx.Communication.Service.Executor;
 using DistrEx.Coordinator.InstructionSpecs;
 using DistrEx.Coordinator.Interface;
 
@@ -22,7 +24,7 @@ namespace DistrEx.Coordinator.TargetSpecs
     public class OnWorker : TargetSpec
     {
         private readonly Client<IAssemblyManager> _assemblyManagerClient;
-        private readonly IExecutorCallback _callbackHandler;
+        private readonly ExecutorCallbackService _callbackHandler;
         private readonly IObservable<CompleteCallbackEventArgs> _completes;
         private readonly IObservable<ErrorCallbackEventArgs> _errors;
 
@@ -30,7 +32,7 @@ namespace DistrEx.Coordinator.TargetSpecs
         private readonly IObservable<ProgressCallbackEventArgs> _progresses;
         private readonly ISet<AssemblyName> _transportedAssemblies;
 
-        private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, IExecutorCallback callbackHandler)
+        private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, ExecutorCallbackService callbackHandler)
         {
             _callbackHandler = callbackHandler;
             _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
@@ -62,7 +64,7 @@ namespace DistrEx.Coordinator.TargetSpecs
             }
         }
 
-        public static OnWorker FromEndpointConfigNames(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, IExecutorCallback callbackHandler)
+        public static OnWorker FromEndpointConfigNames(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, ExecutorCallbackService callbackHandler)
         {
             return new OnWorker(assemblyManagerEndpointConfigName, executorEndpointConfigName, callbackHandler);
         }
@@ -190,13 +192,7 @@ namespace DistrEx.Coordinator.TargetSpecs
 
             IObservable<IObservable<ProgressingResult<TResult>>> metaObs = Observable.Return(progressObs);
             IObservable<ProgressingResult<TResult>> futureObs = metaObs.Concat(resultMetaObs).Switch();
-            return new Future<TResult>(futureObs, () => Cancel(operationId));
-        }
-
-        private void Cancel(Guid operationId)
-        {
-            Cancellation msg = new Cancellation(){OperationId = operationId};
-            Executor.Cancel(msg);
+            return new Future<TResult>(futureObs, () => Cancel(operationId), () => Kill(operationId));
         }
 
         public override Future<Guid> InvokeAsync<TArgument, TResult>(AsyncInstructionSpec<TArgument, TResult> asyncInstruction, TArgument argument)
@@ -275,7 +271,7 @@ namespace DistrEx.Coordinator.TargetSpecs
 
             IObservable<IObservable<ProgressingResult<Guid>>> metaObs = Observable.Return(progressObs);
             IObservable<ProgressingResult<Guid>> futureObs = metaObs.Concat(resultMetaObs).Switch();
-            return new Future<Guid>(futureObs, () => Cancel(operationId));
+            return new Future<Guid>(futureObs, () => Cancel(operationId), () => Kill(operationId));
         }
 
         public override Future<TResult> InvokeGetAsyncResult<TResult>(Guid asyncOperationId)
@@ -346,7 +342,27 @@ namespace DistrEx.Coordinator.TargetSpecs
 
             IObservable<IObservable<ProgressingResult<TResult>>> metaObs = Observable.Return(progressObs);
             IObservable<ProgressingResult<TResult>> futureObs = metaObs.Concat(resultMetaObs).Switch();
-            return new Future<TResult>(futureObs, () => Cancel(operationId));
+            return new Future<TResult>(futureObs, () => Cancel(operationId), () => Kill(operationId));
+        }
+
+        /// <summary>
+        /// Sends a cancellation request to the worker
+        /// </summary>
+        /// <param name="operationId"></param>
+        private void Cancel(Guid operationId)
+        {
+            Cancellation msg = new Cancellation() { OperationId = operationId };
+            Executor.Cancel(msg);
+        }
+
+        /// <summary>
+        /// Injects a locally produced error into the operation's return path
+        /// </summary>
+        /// <param name="operationId"></param>
+        private void Kill(Guid operationId)
+        {
+            var error = new AsymmetricTerminationException("Operation was asymmetrically terminated. Executor cleanup possibly required.");
+            _callbackHandler.OnErrorCallback(new ErrorCallbackEventArgs(operationId, error));
         }
     }
 }

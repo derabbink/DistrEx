@@ -33,23 +33,23 @@ namespace DistrEx.Communication.Service.Executor
             _callbackChannel = callbackChannel;
         }
 
-        protected virtual void OnClearAsyncResultsRequest(ClearAsyncResultsEventArgs e)
+        public virtual void OnClearAsyncResultsRequest(ClearAsyncResultsEventArgs e)
         {
             ClearAsyncResultsRequest.Raise(this, e);
         }
-        protected virtual void OnExecuteRequest(ExecuteEventArgs e)
+        public virtual void OnExecuteRequest(ExecuteEventArgs e)
         {
             ExecuteRequest.Raise(this, e);
         }
-        protected virtual void OnExecuteAsyncRequest(ExecuteAsyncEventArgs e)
+        public virtual void OnExecuteAsyncRequest(ExecuteAsyncEventArgs e)
         {
             ExecuteAsyncRequest.Raise(this, e);
         }
-        protected virtual void OnGetAsyncResultRequest(GetAsyncResultEventArgs e)
+        public virtual void OnGetAsyncResultRequest(GetAsyncResultEventArgs e)
         {
             GetAsyncResultRequest.Raise(this, e);
         }
-        protected virtual void OnCancelRequest(CancelEventArgs e)
+        public virtual void OnCancelRequest(CancelEventArgs e)
         {
             CancelRequest.Raise(this, e);
         }

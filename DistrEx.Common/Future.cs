@@ -11,10 +11,12 @@ namespace DistrEx.Common
         private readonly IConnectableObservable<ProgressingResult<TResult>> _observable;
         private readonly IConnectableObservable<Result<TResult>> _replayResult;
         private Action _cancelOperation;
+        private Action _killOperation;
         
-        public Future(IObservable<ProgressingResult<TResult>> observable, Action cancelOperation)
+        public Future(IObservable<ProgressingResult<TResult>> observable, Action cancelOperation, Action killOperation)
         {
             _cancelOperation = cancelOperation;
+            _killOperation = killOperation;
             //subscribe triggers waiting for result
             _observable = observable.SubscribeOn(Scheduler.Default).Publish();
             IObservable<Result<TResult>> resultObs = _observable.Where(pr => pr.IsResult).Select(r => r as Result<TResult>);
@@ -34,6 +36,17 @@ namespace DistrEx.Common
             _cancelOperation();
             //you can cancel just once
             _cancelOperation = () => {};
+            TimeoutMonitor.MonitorTimeout(_replayResult, Kill, TimeoutMonitor.DefaultTimeout);
+        }
+
+        /// <summary>
+        /// Goes one step further than Cancel; it terminates an operation only on the waiting side of it.
+        /// </summary>
+        private void Kill()
+        {
+            _killOperation();
+            //you can kill just once
+            _killOperation = () => { };
         }
 
         /// <summary>
