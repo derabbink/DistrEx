@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -69,23 +70,25 @@ namespace DistrEx.Worker
             Action reportProgress = () => callback.Progress(progressMsg);
             try
             {
-                SerializedResult serializedResult = _pluginManager.Execute(instruction.AssemblyQualifiedName, instruction.MethodName, cts.Token,
-                                                                           reportProgress, instruction.ArgumentTypeName, instruction.SerializedArgument);
+                SerializedResult serializedResult = _pluginManager.Execute(instruction.AssemblyQualifiedName,
+                                                                           instruction.MethodName, cts.Token,
+                                                                           reportProgress, instruction.ArgumentTypeName,
+                                                                           instruction.SerializedArgument);
                 callback.Complete(new Result
-                {
-                    OperationId = operationId,
-                    ResultTypeName = serializedResult.TypeName,
-                    SerializedResult = serializedResult.Value
-                });
+                    {
+                        OperationId = operationId,
+                        ResultTypeName = serializedResult.TypeName,
+                        SerializedResult = serializedResult.Value
+                    });
             }
             catch (ExecutionException e)
             {
                 var msg = new Error
-                {
-                    OperationId = operationId,
-                    ExceptionTypeName = e.InnerExceptionTypeName,
-                    SerializedException = e.SerializedInnerException
-                };
+                    {
+                        OperationId = operationId,
+                        ExceptionTypeName = e.InnerExceptionTypeName,
+                        SerializedException = e.SerializedInnerException
+                    };
                 callback.Error(msg);
             }
             finally

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using DistrEx.Common.Serialization;
 
 namespace DistrEx.Plugin
 {
@@ -19,6 +20,23 @@ namespace DistrEx.Plugin
             // deserialize additional fields
             InnerExceptionTypeName = info.GetValue("InnerExceptionTypeName", typeof(string)) as string;
             SerializedInnerException = info.GetValue("SerializedInnerException", typeof(string)) as string;
+        }
+
+        public static ExecutionException FromException(Exception e)
+        {
+            string serializedExTypeName;
+            string serializedEx;
+            try
+            {
+                serializedEx = Serializer.Serialize(e);
+                serializedExTypeName = e.GetType().FullName;
+            }
+            catch
+            {
+                serializedEx = null;
+                serializedExTypeName = typeof(Exception).FullName;
+            }
+            return new ExecutionException(serializedExTypeName, serializedEx);
         }
 
         public string InnerExceptionTypeName

@@ -52,7 +52,7 @@ namespace DistrEx.Plugin
             }
             catch (Exception e)
             {
-                throw HandleException(e);
+                throw ExecutionException.FromException(e);
             }
         }
 
@@ -86,7 +86,7 @@ namespace DistrEx.Plugin
             }
             catch (Exception e)
             {
-                throw HandleException(e);
+                throw ExecutionException.FromException(e);
             }
         }
 
@@ -111,23 +111,6 @@ namespace DistrEx.Plugin
             {
                 throw e.InnerException;
             }
-        }
-
-        private ExecutionException HandleException(Exception e)
-        {
-            string serializedExTypeName;
-            string serializedEx;
-            try
-            {
-                serializedEx = Serializer.Serialize(e);
-                serializedExTypeName = e.GetType().FullName;
-            }
-            catch
-            {
-                serializedEx = null;
-                serializedExTypeName = typeof(Exception).FullName;
-            }
-            return new ExecutionException(serializedExTypeName, serializedEx);
         }
 
         internal void Cancel()

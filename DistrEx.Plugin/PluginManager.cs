@@ -168,7 +168,15 @@ namespace DistrEx.Plugin
             cancellationToken.Register(executor.Cancel);
             var callback = new ExecutorCallback(reportProgress);
 
-            return executor.Execute(callback, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
+            try
+            {
+                return executor.Execute(callback, assemblyQualifiedName, methodName, argumentTypeName,
+                                        serializedArgument);
+            }
+            catch (AppDomainUnloadedException e)
+            {
+                throw ExecutionException.FromException(e);
+            }
         }
 
         public SerializedResult ExecuteTwoStep(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress,

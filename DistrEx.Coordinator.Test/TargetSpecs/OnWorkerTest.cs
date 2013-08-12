@@ -184,10 +184,15 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             var result = Interface.Coordinator.Do(_onWorker.Do(_haltingIdentity), _argumentIdentity).ResultValue;
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            _onWorker.ClearEverything();
+        }
+
         [TestFixtureTearDown]
         public void TeardownFixture()
         {
-            _onWorker.ClearEverything();
             ProcessHelper.Stop(_workerProcess);
         }
     }
