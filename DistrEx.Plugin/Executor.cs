@@ -72,20 +72,29 @@ namespace DistrEx.Plugin
             MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
                                                       | BindingFlags.Public
                                                       | BindingFlags.Static);
+            Action progressCallback = callback.Callback;
+            Action completedStep1Callback = completedStep1.Callback;
+            Action onetimeCompletedStep1Callback = () =>
+                {
+                    if (completedStep1Callback != null)
+                        completedStep1Callback();
+                    completedStep1Callback = null;
+                };
             try
             {
-                Action progressCallback = callback.Callback;
-                Action completedStep1Callback = completedStep1.Callback;
-                return ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
-                    {
-                        _cancellationTokenSource.Token,
-                        progressCallback,
-                        completedStep1Callback,
-                        default(object) //placeholder for deserialized argument
-                    });
+                var result = ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
+                {
+                    _cancellationTokenSource.Token,
+                    progressCallback,
+                    onetimeCompletedStep1Callback,
+                    default(object) //placeholder for deserialized argument
+                });
+                onetimeCompletedStep1Callback();
+                return result;
             }
             catch (Exception e)
             {
+                onetimeCompletedStep1Callback();
                 throw ExecutionException.FromException(e);
             }
         }
