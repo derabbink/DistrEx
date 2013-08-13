@@ -186,8 +186,16 @@ namespace DistrEx.Plugin
             cancellationToken.Register(executor.Cancel);
             var callback = new ExecutorCallback(reportProgress);
             var completedStep1 = new ExecutorCallback(reportCompletedStep1);
-            
-            return executor.ExecuteTwoStep(callback, completedStep1, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
+
+            try
+            {
+                return executor.ExecuteTwoStep(callback, completedStep1, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
+
+            }
+            catch (AppDomainUnloadedException e)
+            {
+                throw ExecutionException.FromException(e);
+            }
         }
 
         private void UnloadAppDomain()

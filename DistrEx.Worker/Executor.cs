@@ -228,7 +228,14 @@ namespace DistrEx.Worker
         public void ClearAsyncResults()
         {
             foreach(Future<SerializedResult> future in _asyncResults.Values)
-                future.Cancel();
+                try
+                {
+                    future.Cancel();
+                }
+                catch (AggregateException e)
+                {
+                    Debug.WriteLine(e.Message);  
+                }
             _asyncResults.Clear();
         }
 

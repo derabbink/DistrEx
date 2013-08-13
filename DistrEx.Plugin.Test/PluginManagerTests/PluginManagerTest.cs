@@ -208,7 +208,15 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             }
             catch (AggregateException e)
             {
-                throw e.InnerException;
+                try
+                {
+                    throw e.InnerException;
+                }
+                catch (ExecutionException ex)
+                {
+                    AppDomainUnloadedException adue = (AppDomainUnloadedException) Deserializer.Deserialize(ex.InnerExceptionTypeName, ex.SerializedInnerException);
+                    throw adue;
+                }
             }
 
         }
