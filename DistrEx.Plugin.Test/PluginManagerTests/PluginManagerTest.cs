@@ -18,6 +18,12 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         private Instruction<int, int> _progressIdentity;
         private Instruction<int, int> _haltingIdentity;
         private Instruction<Exception, Exception> _throw;
+
+        private TwoPartInstruction<int, int> _twoPartIdentity;
+        private TwoPartInstruction<int, int> _twoPartProgressIdentity;
+        private TwoPartInstruction<int, int> _twoPartHaltingIdentity;
+        private TwoPartInstruction<Exception, Exception> _twoPartThrow;
+
         private int _identityArgument;
         private string _serializedIdentityArgument;
         private string _identityArgumentTypeName;
@@ -53,6 +59,15 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
             _identityQualifiedName = mi.ReflectedType.AssemblyQualifiedName;
             _identityMethodName = mi.Name;
 
+            _twoPartIdentity = (ct, progress, part1, argument) => argument;
+
+            _twoPartProgressIdentity = (CancellationToken token, Action progress, Action part1, int argument) =>
+            {
+                progress();
+                part1();
+                return argument;
+            };
+
             //need explicit types: http://stackoverflow.com/questions/4466859
             _progressIdentity = (CancellationToken ct, Action p, int i) =>
             {
@@ -72,6 +87,7 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
                 p();
                 return i;
             };
+            
             mi = _haltingIdentity.Method;
             _haltingIdentityQualifiedName = mi.ReflectedType.AssemblyQualifiedName;
             _haltingIdentityMethodName = mi.Name;
@@ -137,27 +153,183 @@ namespace DistrEx.Plugin.Test.PluginManagerTests
         }
 
         [Test]
+        [ExpectedException(typeof(OperationCanceledException))]
+        public void CancelExecutionAsynPartTwo()
+        {
+            _twoPartHaltingIdentity = (CancellationToken token, Action p, Action part1, int argument) =>
+            {
+                p();
+                part1();
+                var block = new ManualResetEventSlim(false);
+                block.Wait(token);
+                p();
+                return argument;
+            };
+
+            MethodInfo methodInfo = _twoPartHaltingIdentity.Method; 
+            ManualResetEventSlim progressBlock = new ManualResetEventSlim(false);
+            Action progress = progressBlock.Set;
+            bool completed = false; 
+            Action completed1 = () => completed = true; 
+            Task<int> t = Task<int>.Factory.StartNew(() =>
+                {
+                    SerializedResult result = _pluginManager.ExecuteTwoStep(methodInfo.ReflectedType.AssemblyQualifiedName,
+                                                                       methodInfo.Name,
+                                                                     _cancellationTokenSource.Token, progress, completed1,
+                                                                     _identityArgumentTypeName,
+                                                                     _serializedIdentityArgument);
+                    int castResult = (int)Deserializer.Deserialize(result.TypeName, result.Value);
+                    return castResult;
+                });
+            progressBlock.Wait();
+            
+            _cancellationTokenSource.Cancel();
+            try
+            {
+                t.Wait();
+            }
+            catch (AggregateException e)
+            {
+                ExecutionException ee = (ExecutionException) e.InnerException;
+                Exception dse = (Exception) Deserializer.Deserialize(ee.InnerExceptionTypeName, ee.SerializedInnerException);
+                throw dse;
+            }
+            finally
+            {
+                Assert.That(completed, Is.True);
+            }
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(OperationCanceledException))]
+        public void CancelExecutionAsynPartOne()
+        {
+            _twoPartHaltingIdentity = (CancellationToken token, Action p, Action part1, int argument) =>
+            {
+                p();
+                var block = new ManualResetEventSlim(false);
+                block.Wait(token);
+                part1();
+                p();
+                return argument;
+            };
+
+            MethodInfo methodInfo = _twoPartHaltingIdentity.Method;
+            ManualResetEventSlim progressBlock = new ManualResetEventSlim(false);
+            Action progress = progressBlock.Set;
+            bool completed = false;
+            Action completed1 = () => completed = true;
+            Task<int> t = Task<int>.Factory.StartNew(() =>
+            {
+                SerializedResult result = _pluginManager.ExecuteTwoStep(methodInfo.ReflectedType.AssemblyQualifiedName,
+                                                                   methodInfo.Name,
+                                                                 _cancellationTokenSource.Token, progress, completed1,
+                                                                 _identityArgumentTypeName,
+                                                                 _serializedIdentityArgument);
+                int castResult = (int)Deserializer.Deserialize(result.TypeName, result.Value);
+                return castResult;
+            });
+            progressBlock.Wait();
+
+            _cancellationTokenSource.Cancel();
+            try
+            {
+                t.Wait();
+            }
+            catch (AggregateException e)
+            {
+                ExecutionException ee = (ExecutionException)e.InnerException;
+                Exception dse = (Exception)Deserializer.Deserialize(ee.InnerExceptionTypeName, ee.SerializedInnerException);
+                throw dse;
+            }
+            finally
+            {
+                Assert.That(completed, Is.False);
+            }
+        }
+
+        [Test]
         public void ExecuteCorrect()
         {
             int expected = _identityArgument;
             SerializedResult result =
                 _pluginManager.Execute(_identityQualifiedName, _identityMethodName, _cancellationTokenSource.Token,
-                                       () =>
-                                       {
-                                       }, _identityArgumentTypeName, _serializedIdentityArgument);
+                                       () => {}, _identityArgumentTypeName, _serializedIdentityArgument);
             var actual = (int) Deserializer.Deserialize(result.TypeName, result.Value);
             Assert.That(actual, Is.EqualTo(expected));
         }
 
+        [Test]
+        public void ExecuteCorrectAsync()
+        {
+            int expected = _identityArgument;
+            MethodInfo methodInfo = _twoPartIdentity.Method;
+            bool completed = false;
+            Action completed1 = () => completed = true; 
+
+            SerializedResult result =
+                _pluginManager.ExecuteTwoStep(methodInfo.ReflectedType.AssemblyQualifiedName, methodInfo.Name,
+                                             _cancellationTokenSource.Token, () => { }, completed1,
+                                             _identityArgumentTypeName, _serializedIdentityArgument);
+            var actual = (int)Deserializer.Deserialize(result.TypeName, result.Value);
+
+            Assert.That(completed, Is.True);
+            Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Completed1Reported()
+        {
+            MethodInfo methodInfo = _twoPartProgressIdentity.Method;
+            int expected = _identityArgument;
+            bool completed1Reported = false;
+            Action completed1 = () => completed1Reported = true; 
+            SerializedResult result = _pluginManager.ExecuteTwoStep(methodInfo.ReflectedType.AssemblyQualifiedName, methodInfo.Name,
+                                                             _cancellationTokenSource.Token, () => {}, completed1,
+                                                             _identityArgumentTypeName, _serializedIdentityArgument);
+            var actual = (int)Deserializer.Deserialize(result.TypeName, result.Value);
+            Assert.That(completed1Reported, Is.True);
+            Assert.That(actual, Is.EqualTo(expected));     
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void ExecuteErrorAsync()
+        {
+            bool completed = false;
+            Action completed1 = () => completed = true; 
+
+            _twoPartThrow = (ct, p, p1, e) =>
+            {
+                throw e;
+            };
+
+            MethodInfo methodInfo = _twoPartThrow.Method; 
+            try
+            {
+                _pluginManager.ExecuteTwoStep(methodInfo.ReflectedType.AssemblyQualifiedName, methodInfo.Name,
+                                              _cancellationTokenSource.Token, () => {}, completed1,
+                                              _throwArgumentTypeName, _serializedThrowArgument);
+            }
+            catch (ExecutionException e)
+            {
+                Exception inner = (Exception) Deserializer.Deserialize(e.InnerExceptionTypeName, e.SerializedInnerException);
+                throw inner;
+            }
+            finally
+            {
+                Assert.That(completed, Is.False);
+            }
+        }
         [Test]
         [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
         public void ExecuteError()
         {
             try
             {
-                _pluginManager.Execute(_throwQualifiedName, _throwMethodName, _cancellationTokenSource.Token, () =>
-                {
-                },
+                _pluginManager.Execute(_throwQualifiedName, _throwMethodName, _cancellationTokenSource.Token, () => {},
                                        _throwArgumentTypeName, _serializedThrowArgument);
             }
             catch (ExecutionException e)
