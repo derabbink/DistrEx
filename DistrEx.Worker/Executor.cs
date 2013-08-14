@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
@@ -34,6 +35,7 @@ namespace DistrEx.Worker
         private readonly IDisposable _executeSubscription;
         private readonly IDisposable _executeAsyncSubscription;
         private readonly IDisposable _executeGetAsyncResultSubscription;
+        private readonly IDisposable _cancelsConnection;
 
         public Executor(ExecutorService executor, PluginManager pluginManager)
         {
@@ -44,7 +46,10 @@ namespace DistrEx.Worker
             _executes = Observable.FromEventPattern<ExecuteEventArgs>(_executor.SubscribeExecute, _executor.UnsubscribeExecute).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
             _executeAsyncs = Observable.FromEventPattern<ExecuteAsyncEventArgs>(_executor.SubscribeExecuteAsync, _executor.UnsubscribeExecuteAsync).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
             _getAsyncResults = Observable.FromEventPattern<GetAsyncResultEventArgs>(_executor.SubscribeGetAsyncResult, _executor.UnsubscribeGetAsyncResult).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
-            _cancels = Observable.FromEventPattern<CancelEventArgs>(_executor.SubscribeCancel, _executor.UnsubscribeCancel).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
+            var cancels = Observable.FromEventPattern<CancelEventArgs>(_executor.SubscribeCancel, _executor.UnsubscribeCancel).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs).Replay();
+            _cancelsConnection = cancels.Connect();
+            _cancels = cancels;
+            // TODO Need to clean out processed cancel messages
 
             _pluginManager = pluginManager;
 
@@ -61,7 +66,7 @@ namespace DistrEx.Worker
             var cts = new CancellationTokenSource();
             
             var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
-            var cancelSubscription = cancelObs.SubscribeOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
+            var cancelSubscription = cancelObs.ObserveOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
             
             var progressMsg = new Progress
             {
@@ -105,7 +110,7 @@ namespace DistrEx.Worker
             var cts = new CancellationTokenSource();
 
             var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
-            var cancelSubscription = cancelObs.SubscribeOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
+            var cancelSubscription = cancelObs.ObserveOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
 
             var progressMsg = new Progress
             {
@@ -118,11 +123,12 @@ namespace DistrEx.Worker
                     observer.OnNext(Unit.Default); //bogus element required later
                     Action reportStep1Completed = observer.OnCompleted;
 
-                    IObservable<ProgressingResult<SerializedResult>> executionObs = Observable.Create(
+                    IConnectableObservable<ProgressingResult<SerializedResult>> executionObs = Observable.Create(
                         (IObserver<ProgressingResult<SerializedResult>> executionObserver) =>
                             {
                                 var progress = Progress<SerializedResult>.Default;
                                 Action reportProgress = () => executionObserver.OnNext(progress);
+
                                 SerializedResult serializedResult =
                                     _pluginManager.ExecuteTwoStep(asyncInstruction.AssemblyQualifiedName,
                                                                 asyncInstruction.MethodName, cts.Token,
@@ -132,14 +138,14 @@ namespace DistrEx.Worker
                                 executionObserver.OnNext(new Result<SerializedResult>(serializedResult));
                                 executionObserver.OnCompleted();
                                 return Disposable.Empty;
-                            });
+                            }).Publish();
                     var future = new Future<SerializedResult>(executionObs, cts.Cancel, ()=>{});
                     var errorSubscription = future.Subscribe(_ => { }, observer.OnError, () => { });
                     var progressSubscription = future.Where(pRes => pRes.IsProgress).Subscribe(_ => sendProgress());
                     
                     //store future in dict
                     _asyncResults.Add(asyncResultId, future);
-
+                    executionObs.Connect();
                     return Disposable.Create(() =>
                         {
                             errorSubscription.Dispose();
@@ -187,7 +193,7 @@ namespace DistrEx.Worker
             {
                 _asyncResults.Remove(asyncResultId);
                 var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
-                var cancelSubscription = cancelObs.SubscribeOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
+                var cancelSubscription = cancelObs.ObserveOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
 
                 var progressMsg = new Progress
                     {
@@ -245,6 +251,7 @@ namespace DistrEx.Worker
             _executeSubscription.Dispose();
             _executeAsyncSubscription.Dispose();
             _executeGetAsyncResultSubscription.Dispose();
+            _cancelsConnection.Dispose();
         }
     }
 }

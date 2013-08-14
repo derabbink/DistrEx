@@ -215,6 +215,10 @@ namespace DistrEx.Plugin
             {
                 //suppress bogus errors about non-empty directory
             }
+            catch (UnauthorizedAccessException)
+            {
+                //Windows doesnot always release handle on the process
+            }
         }
     }
 }
