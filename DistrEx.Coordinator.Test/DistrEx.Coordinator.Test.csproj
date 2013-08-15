@@ -139,9 +139,7 @@
     <Compile Include="Util\ProcessHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DistrEx.Coordinator.Test.dll.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="DistrEx.Coordinator.Test.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
