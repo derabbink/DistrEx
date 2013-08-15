@@ -36,7 +36,7 @@ namespace DistrEx.Common
             _cancelOperation();
             //you can cancel just once
             _cancelOperation = () => {};
-            TimeoutMonitor.MonitorTimeout(_replayResult, Kill, TimeoutMonitor.DefaultTimeout);
+            //TimeoutMonitor.MonitorTimeout(_replayResult, Kill, TimeoutMonitor.DefaultTimeout);
         }
 
         /// <summary>

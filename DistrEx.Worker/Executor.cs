@@ -121,7 +121,7 @@ namespace DistrEx.Worker
             IObservable<Unit> step1CompletedObs = Observable.Create((IObserver<Unit> observer) =>
                 {
                     observer.OnNext(Unit.Default); //bogus element required later
-                    Action reportStep1Completed = observer.OnCompleted;
+                    Action reportStep1Completed = () => { observer.OnCompleted(); };
 
                     IConnectableObservable<ProgressingResult<SerializedResult>> executionObs = Observable.Create(
                         (IObserver<ProgressingResult<SerializedResult>> executionObserver) =>
@@ -138,7 +138,7 @@ namespace DistrEx.Worker
                                 executionObserver.OnNext(new Result<SerializedResult>(serializedResult));
                                 executionObserver.OnCompleted();
                                 return Disposable.Empty;
-                            }).Publish();
+                            }).SubscribeOn(Scheduler.Default).Publish();
                     var future = new Future<SerializedResult>(executionObs, cts.Cancel, ()=>{});
                     var errorSubscription = future.Subscribe(_ => { }, observer.OnError, () => { });
                     var progressSubscription = future.Where(pRes => pRes.IsProgress).Subscribe(_ => sendProgress());
@@ -186,14 +186,12 @@ namespace DistrEx.Worker
             var asyncResultId = getAsyncResultInstruction.AsyncOperationId;
             IExecutorCallback callback = getAsyncResultInstruction.CallbackChannel;
 
-            CancellationTokenSource cts = new CancellationTokenSource();
-
             Future<SerializedResult> future;
             if (_asyncResults.TryGetValue(asyncResultId, out future))
             {
                 _asyncResults.Remove(asyncResultId);
                 var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
-                var cancelSubscription = cancelObs.ObserveOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
+                var cancelSubscription = cancelObs.ObserveOn(Scheduler.Default).Subscribe(_ => future.Cancel());
 
                 var progressMsg = new Progress
                     {
