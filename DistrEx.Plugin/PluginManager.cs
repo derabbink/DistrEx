@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Threading;
 using DependencyResolver;
+using DistrEx.Common.Logger;
 
 namespace DistrEx.Plugin
 {
@@ -164,6 +165,7 @@ namespace DistrEx.Plugin
         /// <exception cref="ExecutionException">If something went wrong during execution</exception>
         public SerializedResult Execute(string assemblyQualifiedName, string methodName, CancellationToken cancellationToken, Action reportProgress, string argumentTypeName, string serializedArgument)
         {
+
             Executor executor = Executor.CreateInstanceInAppDomain(_appDomain);
             cancellationToken.Register(executor.Cancel);
             var callback = new ExecutorCallback(reportProgress);
@@ -175,6 +177,7 @@ namespace DistrEx.Plugin
             }
             catch (AppDomainUnloadedException e)
             {
+                Logger.Log(LogLevel.Error, "AppDomain Unloaded exception occured.");
                 throw ExecutionException.FromException(e);
             }
         }
