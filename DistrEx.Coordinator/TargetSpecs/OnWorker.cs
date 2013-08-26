@@ -10,6 +10,7 @@ using DependencyResolver;
 using DistrEx.Common;
 using DistrEx.Common.Exceptions;
 using DistrEx.Common.InstructionResult;
+using DistrEx.Common.Logger;
 using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
@@ -34,6 +35,8 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, ExecutorCallbackService callbackHandler)
         {
+            Logger.Log(LogLevel.Info, String.Format("Starting OnWorker with assembly manager config name {0} and executor endpoint config name {1}"
+                                                      ,assemblyManagerEndpointConfigName, executorEndpointConfigName));
             _callbackHandler = callbackHandler;
             _progresses = Observable.FromEventPattern<ProgressCallbackEventArgs>(_callbackHandler.SubscribeProgress, _callbackHandler.UnsubscribeProgress).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
             _completes = Observable.FromEventPattern<CompleteCallbackEventArgs>(_callbackHandler.SubscribeComplete, _callbackHandler.UnsubscribeComplete).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
@@ -71,6 +74,7 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         public override void TransportAssemblies(Spec instructionSpec)
         {
+            Logger.Log(LogLevel.Info, "Transporting assemblies started.");
             Assembly assy = instructionSpec.GetAssembly();
             IObservable<AssemblyName> dependencies = Resolver.GetAllDependencies(assy.GetName())
                                                              .Where(aName => !_transportedAssemblies.Contains(aName));
@@ -106,6 +110,7 @@ namespace DistrEx.Coordinator.TargetSpecs
         protected override void ClearAssemblies()
         {
             AssemblyManager.Clear();
+            Logger.Log(LogLevel.Info, "Clearing assemblies done.");
         }
 
         protected override InstructionSpec<TArgument, TResult> CreateInstructionSpec<TArgument, TResult>(Instruction<TArgument, TResult> instruction)
@@ -124,6 +129,8 @@ namespace DistrEx.Coordinator.TargetSpecs
             string assemblyQualifiedName = instruction.GetAssemblyQualifiedName();
 
             Guid operationId = Guid.NewGuid();
+            Logger.Log(LogLevel.Info, String.Format("Invoke on worker instruction with operation ID {0} started", operationId));
+
             IObservable<Progress<TResult>> progressObs = _progresses
                 .Where(eArgs => eArgs.OperationId == operationId)
                 .Select(_ => Progress<TResult>.Default);
@@ -139,18 +146,19 @@ namespace DistrEx.Coordinator.TargetSpecs
                     }
                     catch (Exception e)
                     {
-                        throw new Exception(
-                            String.Format(
-                                "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
-                                result.GetType().FullName, methodName, assemblyQualifiedName,
-                                typeof(TResult).FullName),
-                            e);
+                        string errorMessage = String.Format(
+                                                    "Casting result (of type {0}) from method {1} in type {2} to type {3} failed.",
+                                                    result.GetType().FullName, methodName, assemblyQualifiedName,
+                                                    typeof(TResult).FullName);
+                        Logger.Log(LogLevel.Error, errorMessage);
+                        throw new Exception(errorMessage, e);
                     }
                 });
             IObservable<ProgressingResult<TResult>> errorObs = _errors
                 .Where(eArgs => eArgs.OperationId == operationId)
                 .Select<ErrorCallbackEventArgs, ProgressingResult<TResult>>(eArgs =>
                 {
+                    Logger.Log(LogLevel.Error, String.Format("Error on instruction {0} - {1}", operationId, eArgs.Error));
                     throw eArgs.Error;
                 });
 
@@ -167,12 +175,14 @@ namespace DistrEx.Coordinator.TargetSpecs
                 ArgumentTypeName = argument.GetType().FullName,
                 SerializedArgument = serializedArgument
             };
+            Logger.Log(LogLevel.Info, String.Format("Execute instruction is sent for {0} instruction.", msg.OperationId));
             Executor.Execute(msg);
 
             //this collects the instruction result
             IObservable<IObservable<ProgressingResult<TResult>>> resultMetaObs = Observable.Create((
                 IObserver<IObservable<ProgressingResult<TResult>>> obs) =>
             {
+                Logger.Log(LogLevel.Info, String.Format("Observing the result from the instruction is started."));
                 IObservable<ProgressingResult<TResult>> combinedObs;
                 //wait here: (First() blocks)
                 try

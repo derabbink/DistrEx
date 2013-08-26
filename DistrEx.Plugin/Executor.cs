@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading;
+using DistrEx.Common.Logger;
 using DistrEx.Common.Serialization;
 
 namespace DistrEx.Plugin
@@ -21,6 +22,7 @@ namespace DistrEx.Plugin
 
         internal static Executor CreateInstanceInAppDomain(AppDomain domain)
         {
+            Logger.Log(LogLevel.Info, "Create instance in appDomain started.");
             AssemblyName ownAssyName = Assembly.GetExecutingAssembly().GetName();
             string typename = typeof(Executor).FullName;
             return domain.CreateInstanceAndUnwrap(ownAssyName.FullName, typename) as Executor;
@@ -37,6 +39,7 @@ namespace DistrEx.Plugin
         /// <exception cref="ExecutionException">If something went wrong with the execution</exception>
         internal SerializedResult Execute(ExecutorCallback callback, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
         {
+            Logger.Log(LogLevel.Info, String.Format("Execution of {0} in {1} started.", methodName, assemblyQualifiedName));
             Type t = Type.GetType(assemblyQualifiedName, true);
             MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
                                                       | BindingFlags.Public
@@ -71,6 +74,7 @@ namespace DistrEx.Plugin
             Action completedStep1Callback = completedStep1.Callback;
             Action onetimeCompletedStep1Callback = () =>
                 {
+                    Logger.Log(LogLevel.Info, "Executing step 1 completed action in two part instruction.");
                     if (completedStep1Callback != null)
                         completedStep1Callback();
                     completedStep1Callback = null;
@@ -105,16 +109,19 @@ namespace DistrEx.Plugin
             }
             catch (TargetInvocationException e)
             {
+                Logger.Log(LogLevel.Error, String.Format("Target invocation exception is thrown with the message - {0}", e.Message));
                 throw ExecutionException.FromException(e.InnerException);
             }
             catch (Exception e)
             {
+                Logger.Log(LogLevel.Error, String.Format("Exception {0} is thrown with the message - {1}", e.GetType(),e.Message));
                 throw ExecutionException.FromException(e);
             }
         }
 
         internal void Cancel()
         {
+            Logger.Log(LogLevel.Info, String.Format("Cancel is called"));
             _cancellationTokenSource.Cancel();
         }
     }
