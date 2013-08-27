@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading;
-using DistrEx.Common.Logger;
+using DistrEx.Common;
 using DistrEx.Common.Serialization;
 
 namespace DistrEx.Plugin

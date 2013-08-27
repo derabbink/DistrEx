@@ -4,7 +4,7 @@ using System.Reflection;
 using log4net;
 using log4net.Config;
 
-namespace DistrEx.Common.Logger
+namespace DistrEx.Common
 {
     public enum LogLevel
     {

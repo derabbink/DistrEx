@@ -10,7 +10,6 @@ using DependencyResolver;
 using DistrEx.Common;
 using DistrEx.Common.Exceptions;
 using DistrEx.Common.InstructionResult;
-using DistrEx.Common.Logger;
 using DistrEx.Common.Serialization;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security.Policy;
 using System.Threading;
 using DependencyResolver;
-using DistrEx.Common.Logger;
+using DistrEx.Common;
 
 namespace DistrEx.Plugin
 {
