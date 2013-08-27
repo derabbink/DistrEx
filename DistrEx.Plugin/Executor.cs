@@ -40,18 +40,30 @@ namespace DistrEx.Plugin
         internal SerializedResult Execute(ExecutorCallback callback, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
         {
             Logger.Log(LogLevel.Info, String.Format("Execution of {0} in {1} started.", methodName, assemblyQualifiedName));
-            Type t = Type.GetType(assemblyQualifiedName, true);
-            MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
-                                                      | BindingFlags.Public
-                                                      | BindingFlags.Static);
-            Action progressCallback = callback.Callback;
-            return ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
-            {
-                _cancellationTokenSource.Token,
-                progressCallback,
-                default(object) //placeholder for deserialized argument
-            });
 
+            try
+            {
+                Type t = Type.GetType(assemblyQualifiedName, true);
+                MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
+                                                          | BindingFlags.Public
+                                                          | BindingFlags.Static);
+                Action progressCallback = callback.Callback;
+                return ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
+                    {
+                        _cancellationTokenSource.Token,
+                        progressCallback,
+                        default(object) //placeholder for deserialized argument
+                    });
+            }
+            catch (ExecutionException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, String.Format("Exception {0} is thrown with the message - {0}", e.Message));
+                throw ExecutionException.FromException(e.InnerException);
+            }
         }
 
         /// <summary>
@@ -66,28 +78,40 @@ namespace DistrEx.Plugin
         /// <exception cref="ExecutionException">If something went wrong with the execution</exception>
         internal SerializedResult ExecuteTwoStep(ExecutorCallback callback, ExecutorCallback completedStep1, string assemblyQualifiedName, string methodName, string argumentTypeName, string serializedArgument)
         {
-            Type t = Type.GetType(assemblyQualifiedName, true);
-            MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
-                                                      | BindingFlags.Public
-                                                      | BindingFlags.Static);
-            Action progressCallback = callback.Callback;
-            Action completedStep1Callback = completedStep1.Callback;
-            Action onetimeCompletedStep1Callback = () =>
-                {
-                    Logger.Log(LogLevel.Info, "Executing step 1 completed action in two part instruction.");
-                    if (completedStep1Callback != null)
-                        completedStep1Callback();
-                    completedStep1Callback = null;
-                };
-            var result = ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
+            try
             {
-                _cancellationTokenSource.Token,
-                progressCallback,
-                onetimeCompletedStep1Callback,
-                default(object) //placeholder for deserialized argument
-            });
-            onetimeCompletedStep1Callback();
-            return result;
+                Type t = Type.GetType(assemblyQualifiedName, true);
+                MethodInfo func = t.GetMethod(methodName, BindingFlags.NonPublic
+                                                          | BindingFlags.Public
+                                                          | BindingFlags.Static);
+                Action progressCallback = callback.Callback;
+                Action completedStep1Callback = completedStep1.Callback;
+                Action onetimeCompletedStep1Callback = () =>
+                    {
+                        Logger.Log(LogLevel.Info, "Executing step 1 completed action in two part instruction.");
+                        if (completedStep1Callback != null)
+                            completedStep1Callback();
+                        completedStep1Callback = null;
+                    };
+                var result = ExecuteWrapped(func, callback, argumentTypeName, serializedArgument, new[]
+                    {
+                        _cancellationTokenSource.Token,
+                        progressCallback,
+                        onetimeCompletedStep1Callback,
+                        default(object) //placeholder for deserialized argument
+                    });
+                onetimeCompletedStep1Callback();
+                return result;
+            }
+            catch (ExecutionException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogLevel.Error, String.Format("Exception {0} is thrown with the message - {0}", e.Message));
+                throw ExecutionException.FromException(e.InnerException);
+            }
         }
 
         private SerializedResult ExecuteWrapped(MethodInfo func, ExecutorCallback callback, string argumentTypeName, string serializedArgument, object[] arguments)
