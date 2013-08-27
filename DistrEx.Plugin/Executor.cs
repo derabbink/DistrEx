@@ -62,7 +62,7 @@ namespace DistrEx.Plugin
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, String.Format("Exception {0} is thrown with the message - {0}", e.Message));
-                throw ExecutionException.FromException(e.InnerException);
+                throw ExecutionException.FromException(e);
             }
         }
 
@@ -110,7 +110,7 @@ namespace DistrEx.Plugin
             catch (Exception e)
             {
                 Logger.Log(LogLevel.Error, String.Format("Exception {0} is thrown with the message - {0}", e.Message));
-                throw ExecutionException.FromException(e.InnerException);
+                throw ExecutionException.FromException(e);
             }
         }
 
