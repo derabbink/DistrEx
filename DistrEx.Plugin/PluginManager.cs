@@ -48,7 +48,7 @@ namespace DistrEx.Plugin
             setup.CachePath = _cacheDir;
             setup.PrivateBinPath = _storageDir;
             setup.PrivateBinPathProbe = string.Empty; //any non-null string will do
-
+            
             _appDomain = AppDomain.CreateDomain(name, evidence, setup);
         }
 
@@ -192,11 +192,12 @@ namespace DistrEx.Plugin
 
             try
             {
-                return executor.ExecuteTwoStep(callback, completedStep1, assemblyQualifiedName, methodName, argumentTypeName, serializedArgument);
-
+                return executor.ExecuteTwoStep(callback, completedStep1, assemblyQualifiedName, methodName,
+                                               argumentTypeName, serializedArgument);
             }
             catch (AppDomainUnloadedException e)
             {
+                Logger.Log(LogLevel.Error, "AppDomain Unloaded exception occured.");
                 throw ExecutionException.FromException(e);
             }
         }
