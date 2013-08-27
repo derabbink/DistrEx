@@ -128,10 +128,6 @@
     <Compile Include="TargetSpecs\OnWorker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DistrEx.Common.Logger\DistrEx.Common.Logger.csproj">
-      <Project>{EB059D88-C753-4857-A86D-15DEF5E2A384}</Project>
-      <Name>DistrEx.Common.Logger</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DistrEx.Common\DistrEx.Common.csproj">
       <Project>{468DF1BE-F561-49E6-BA73-F74E8B468BCF}</Project>
       <Name>DistrEx.Common</Name>
