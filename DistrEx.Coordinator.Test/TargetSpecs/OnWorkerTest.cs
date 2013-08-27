@@ -189,6 +189,8 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             var future = targetedInstruction.Invoke(_argumentIdentity);
             future.Cancel();
             future.GetResult();
+            //some cleanup
+            _onWorker.ClearEverything();
         }
 
         [Test]
@@ -200,6 +202,8 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
             var future = targetedInstruction.Invoke(_argumentIdentity);
             future.Cancel();
             future.GetResult();
+            //some cleanup
+            _onWorker.ClearEverything();
         }
 
         [Test]
@@ -212,12 +216,13 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         [TearDown]
         public void Teardown()
         {
-            _onWorker.ClearEverything();
+            
         }
 
         [TestFixtureTearDown]
         public void TeardownFixture()
         {
+            //_onWorker.ClearEverything();
             ProcessHelper.Stop(_workerProcess);
         }
     }

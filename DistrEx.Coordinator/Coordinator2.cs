@@ -24,7 +24,12 @@ namespace DistrEx.Coordinator
             var monitored = MonitoredParallelInstructionSpec2<TArgument, TResult1, TResult2>.Create(
                 targetedInstruction1,
                 targetedInstruction2);
-            return CoordinatorInstruction<TArgument, Tuple<TResult1, TResult2>>.Create(monitored);
+            Action transportAssemblies = () =>
+                {
+                    targetedInstruction1.TransportAssemblies();
+                    targetedInstruction2.TransportAssemblies();
+                };
+            return CoordinatorInstruction<TArgument, Tuple<TResult1, TResult2>>.Create(monitored, transportAssemblies);
         }
 
         public static CoordinatorInstruction<TArgument, Tuple<TNextResult1, TNextResult2>> ThenDo<TArgument, TIntermediateResult, TNextResult1, TNextResult2>(

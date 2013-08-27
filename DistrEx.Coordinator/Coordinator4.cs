@@ -30,7 +30,14 @@ namespace DistrEx.Coordinator
                 targetedInstruction2,
                 targetedInstruction3,
                 targetedInstruction4);
-            return CoordinatorInstruction<TArgument, Tuple<TResult1, TResult2, TResult3, TResult4>>.Create(monitored);
+            Action transportAssemblies = () =>
+            {
+                targetedInstruction1.TransportAssemblies();
+                targetedInstruction2.TransportAssemblies();
+                targetedInstruction3.TransportAssemblies();
+                targetedInstruction4.TransportAssemblies();
+            };
+            return CoordinatorInstruction<TArgument, Tuple<TResult1, TResult2, TResult3, TResult4>>.Create(monitored, transportAssemblies);
         }
 
         public static CoordinatorInstruction<TArgument, Tuple<TNextResult1, TNextResult2, TNextResult3, TNextResult4>> ThenDo<TArgument, TIntermediateResult, TNextResult1, TNextResult2, TNextResult3, TNextResult4>(

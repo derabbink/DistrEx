@@ -12,10 +12,15 @@ namespace DistrEx.Coordinator.TargetedInstructions
 {
     public class CoordinatorInstruction<TArgument, TResult> : TargetedInstruction<TArgument, TResult>
     {
-        protected CoordinatorInstruction(InstructionSpec<TArgument, TResult> instruction)
+        protected CoordinatorInstruction(InstructionSpec<TArgument, TResult> instruction): this(instruction, null)
+        {
+        }
+
+        protected CoordinatorInstruction(InstructionSpec<TArgument, TResult> instruction, Action extraTransportAssemblies)
             : base(OnCoordinator.Default)
         {
-            Instruction = instruction; 
+            Instruction = instruction;
+            ExtraTransportAssemblies = extraTransportAssemblies;
         }
 
         protected InstructionSpec<TArgument, TResult> Instruction
@@ -26,8 +31,15 @@ namespace DistrEx.Coordinator.TargetedInstructions
 
         public static CoordinatorInstruction<TArgument, TResult> Create(InstructionSpec<TArgument, TResult> instruction)
         {
-            return new CoordinatorInstruction<TArgument, TResult>(instruction);
+            return Create(instruction, null);
         }
+
+        public static CoordinatorInstruction<TArgument, TResult> Create(InstructionSpec<TArgument, TResult> instruction, Action extraTransportAssemblies)
+        {
+            return new CoordinatorInstruction<TArgument, TResult>(instruction, extraTransportAssemblies);
+        }
+
+        protected internal Action ExtraTransportAssemblies { get; private set; }
 
         public CoordinatorInstruction<TArgument, TNextResult> ThenDo<TNextResult>(TargetedInstruction<TResult, TNextResult> nextInstruction)
         {
@@ -44,6 +56,8 @@ namespace DistrEx.Coordinator.TargetedInstructions
         public override void TransportAssemblies()
         {
             Target.TransportAssemblies(Instruction);
+            if (ExtraTransportAssemblies != null)
+                ExtraTransportAssemblies();
         }
     }
 }

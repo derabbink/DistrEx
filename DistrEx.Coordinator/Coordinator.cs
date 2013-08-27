@@ -1,4 +1,5 @@
-﻿using DistrEx.Coordinator.InstructionSpecs.Sequential;
+﻿using System;
+using DistrEx.Coordinator.InstructionSpecs.Sequential;
 using DistrEx.Coordinator.Interface;
 using DistrEx.Coordinator.Interface.TargetedInstructions;
 using DistrEx.Coordinator.TargetedInstructions;
@@ -17,7 +18,14 @@ namespace DistrEx.Coordinator
             TargetedInstruction<TArgument, TResult> targetedInstruction)
         {
             var monitored = MonitoredSingleInstructionSpec<TArgument, TResult>.Create(targetedInstruction);
-            return CoordinatorInstruction<TArgument, TResult>.Create(monitored);
+            var transportAssemblies = GetTransportAssembliesAction(targetedInstruction);
+            return CoordinatorInstruction<TArgument, TResult>.Create(monitored, transportAssemblies);
+        }
+
+        internal static Action GetTransportAssembliesAction
+            <TArgument, TResult>(TargetedInstruction<TArgument, TResult> targetedInstruction)
+        {
+            return targetedInstruction.TransportAssemblies;
         }
     }
 }
