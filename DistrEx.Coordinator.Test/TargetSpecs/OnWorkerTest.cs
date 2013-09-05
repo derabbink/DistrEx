@@ -29,6 +29,7 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         private TwoPartInstruction<int, int> _haltingTwoPartIdentityPartTwo;
         private TwoPartInstruction<int, int> _uncancellableHaltingTwoPartIdentity;
         private TwoPartInstruction<Exception, Exception> _throwTwoPart;  
+        private TwoPartInstruction<Exception, Exception> _throwTwoPartOnPartTwo;  
 
         int _argumentIdentity;
         private Exception _argumentThrow;
@@ -103,6 +104,12 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
                 throw e; 
             };
 
+            _throwTwoPartOnPartTwo = (ct, p, p1, e) =>
+            {
+                p1();
+                throw e; 
+            };
+
             #endregion 
             
             _argumentIdentity = 1;
@@ -140,6 +147,21 @@ namespace DistrEx.Coordinator.Test.TargetSpecs
         public void FailureOnWorkerAsync()
         {
             var result = Coordinator.Do(_onWorker.Do(_throwTwoPart), _argumentThrow).ResultValue;
+        }
+
+        [Test]
+        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        public void FailureOnWorkerAsyncOnPartTwo()
+        {
+            var targetedInstruction = _onWorker.Do(_throwTwoPartOnPartTwo);
+            targetedInstruction.TransportAssemblies();
+            var future = targetedInstruction.Invoke(_argumentThrow);
+            var result = future.GetResult();
+
+            var targetedInstruction2 = _onWorker.GetAsyncResult<Exception>();
+            targetedInstruction2.TransportAssemblies();
+            var future2 = targetedInstruction2.Invoke(result);
+            future2.GetResult(); 
         }
 
         [Test]

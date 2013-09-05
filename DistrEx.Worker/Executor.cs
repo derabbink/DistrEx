@@ -121,7 +121,7 @@ namespace DistrEx.Worker
             IObservable<Unit> step1CompletedObs = Observable.Create((IObserver<Unit> observer) =>
                 {
                     observer.OnNext(Unit.Default); //bogus element required later
-                    Action reportStep1Completed = () => { observer.OnCompleted(); };
+                    Action reportStep1Completed = observer.OnCompleted;
 
                     IConnectableObservable<ProgressingResult<SerializedResult>> executionObs = Observable.Create(
                         (IObserver<ProgressingResult<SerializedResult>> executionObserver) =>
