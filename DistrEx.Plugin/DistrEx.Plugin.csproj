@@ -111,8 +111,7 @@
     <Compile Include="SerializedResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config.sample" />
-    <None Include="DistrEx.PlugIn.dll.config">
+    <None Include="App.config.sample">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
