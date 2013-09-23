@@ -69,10 +69,11 @@ namespace DistrEx.Plugin
             Resolver.GetAllDependencies(Assembly.GetExecutingAssembly().GetName()).Subscribe(an =>
             {
                 string path = new Uri(an.CodeBase).LocalPath;
-                string fName = Path.GetFileName(path);
                 try
                 {
-                    File.Copy(path, Path.Combine(_storageDir, fName), true);
+                    CopyRelatedFile(path, "dll");
+                    CopyRelatedFile(path, "pdb");
+                    CopyRelatedFile(path, "xml");
                 }
                 catch (IOException ex)
                 {
@@ -85,6 +86,19 @@ namespace DistrEx.Plugin
             });
         }
 
+        private void CopyRelatedFile(string path, string extension)
+        {
+            //Check if there is a file with extension and copy it
+            string fileName = Path.ChangeExtension(path, extension);
+            if (File.Exists(fileName))
+            {
+                string fName = Path.GetFileName(fileName);
+                if (fName != null)
+                {
+                    File.Copy(fileName, Path.Combine(_storageDir, fName), true);
+                }
+            }
+        }
         private void PrepareAppDomainCachePath()
         {
             if (!Directory.Exists(_cacheDir))
