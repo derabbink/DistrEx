@@ -104,7 +104,9 @@
   <ItemGroup>
     <Compile Include="Exceptions\AsymmetricTerminationException.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="TimeBufferedObs\TimelyBufferedObservable.cs" />
     <Compile Include="TimeoutMonitor.cs" />
+    <Compile Include="TimeBufferedObs\TimeStampedTResult.cs" />
     <Compile Include="TwoPartInstruction.cs" />
     <Compile Include="EventRaiseHelper.cs" />
     <Compile Include="Future.cs" />

@@ -11,6 +11,7 @@ using System.Threading;
 using DistrEx.Common;
 using DistrEx.Common.InstructionResult;
 using DistrEx.Common.Serialization;
+using DistrEx.Common.TimelyBufferedObs;
 using DistrEx.Communication.Contracts.Data;
 using DistrEx.Communication.Contracts.Events;
 using DistrEx.Communication.Contracts.Service;
@@ -29,8 +30,8 @@ namespace DistrEx.Worker
         private readonly IObservable<ExecuteEventArgs> _executes;
         private readonly IObservable<ExecuteAsyncEventArgs> _executeAsyncs;
         private readonly IObservable<GetAsyncResultEventArgs> _getAsyncResults;
-        private readonly IObservable<CancelEventArgs> _cancels;
-
+        private readonly TimelyBufferedObservable<CancelEventArgs> _cancels;
+        
         private readonly IDisposable _clearAsyncResultsSubscription;
         private readonly IDisposable _executeSubscription;
         private readonly IDisposable _executeAsyncSubscription;
@@ -48,9 +49,9 @@ namespace DistrEx.Worker
             _getAsyncResults = Observable.FromEventPattern<GetAsyncResultEventArgs>(_executor.SubscribeGetAsyncResult, _executor.UnsubscribeGetAsyncResult).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs);
             var cancels = Observable.FromEventPattern<CancelEventArgs>(_executor.SubscribeCancel, _executor.UnsubscribeCancel).ObserveOn(Scheduler.Default).Select(ePattern => ePattern.EventArgs).Replay();
             _cancelsConnection = cancels.Connect();
-            _cancels = cancels;
-            // TODO Need to clean out processed cancel messages
 
+            _cancels = new TimelyBufferedObservable<CancelEventArgs>(cancels);
+            
             _pluginManager = pluginManager;
 
             _clearAsyncResultsSubscription = _clearAsyncResults.Subscribe(_ => ClearAsyncResults());
@@ -64,7 +65,7 @@ namespace DistrEx.Worker
             Guid operationId = instruction.OperationId;
             IExecutorCallback callback = instruction.CallbackChannel;
             var cts = new CancellationTokenSource();
-            
+
             var cancelObs = _cancels.Where(eArgs => eArgs.OperationId == operationId);
             var cancelSubscription = cancelObs.ObserveOn(Scheduler.Default).Subscribe(_ => cts.Cancel());
             
@@ -72,6 +73,7 @@ namespace DistrEx.Worker
             {
                 OperationId = operationId
             };
+
             Action reportProgress = () => callback.Progress(progressMsg);
             try
             {
@@ -250,6 +252,7 @@ namespace DistrEx.Worker
             _executeAsyncSubscription.Dispose();
             _executeGetAsyncResultSubscription.Dispose();
             _cancelsConnection.Dispose();
+            _cancels.Dispose();
         }
     }
 }

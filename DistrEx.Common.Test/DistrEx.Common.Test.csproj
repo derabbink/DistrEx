@@ -111,11 +111,17 @@
     <Compile Include="ObservableProgressingResultTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\DeSerializerTest.cs" />
+    <Compile Include="TimelyBufferedObsNoRemoveImpl.cs" />
+    <Compile Include="TimelyBufferedObsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DistrEx.Common\DistrEx.Common.csproj">
       <Project>{468DF1BE-F561-49E6-BA73-F74E8B468BCF}</Project>
       <Name>DistrEx.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DistrEx.Communication.Contracts\DistrEx.Communication.Contracts.csproj">
+      <Project>{AE874CE2-BED7-442E-AC72-F58447CC5B8F}</Project>
+      <Name>DistrEx.Communication.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
