@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -31,6 +33,7 @@ namespace DistrEx.Coordinator.TargetSpecs
         private readonly DuplexClient<IExecutor> _executorClient;
         private readonly IObservable<ProgressCallbackEventArgs> _progresses;
         private readonly ISet<AssemblyName> _transportedAssemblies;
+        private readonly List<string> _excludeList;
 
         private OnWorker(string assemblyManagerEndpointConfigName, string executorEndpointConfigName, ExecutorCallbackService callbackHandler)
         {
@@ -48,6 +51,13 @@ namespace DistrEx.Coordinator.TargetSpecs
             _executorClient = executorFactory.GetClient();
 
             _transportedAssemblies = new HashSet<AssemblyName>();
+            _excludeList = GetListOfAssyToBeExcluded(); 
+        }
+
+        private static List<string> GetListOfAssyToBeExcluded()
+        {
+            string key = ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.Test.assemblies-to-exclude");
+            return key.Split(';').ToList(); 
         }
 
         private IAssemblyManager AssemblyManager
@@ -82,6 +92,11 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         public override void TransportAssembly(AssemblyName assemblyName)
         {
+            if (_excludeList.Contains(assemblyName.Name + ".dll"))
+            {
+                return; 
+            }
+            
             String path = new Uri(assemblyName.CodeBase).LocalPath;
             using (Stream assyFileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -101,6 +116,16 @@ namespace DistrEx.Coordinator.TargetSpecs
             return _transportedAssemblies.Contains(assembly);
         }
 
+        public override void AddToExcludeList(string assemblyName)
+        {
+            _excludeList.Add(assemblyName); 
+        }
+
+        public override void RemoveFromExcludeList(string assemblyName)
+        {
+            _excludeList.Remove(assemblyName);
+        }
+        
         protected override void ClearAsyncResults()
         {
             Executor.ClearAsyncResults();
@@ -108,6 +133,7 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         protected override void ClearAssemblies()
         {
+            _excludeList.Clear();
             AssemblyManager.Clear();
             Logger.Log(LogLevel.Info, "Clearing assemblies done.");
         }

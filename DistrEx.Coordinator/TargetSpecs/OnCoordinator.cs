@@ -46,6 +46,16 @@ namespace DistrEx.Coordinator.TargetSpecs
             //TODO
         }
 
+        public override void RemoveFromExcludeList(string assemblyName)
+        {
+            //Nothing
+        }
+
+        public override void AddToExcludeList(string assemblyName)
+        {
+            //Nothing
+        }
+
         protected override void ClearAsyncResults()
         {
             //TODO

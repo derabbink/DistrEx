@@ -27,6 +27,8 @@ namespace DistrEx.Coordinator.Interface
         public abstract void TransportAssemblies(Spec instructionSpec);
         public abstract bool AssemblyIsTransported(AssemblyName assembly);
         public abstract void TransportAssembly(AssemblyName assemblyName);
+        public abstract void RemoveFromExcludeList(string assemblyName);
+        public abstract void AddToExcludeList(string assemblyName);
 
         public void ClearEverything()
         {
