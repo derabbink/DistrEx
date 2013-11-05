@@ -103,6 +103,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompletedStep.cs" />
+    <Compile Include="CompletedStep2.cs" />
+    <Compile Include="CompletedStep3.cs" />
+    <Compile Include="CompletedStep4.cs" />
+    <Compile Include="CompletedStep5.cs" />
+    <Compile Include="CompletedStep6.cs" />
+    <Compile Include="CompletedStep7.cs" />
     <Compile Include="Coordinator.cs" />
     <Compile Include="Coordinator2.cs" />
     <Compile Include="Coordinator3.cs" />

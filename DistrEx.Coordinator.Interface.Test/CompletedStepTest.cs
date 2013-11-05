@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using DistrEx.Common;
 using DistrEx.Coordinator.TargetSpecs;
 using NUnit.Framework;
@@ -16,9 +17,9 @@ namespace DistrEx.Coordinator.Interface.Test
             _identity = Wrapper.Wrap((object a) => a);
             _identityEx = Wrapper.Wrap((Exception e) => e);
             _throw = Wrapper.Wrap<Exception, Exception>(e =>
-            {
-                throw e;
-            });
+                {
+                    throw e;
+                });
             _local = OnCoordinator.Default;
         }
 
@@ -30,7 +31,7 @@ namespace DistrEx.Coordinator.Interface.Test
         private TargetSpec _local;
 
         [Test]
-        [ExpectedException(typeof(Exception), ExpectedMessage = "Expected")]
+        [ExpectedException(typeof (Exception), ExpectedMessage = "Expected")]
         public void DoChainedError()
         {
             var expected = new Exception("Expected");
@@ -43,6 +44,16 @@ namespace DistrEx.Coordinator.Interface.Test
             var expected = new object();
             object actual = Coordinator.Do(_local.Do(_identity), expected).ThenDo(_local.Do(_identity)).ResultValue;
             Assert.That(actual, Is.SameAs(expected));
+        }
+
+        [Test]
+        public void DoChainedSplit()
+        {
+            var obj = new object();
+            var expected = new Tuple<object, object>(obj, obj);
+            var instruction = _local.Do(_identity);
+            object actual = Coordinator.Do(instruction, obj).ThenDo(instruction, instruction).ResultValue;
+            Assert.That(actual, Is.EqualTo(expected));
         }
     }
 }

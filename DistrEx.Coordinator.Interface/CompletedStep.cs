@@ -15,7 +15,9 @@ namespace DistrEx.Coordinator.Interface
             private set;
         }
 
-        public CompletedStep<TNextResult> ThenDo<TNextResult>(TargetedInstruction<TResult, TNextResult> targetedInstruction)
+        public CompletedStep<TNextResult>
+                ThenDo<TNextResult>(
+            TargetedInstruction<TResult, TNextResult> targetedInstruction)
         {
             return Coordinator.Do(targetedInstruction, ResultValue);
         }
