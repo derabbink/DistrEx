@@ -56,7 +56,7 @@ namespace DistrEx.Coordinator.TargetSpecs
 
         private static List<string> GetListOfAssyToBeExcluded()
         {
-            string key = ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.Test.assemblies-to-exclude");
+            string key = ConfigurationManager.AppSettings.Get("DistrEx.Coordinator.assemblies-to-exclude");
             if (!string.IsNullOrEmpty(key))
                 return key.Split(';').ToList();
             return Enumerable.Empty<string>().ToList();
